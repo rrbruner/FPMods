@@ -2,9 +2,9 @@ r"""
 Finitely presented modules over the Steenrod Algebra.
 
 This package allows the user to define finitely presented modules
-over the Steenrod Algebra, elements of them, and morphisms. With 
+over the Steenrod Algebra, elements of them, and morphisms. With
 these objects, the user can perform more complex computations, using
-the secondary functions defined. 
+the secondary functions defined.
 
 This package is designed to work with modules over the whole Steenrod
 algebra.  To make calculations finite, we take account of the fact
@@ -18,10 +18,10 @@ AUTHORS:
 EXAMPLES:
 
     sage: M = FP_Module([0,1],[[Sq(2),Sq(1)],[0,Sq(2)]])
-    
-    
-    
-    
+
+
+
+
 #*****************************************************************************
 #       Copyright (C) 2011 Robert R. Bruner <rrb@math.wayne.edu>
 #             and          Michael J. Catanzaro <mike@math.wayne.edu>
@@ -42,7 +42,7 @@ Ver 1.1
 
 def maxim(L):
     """
-    Input a list of tuples and this function returns a tuple whose i-th entry is the 
+    Input a list of tuples and this function returns a tuple whose i-th entry is the
     max of the i-th entries in the tuples in L, where shorter tuples are extended
     by adding 0's
 
@@ -102,7 +102,7 @@ def _deg_(degs,co):
         return None
     if min(d) != max(d):
         raise ValueError, "Inhomogeneous element"
-    return min(d) 
+    return min(d)
 
 def max_deg(alg):
     """
@@ -136,7 +136,7 @@ def max_deg(alg):
         topdeg = 0
         prof = [0] + list(alg._profile)
         for i in range(len(prof)):
-            topdeg += (2**(i) -1)*(2**(prof[i])-1) 
+            topdeg += (2**(i) -1)*(2**(prof[i])-1)
         return topdeg
     else: # p odd
         topdeg, epsdeg = (0,0)
@@ -178,7 +178,7 @@ def pmax_deg(prof,p=2):
         topdeg = 0
         prof = [0] + list(prof)
         for i in range(len(prof)):
-            topdeg += (2**(i) -1)*(2**(prof[i])-1) 
+            topdeg += (2**(i) -1)*(2**(prof[i])-1)
         return topdeg
     else: # p odd
         topdeg, epsdeg = (0,0)
@@ -194,7 +194,7 @@ def pmax_deg(prof,p=2):
 
 def _del_(i,n):
     """
-    A list form of the Kronecker delta function. 
+    A list form of the Kronecker delta function.
 
     INPUT:
 
@@ -204,7 +204,7 @@ def _del_(i,n):
 
     OUTPUT:
 
-    -  ``ll``  - A list of length `n`, consisting of all zeros except 
+    -  ``ll``  - A list of length `n`, consisting of all zeros except
                   for a 1 in    `i^{th}` position.
 
     EXAMPLES::
@@ -263,7 +263,7 @@ def DirectSum(alist,char=None):
     -  ``proj``  - A list of projection maps, from M to the modules.
 
     """
-    if len(alist) == 0 and char == None: 
+    if len(alist) == 0 and char == None:
         raise ValueError, "Empty Direct Sum -- undefined characteristic."
     elif len(alist) == 0:
         M = FP_Module([],[],char=char)
@@ -309,14 +309,14 @@ def DirectSum(alist,char=None):
             for j in range(len(alist[i].degs)):
                 pvals[posn+j] = alist[i].gen(j)
             proj[i] = FP_Hom(M,alist[i],pvals)
-            posn += len(alist[i].degs)   
+            posn += len(alist[i].degs)
         return M, incl, proj
 
 #------------------------Functions-for-Resolutions---------------------------------------
 
 def lift(f,g):
     """
-    Computes the lift of f over g, so that g*lift(f,g) = f. 
+    Computes the lift of f over g, so that g*lift(f,g) = f.
     All maps taken to be FP_Homs. If lift doesn't exist, False is
     returned with the 0 map.
 
@@ -349,7 +349,7 @@ def lift(f,g):
 
 def Homology(f,g):
     """
-    Computes the Homology of a pair of maps. 
+    Computes the Homology of a pair of maps.
 
     INPUT:
 
@@ -369,15 +369,15 @@ def Homology(f,g):
 
     -  ``l``  - The lift of `m` over `i`.
 
-             
+
     """
     K,i = g.kernel()
     I,e,m = f.image()
     l = lift(m,i)[1]  # the map, not the bool
     H,p = l.cokernel()
     return H,p,i,m,l
-        
-        
+
+
 def extend_resolution_kernels(R,n,verbose=false):
     """
     Extends a resolution `R` to length `n`.
@@ -452,12 +452,12 @@ def is_complex(R):
 
 def is_exact(R):
     """
-    Deteremines whether a resolution `R` is exact.  
-    
+    Deteremines whether a resolution `R` is exact.
+
     INPUT:
 
     -  ``R``  - A list of FP_Homs, forming a resolution.
-    
+
     OUTPUT: True if the list of FP_Homs passed is exact, false otherwise.
 
     EXAMPLES::
@@ -478,10 +478,10 @@ def is_exact(R):
 
 def chain_map(L,R,f):
     """
-    Computes the lift of an FP_Hom over a resolution. `L` and `R` are 
+    Computes the lift of an FP_Hom over a resolution. `L` and `R` are
     resolutions, and `f` is an FP_Hom from L[0].codomain to R[0].codomain.
 
-    INPUT: 
+    INPUT:
 
     -  ``L``  - A list of FP_Homs, corresponding to a resolution.
 
@@ -491,7 +491,7 @@ def chain_map(L,R,f):
         return [f]
     l = lift(f*L[0],R[0])[1]
     i = 0
-    Z = [f]  
+    Z = [f]
     Z.append(l)
     for i in range(1,min(len(L),len(R))):
          Z.append(lift(Z[i]*L[i],R[i])[1])
@@ -518,9 +518,9 @@ def extension(R,e,test=True):
     j = lift(q,g)
     return M,p*I[1],j
 
-        
 
-    
+
+
 #----------------------------Profile-Functions-----------------------------------
 
 ## Palmieri pads all his profiles by adding a [0] to the beginning.
@@ -537,7 +537,7 @@ def profile_ele(alist,char=2):
     """
     Finds the smallest sub-Hopf algebra containing the element passed.
     `alist' is assumed to be an element of the Steenrod Algebra, (the only other
-    possible cases are dealt with immediately) so it is treated as a list. 
+    possible cases are dealt with immediately) so it is treated as a list.
 
     INPUT:
 
@@ -545,7 +545,7 @@ def profile_ele(alist,char=2):
                  of it). Treated as a list.
 
     OUTPUT: The profile function corresponding to the smallest sub-Hopf algebra
-    containing the element passed. 
+    containing the element passed.
 
     EXAMPLES::
 
@@ -561,18 +561,18 @@ def profile_ele(alist,char=2):
     if char == 2:
         alist2 = [e[0] for e in alist]
         maxlength = max([0]+[len(e) for e in alist2])
-        alist2 = [list(e) + (maxlength-len(e))*[0] for e in alist2]  
+        alist2 = [list(e) + (maxlength-len(e))*[0] for e in alist2]
         minprofile = [max([alist2[i][j] for i in range(len(alist2))]) \
                                                 for j in range(maxlength)]
         minprofile = tuple(map(lambda xx: mod_p_log(xx,char),minprofile))
         return find_min_profile(minprofile,char)
-    if char != 2:  
+    if char != 2:
         alistQ = [e[0][0] for e in alist]
         alistP = [e[0][1] for e in alist]
         maxlengthQ = max([0]+[len(e) for e in alistQ])
         maxlengthP = max([0]+[len(e) for e in alistP])
-        alistQ = [list(e) + (maxlengthQ-len(e))*[0] for e in alistQ]  
-        alistP = [list(e) + (maxlengthP-len(e))*[0] for e in alistP]  
+        alistQ = [list(e) + (maxlengthQ-len(e))*[0] for e in alistQ]
+        alistP = [list(e) + (maxlengthP-len(e))*[0] for e in alistP]
         minprofileQ = [max([alistQ[i][j] for i in range(len(alistQ))]) \
                                             for j in range(maxlengthQ)]
         minprofileP = [max([alistP[i][j] for i in range(len(alistP))]) \
@@ -590,15 +590,15 @@ def profile_ele(alist,char=2):
 def enveloping_profile_elements(alist,char=2):
     """
     Finds the profile function for the smallest sub-Hopf algebra containing
-    the list of elements passed. Entries of `alist' are elements of the Steenrod 
-    Algebra. Hence, each alist[i] is treated as a list. Accepts either a list of 
+    the list of elements passed. Entries of `alist' are elements of the Steenrod
+    Algebra. Hence, each alist[i] is treated as a list. Accepts either a list of
     lists or tuples.
 
     INPUT:
 
     -  ``alist``  - A list of Steenrod Algebra elements.
 
-    OUTPUT: The profile function for the minimum sub-algebra containing all the 
+    OUTPUT: The profile function for the minimum sub-algebra containing all the
     elements of `alist`.
 
     EXAMPLES::
@@ -610,15 +610,15 @@ def enveloping_profile_elements(alist,char=2):
 
     """
     if char == 2:
-        alist2 = list(map(profile_ele,[x for x in alist if  x != 0])) 
-        if not alist2: 
+        alist2 = list(map(profile_ele,[x for x in alist if  x != 0]))
+        if not alist2:
              return (0,)
         maxlength = max([len(e) for e in alist2])
-        alist2 = [list(e) + (maxlength-len(e))*[0] for e in alist2]  
+        alist2 = [list(e) + (maxlength-len(e))*[0] for e in alist2]
         minprofile = tuple(max([alist2[i][j] for i in range(len(alist2))]) \
                                                 for j in range(maxlength))
         return find_min_profile(minprofile)
-    else:  
+    else:
         masterlist = [profile_ele(x,char) for x in alist if x != 0]
         alistP = [x[0] for x in masterlist]
         alistQ = [x[1] for x in masterlist]
@@ -626,8 +626,8 @@ def enveloping_profile_elements(alist,char=2):
             return ((0,),(0,))
         maxlengthQ = max([len(e) for e in alistQ])
         maxlengthP = max([len(e) for e in alistP])
-        alistQ = [list(e) + (maxlengthQ-len(e))*[0] for e in alistQ]  
-        alistP = [list(e) + (maxlengthP-len(e))*[0] for e in alistP]  
+        alistQ = [list(e) + (maxlengthQ-len(e))*[0] for e in alistQ]
+        alistP = [list(e) + (maxlengthP-len(e))*[0] for e in alistP]
         minprofileQ = tuple(max([alistQ[i][j] for i in range(len(alistQ))]) \
                                                 for j in range(maxlengthQ))
         minprofileP = tuple(max([alistP[i][j] for i in range(len(alistP))])\
@@ -644,7 +644,7 @@ def enveloping_profile_profiles(alist,char=2):
 
     -  ``alist``  - A list of profile functions.
 
-    OUTPUT: The profile function for the minimum sub-algebra containing 
+    OUTPUT: The profile function for the minimum sub-algebra containing
     the profile functions in `alist`.
 
     EXAMPLES::
@@ -658,7 +658,7 @@ def enveloping_profile_profiles(alist,char=2):
     if char == 2:
         alist2 = list(copy(alist))
         maxlength = max([len(e) for e in alist2])
-        alist2 = [list(e) + (maxlength-len(e))*[0] for e in alist2]  
+        alist2 = [list(e) + (maxlength-len(e))*[0] for e in alist2]
         minprofile = tuple(max([alist2[i][j] for i in range(len(alist2))]) \
                                                 for j in range(maxlength))
         return find_min_profile(minprofile)
@@ -667,8 +667,8 @@ def enveloping_profile_profiles(alist,char=2):
         alistQ = [copy(alist[i][1]) for i in range(len(alist))]
         maxlengthQ = max([len(e) for e in alistQ])
         maxlengthP = max([len(e) for e in alistP])
-        alistQ = [list(e) + (maxlengthQ-len(e))*[0] for e in alistQ]  
-        alistP = [list(e) + (maxlengthP-len(e))*[0] for e in alistP]  
+        alistQ = [list(e) + (maxlengthQ-len(e))*[0] for e in alistQ]
+        alistP = [list(e) + (maxlengthP-len(e))*[0] for e in alistP]
         minprofileQ = tuple(max([alistQ[i][j] for i in range(len(alistQ))]) \
                                                 for j in range(maxlengthQ))
         minprofileP = tuple(max([alistP[i][j] for i in range(len(alistP))]) \
@@ -678,7 +678,7 @@ def enveloping_profile_profiles(alist,char=2):
 
 def valid(LL,char=2):
     """
-    Determines if the list passed is a valid profile. 
+    Determines if the list passed is a valid profile.
     ## When checking at odd primes, the `P`-part must be the 0th entry in LL,
     and the `Q`-part must be the 1st entry in LL.
 
@@ -699,8 +699,8 @@ def valid(LL,char=2):
     if char == 2:
         L = [0] + list(LL) + [0]*(len(LL)) # Add 0 in beginning to keep rels correct
         value = true                       # so r - i works when i = 0
-        for r in range(2,len(L)):  
-            for i in range(1,r):   
+        for r in range(2,len(L)):
+            for i in range(1,r):
                 value = value and ((L[r] >= L[r-i] - i) or (L[r] >= L[i]))
         return value
     else:
@@ -711,19 +711,19 @@ def valid(LL,char=2):
         L = L + [1]*abs(len(M)-len(L))
         value = valid(alistP,char=2)  # P part must satisfy same conditions, regardless of prime.
         for r in range(len(L)): # \tau's indexed at 0, unlike \xi 's
-            if (L[r] == 1) and value:  
+            if (L[r] == 1) and value:
                 for i in range(r+1):
                     value = value and ((M[i] <= r -i) or (L[r-i] == 1))
         return value
 
 def nextprof(p,n,char=2):
     """
-    Takes a possible profile `p' and a base profile `n'. Returns the next 
-    profile in lexicographic order. After all valid profiles `p' of 
+    Takes a possible profile `p' and a base profile `n'. Returns the next
+    profile in lexicographic order. After all valid profiles `p' of
     length = len(n) have been checked, n is increased. Intended for internal
     use only. The odd primary piece only alters the Q part of the profile. To
     increment the P part of a profile for odd primes, call nextprof with char =2.
-    This works since the P part of the profile is identical to the profile 
+    This works since the P part of the profile is identical to the profile
     function when char == 2.
 
     INPUT:
@@ -749,7 +749,7 @@ def nextprof(p,n,char=2):
 
     """
     if char == 2:
-        for i in range(len(p)):    
+        for i in range(len(p)):
             if p[i] < len(p):     # we increment here because we can without altering length
                 p[i] += 1
                 return p
@@ -776,7 +776,7 @@ def nextprof(p,n,char=2):
 def find_min_profile(prof,char=2):
     """
     Given a tuple of integers (a pseudo-profile), this function will
-    output the smallest legal profile function containing it. This 
+    output the smallest legal profile function containing it. This
     function combines the above functions, and is the only one intended
     for external use.
 
@@ -802,12 +802,12 @@ def find_min_profile(prof,char=2):
         prof2 = list(prof)
         if not prof2:
             return (0,)
-        r = 0  
+        r = 0
         for i in range(len(prof2)):
             if prof2[i] != 0:
                 r = i
         n = [prof2[i] for i in range(r+1)]
-        p = copy(list(n))  
+        p = copy(list(n))
         while not valid(p,char):
             p = nextprof(p,n,char)
         return tuple(p)
@@ -836,10 +836,10 @@ can lie anywhere in the Steenrod algebra: our profiles are simply
 recording the subalgebra over which the module is defined, not forcing
 the module into the category of modules over that subalgebra. To make
 computing with elements easier, an element also has a profile,
-and computing with elements involves finding the enveloping profile.   
+and computing with elements involves finding the enveloping profile.
 
     INPUT:
-    
+
     - ``degs`` - a list of integers, specifying the degrees of the generators.
 
     - ``rels`` - (default: []) a list of relations. By default, the list is
@@ -852,15 +852,15 @@ and computing with elements involves finding the enveloping profile.
 
     OUTPUT:
 
-    - A finitely presented module with generators in degrees ``degs`` and 
-      relations specified by ``rels``.       
+    - A finitely presented module with generators in degrees ``degs`` and
+      relations specified by ``rels``.
 
     EXAMPLES:
-    
+
     These examples show how to define modules over the Steenrod Algebra at the
     prime 2. The last example is a free module with a single generator in
     degree 4.
-    
+
     ::
 
         sage: M = FP_Module([2,3],[[Sq(2),Sq(1)],[0,Sq(2)]])
@@ -869,14 +869,14 @@ and computing with elements involves finding the enveloping profile.
 
     To define a module over the mod `p` Steenrod algebra, when `p` is odd,
     you should first define a Steenrod algebra::
-    
+
         sage: A3 = SteenrodAlgebra(3)
 
     Here we show how to define modules over odd primary Steenrod Algebras.::
 
         sage: L = FP_Module([0,8],[[A3.P(2),1]],algebra=A3)
         sage: Q = FP_Module([2],algebra = SteenrodAlgebra(5))
-    
+
     The following examples show how to extract the parameters used when defining
     an FP_Module.::
 
@@ -888,13 +888,13 @@ and computing with elements involves finding the enveloping profile.
         2
         sage: N.algebra
         sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
-    
+
     .. WARNING::
 
         The algebra attribute should not be used, but rather the alg() method, as shown
-        below. For example, if extra relations not contained in this algebra 
-        are added to a module, the alg() method will keep 
-        track of this enlarged algebra, whereas the algebra attribute will not. 
+        below. For example, if extra relations not contained in this algebra
+        are added to a module, the alg() method will keep
+        track of this enlarged algebra, whereas the algebra attribute will not.
         A similar situation occurs with the relations of the degrees. There is
         an attribute reldegs which keeps track of this, but the method rdegs() should
         be called instead for the same reason.
@@ -941,7 +941,7 @@ and computing with elements involves finding the enveloping profile.
                      [enveloping_profile_elements(r,self.char) for r in rels]\
                      +[list(self.algebra._profile)],self.char)
         self.algebra = SteenrodAlgebra(p=self.char,profile=prof)
-        for r in rels:  
+        for r in rels:
             if r == [0]*len(degs):
                 rels.remove([0]*len(degs))
         self.rels = [[self.algebra(coeff) for coeff in r] for r in rels]
@@ -1018,7 +1018,7 @@ and computing with elements involves finding the enveloping profile.
 
         INPUT:
 
-        -   ``x``  -  An FP_Element. 
+        -   ``x``  -  An FP_Element.
 
         OUTPUT: True if ``x`` is in the module.
 
@@ -1072,18 +1072,18 @@ and computing with elements involves finding the enveloping profile.
             return FP_Element([ 0 for i in self.degs],self)
         elif type(x) == type([0]):
             return FP_Element(x,self)
-        elif x.module == self: 
+        elif x.module == self:
             return x
         else:
             raise ValueError,"Element not in module"
 
 
-    def _pres_(self,n,profile=None):            
+    def _pres_(self,n,profile=None):
         """
         Returns a vector space, a quotient map, and elements.
 
         INPUT:
- 
+
         -    ``n`` -  The degree in which all computations are made.
 
         OUTPUT:
@@ -1096,11 +1096,11 @@ and computing with elements involves finding the enveloping profile.
         -  ``sec``  - Elements of the domain of `q` which project to the std basis for
            quo.
 
-        -  `` bas_gen``  - A list of pairs (gen_number, algebra element) 
+        -  `` bas_gen``  - A list of pairs (gen_number, algebra element)
            corresponding to the std basis for the free module.
 
         EXAMPLES::
-       
+
             sage: quo,q,sec,bas = M._pres_(2)
             sage: dim(quo)
             1
@@ -1119,7 +1119,7 @@ and computing with elements involves finding the enveloping profile.
         """
         if profile == None:
             profile = self.profile()
-        alg = SteenrodAlgebra(p=self.char,profile=profile)  
+        alg = SteenrodAlgebra(p=self.char,profile=profile)
         bas_gen = reduce(lambda x,y : x+y,\
                   [[(i,bb) for bb in alg.basis(n-self.degs[i])]\
                            for i in range(len(self.degs))],[])
@@ -1139,32 +1139,32 @@ and computing with elements involves finding the enveloping profile.
                             [reduce(lambda x,y: x+y,\
                             map(lambda x: x[2]*bas_dict[(x[0],x[1])],r))])
         quo = bas_vec/rel_vec
-        if quo.dimension() == 0:  
+        if quo.dimension() == 0:
             sec = Hom(quo,bas_vec)(0)
             q = Hom(bas_vec,quo)([quo(0) for xx in bas_vec.basis()])
         else:
             sec = Hom(quo,bas_vec)([quo.lift(xx) for xx in quo.basis()])
             q = Hom(bas_vec,quo)([quo(xx) for xx in bas_vec.basis()])
         return quo, q, sec, bas_gen
-            
+
     def _lc_(self,co,bas):
         """
         Creates the FP_Element corresponding to the lists ``co`` of coefficients
         and ``bas`` of basis elements. This function is intended for internal use only.
 
         INPUT:
-        
-        -    ``co``   -  A list of (either GF(p) elements or algebra elements) 
+
+        -    ``co``   -  A list of (either GF(p) elements or algebra elements)
              coefficients.
 
-        -    ``bas``   -  A list of tuples (gen_number, algebra elt) 
+        -    ``bas``   -  A list of tuples (gen_number, algebra elt)
              corresponding to the std basis for the free module on self.degs
 
        OUTPUT: The linear combination given by the sum of co[i]*basi][1]*gen(bas[i][0])
 
-       NOTE: The list of coefficients can lie in GF(p) or the algebra. 
+       NOTE: The list of coefficients can lie in GF(p) or the algebra.
              This does not normalize, the sum is taken in the free module.
- 
+
         EXAMPLES::
 
             sage: M = FP_Module([2,3],[[Sq(2),Sq(1)],[0,Sq(2)]])
@@ -1184,20 +1184,20 @@ and computing with elements involves finding the enveloping profile.
               [self.gen(bas[i][0])*(co[i]*bas[i][1]) for i in range(len(co))],
               self(0))
 
-    def basis(self,n,profile=None):        
+    def basis(self,n,profile=None):
         """
-        Returns elements of the free module mapping to self. These elements 
+        Returns elements of the free module mapping to self. These elements
         form a basis for the degree n piece of the module.
 
         INPUT:
-                
+
         -  ``n``   -   The degree in which the basis will be taken.
 
-        OUTPUT: A list of elements forming a basis for the degree n part of the 
+        OUTPUT: A list of elements forming a basis for the degree n part of the
                 module.
- 
+
         EXAMPLES::
- 
+
             sage: M = FP_Module([2,3],[[Sq(2),Sq(1)],[0,Sq(2)]])
             sage: M.basis(0)
             []
@@ -1222,7 +1222,7 @@ and computing with elements involves finding the enveloping profile.
             profile = self.profile()
         quo,q,s,bas = self._pres_(n,profile=profile)
         return [self._lc_(s(v),bas) for v in quo.basis()]
-        
+
     __getitem__ = basis
 
     def gens(self):
@@ -1239,11 +1239,11 @@ and computing with elements involves finding the enveloping profile.
         """
         return [FP_Element(_del_(i,len(self.degs)),self) \
            for i in range(len(self.degs))]
- 
+
     def gen(self,i=0):
         """
         The `i^{th}` generator of the module as an FP_Element.
- 
+
         EXAMPLES::
 
             sage: X = FP_Module([0,2,3]);X.gen(0)
@@ -1256,7 +1256,7 @@ and computing with elements involves finding the enveloping profile.
             raise ValueError,\
             "Module has generators numbered 0 to %s; generator %s does not exist" % (len(self.degs)-1,i)
         return FP_Element(_del_(i,len(self.degs)),self)
-                
+
 
     def identity(self):
         """
@@ -1333,7 +1333,7 @@ and computing with elements involves finding the enveloping profile.
         2. the module to the copy.
 
         OUTPUT:
- 
+
         -   ``C``  - A duplicate of the module.
 
         -   Two Finitely Presented Homomorphisms: the first is a map from `C` to self,
@@ -1374,7 +1374,7 @@ and computing with elements involves finding the enveloping profile.
 
         -   ``t``  - An integer by which the module is suspended.
 
-        OUTPUT: 
+        OUTPUT:
 
         -   ``C``  ` A copy of the module `self` which is suspended by `t`.
 
@@ -1427,7 +1427,7 @@ and computing with elements involves finding the enveloping profile.
             sage: Y.degs;Y.rels
             [0]
             [[Sq(3)]]
-            
+
         """
         F = FP_Module([x.degree for x in L],algebra=self.algebra)
         pr = FP_Hom(F,self,L)
@@ -1437,7 +1437,7 @@ and computing with elements involves finding the enveloping profile.
 
     def resolution(self,k,verbose=false):
         """
-        Returns a list of length `k`, consisting of chain maps. These 
+        Returns a list of length `k`, consisting of chain maps. These
         maps form a resolution of length `k` of `self`.
         """
         C0 = FP_Module(self.degs, algebra=self.algebra)
@@ -1455,9 +1455,9 @@ and computing with elements involves finding the enveloping profile.
 
     def resolution_kernels(self,k,kers=[],verbose=false):
         """
-        Returns a list of length `k`, consisting of chain maps and 
+        Returns a list of length `k`, consisting of chain maps and
         a list of pairs [K_n,i_n] corresponding to the kernels
-        and inclusions of the resolution. These 
+        and inclusions of the resolution. These
         maps form a resolution of length `k` of `self`.
 
         A list should never be passed for kers. This is only used
@@ -1485,7 +1485,7 @@ class FP_Hom(Morphism):
     A finitely presented Homomorphism between two Finitely Presented Modules.
     If degree is passed, dom is suspended by degree before mapping.
     The 0 hom can be created by passing `0' for values.
-    
+
     """
 
     def __init__(self,domain,codomain,values, degree=0):
@@ -1503,22 +1503,22 @@ class FP_Hom(Morphism):
                 "Domain has %s generators, but %s values were given\,"\
                      %(len(domain.degs), len(values))
         for i in range(len(values)):
-            if values[i] == 0: 
+            if values[i] == 0:
                 values[i] = FP_Element([codomain.algebra(0) for j in\
-                           codomain.degs],codomain) 
+                           codomain.degs],codomain)
             else:                                     # if its a list of coeffs, make it
                 values[i]= FP_Element(values[i],codomain) # an FP_Element.Otherwise ought to
-                                                      # already be one.  
+                                                      # already be one.
                 if values[i].degree != None and domain.degs[i] != values[i].degree:
                     raise ValueError, \
                           "Degree of generator %d is %d but degree of %dth value is %d" \
                          %(i,domain.degs[i],i,values[i].degree)
         self.values = [x.nf() for x in values]
         initialval = FP_Element([0]*len(domain.degs),domain)
-        self.domain = domain 
+        self.domain = domain
         self.codomain = codomain
         self.degree = degree
-        if self.domain.rels:  
+        if self.domain.rels:
             for x in self.domain.rels:
                 ximage = reduce(lambda xx,y: xx+y, [values[i]*x[i] for i in\
                       range(len(x))])
@@ -1565,24 +1565,24 @@ class FP_Hom(Morphism):
 
     def __mul__(self,g):
         """
-        Composition of morphisms. 
+        Composition of morphisms.
         """
         if self.domain != g.codomain:
             raise ValueError,\
                 "Morphisms not composable."
         return FP_Hom(g.domain,self.codomain,\
-                   [self(g(x)) for x in g.domain.gens()],self.degree+g.degree) 
+                   [self(g(x)) for x in g.domain.gens()],self.degree+g.degree)
 
     def is_zero(self):
         return reduce(lambda x,y: x and y, [x.is_zero() for x in self.values],True)
 
-    def __cmp__(self,g): 
+    def __cmp__(self,g):
         if self.domain != g.domain:
             raise ValueError, "Morphisms not comparable, different domains."
         if (self-g).is_zero():
             return 0
         else:
-            return 1  
+            return 1
 
 
     def __call__(self,x):
@@ -1604,10 +1604,10 @@ class FP_Hom(Morphism):
                   "Cannot evaluate morphism on element not in domain"
         value = reduce(lambda x,y: x+y,\
                 [self.values[i]*x.coeffs[i] for i in range(len(self.domain.degs))],
-                self.codomain(0)) 
+                self.codomain(0))
         return value.nf()
 
-    def _full_pres_(self,n,profile=None):      
+    def _full_pres_(self,n,profile=None):
         """
         Computes the linear transformation from domain in degree n
         to codomain in degree n+degree(self). 9 items returned: the
@@ -1622,9 +1622,9 @@ class FP_Hom(Morphism):
              of the Steenrod Algebra for which this computation will be computed over.
              The default, `profile=None`, uses the profile of self.
 
-        OUTPUT: 
+        OUTPUT:
 
-        -  The linear transformation corresponding to the degree `n` piece of this 
+        -  The linear transformation corresponding to the degree `n` piece of this
            mapping (see the documentation for _pres_ below).
 
         -  ``dquo``  - The vector space corresponding to self.domain in degree `n`.
@@ -1635,18 +1635,18 @@ class FP_Hom(Morphism):
         -  ``dsec``  - Elements of the domain of `dq` which project to the standard
            basis for `dquo`.
 
-        -  ``dbas_gen``  - A list of pairs (gen_number, algebra element) 
+        -  ``dbas_gen``  - A list of pairs (gen_number, algebra element)
            corresponding to the standard basis for the free module.
 
         -  ``cquo``  - The vector space corresponding to self.codomain in degree `n` +
            self.degree.
-        
+
         -  ``cq``  - The quotient map from the vector space for the free module on
            the generators to `cquo`.
 
         -  ``csec``  - Elements of the domain of `cq` which project to the standard basis
            for `cquo`.
-          
+
         -  ``cbas_gen``  - A list of pairs (gen_number, algebra element) corresponding
            to the standard basis for the free module.
 
@@ -1664,9 +1664,9 @@ class FP_Hom(Morphism):
                     dquo,dq,dsec,dbas_gen,\
                     cquo,cq,csec,cbas_gen
 
-    def _pres_(self,n,profile=None):       
+    def _pres_(self,n,profile=None):
         """
-        Computes the linear transformation from domain in degree n to 
+        Computes the linear transformation from domain in degree n to
         codomain in degree n + degree(self). Intended for internal use only.
 
         INPUT:
@@ -1705,7 +1705,7 @@ class FP_Hom(Morphism):
                            enveloping_profile_elements(reduce(lambda x,y: x+y,\
                            [x.coeffs for x in self.values],initialval.coeffs),\
                            self.domain.char)], self.domain.char)
-        return profile 
+        return profile
 
     def suspension(self,t):
         """
@@ -1734,8 +1734,8 @@ class FP_Hom(Morphism):
 
 
         Cheap way of computing cokernel. Cokernel is on same degs as codomain,
-        with rels = codomain.rels + self.values. Returns cokernel and the 
-        projection map to it. 
+        with rels = codomain.rels + self.values. Returns cokernel and the
+        projection map to it.
 
         OUTPUT:
 
@@ -1750,7 +1750,7 @@ class FP_Hom(Morphism):
         """
         coker = FP_Module(self.codomain.degs,\
                 self.codomain.rels + [x.coeffs for x in self.values],\
-                algebra = self.alg()) 
+                algebra = self.alg())
         vals = [_del_(i,len(self.codomain.degs)) for i in \
                 range(len(self.codomain.degs))]
         if min == False:
@@ -1768,12 +1768,12 @@ class FP_Hom(Morphism):
         The kernel is non-zero in degrees starting from connectivity of domain
         through the top degree of the algebra the function is defined over plus
         the top degree of the domain.
-        
+
         OUTPUT:
 
         -  ``ker``  - An FP_Module corresponding to the kernel of `self`.
 
-        -  ``incl``  - An FP_Hom corresponding to the natural inclusion of `ker` 
+        -  ``incl``  - An FP_Hom corresponding to the natural inclusion of `ker`
                        into the domain.
 
         EXAMPLES::
@@ -1785,13 +1785,13 @@ class FP_Hom(Morphism):
         notdone = True
         limit = max_deg(self.algebra) + max(self.domain.degs)
         while notdone and n <= limit:
-            fn = self._pres_(n)          
+            fn = self._pres_(n)
             notdone = (fn.kernel().dimension() == 0)
             if notdone:  # so the kernel is 0 in this degree n. Move on to the next.
                 n += 1
         if notdone: # If the kernel is 0 in all degrees.
-            ker = FP_Module([],[],algebra=self.alg()) 
-            return ker, FP_Hom(ker,self.domain,values=0) 
+            ker = FP_Module([],[],algebra=self.alg())
+            return ker, FP_Hom(ker,self.domain,values=0)
         else:
             ker = FP_Module(fn.kernel().dimension()*[n],[],algebra=self.alg())
             quo,q,sec,bas_gen = self.domain._pres_(n,profile=self.profile())
@@ -1805,45 +1805,45 @@ class FP_Hom(Morphism):
                     Kfn = VectorSpace(GF(self.domain.algebra._prime),\
                                    fn.kernel().dimension())
                     kin = Hom(Kfn,Mn)(fn.kernel().basis())
-                    jn = Hom(Kn,Kfn)(kin.matrix().solve_left(incln.matrix())) 
+                    jn = Hom(Kn,Kfn)(kin.matrix().solve_left(incln.matrix()))
                     imjn = jn.image()
                     num_new_gens = 0
-                    for v in Kfn.basis():  
-                        if not v in imjn:  
+                    for v in Kfn.basis():
+                        if not v in imjn:
                             num_new_gens += 1
                             imjn += Kfn.subspace([v])
                             incl.values.append(self.domain._lc_(s(kin(v)),Mbas_gen))
                     ker.degs += num_new_gens*[n]
                     pad = num_new_gens*[0]
-                    ker.rels = [x + copy(pad) for x in ker.rels] 
+                    ker.rels = [x + copy(pad) for x in ker.rels]
                 ker.rels += [ker._lc_(sec(v),bas).coeffs for v in incln.kernel().basis()]
                 ker.reldegs += incln.kernel().dimension()*[n]
                 n += 1
             # All generators have been found.  Now see if we need any more relations.
             while n <= max_deg(self.algebra) + max(ker.degs):
-                incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n,profile=self.profile()) 
+                incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n,profile=self.profile())
                 ker.rels += [ker._lc_(sec(v),bas).coeffs for v in incln.kernel().basis()]
                 ker.reldegs += incln.kernel().dimension()*[n]
                 n += 1
             ker.algebra = SteenrodAlgebra(p=ker.char, profile = ker.min_profile())
             incl.algebra = SteenrodAlgebra(p=ker.char, profile = incl.min_profile())
-            return ker, incl            
+            return ker, incl
 
 
     def kernel_gens(self):
         """
         Computes the generators of the kernel of an FP_Hom, and returns a free module
         and an epi from it to the kernel of self as a map from the free module to self.domain.
-        
+
         The kernel is non-zero in degrees starting from connectivity of domain
         through the top degree of the algebra the function is defined over plus
         the top degree of the domain.
-        
+
         OUTPUT:
 
         -  ``ker``  - A free FP_Module corresponding to the generators of the kernel of `self`.
 
-        -  ``incl``  - An FP_Hom corresponding to the natural inclusion of `ker` 
+        -  ``incl``  - An FP_Hom corresponding to the natural inclusion of `ker`
                        into the domain.
 
         EXAMPLES::
@@ -1852,13 +1852,13 @@ class FP_Hom(Morphism):
         notdone = True
         limit = max_deg(self.algebra) + max(self.domain.degs)
         while notdone and n <= limit:
-            fn = self._pres_(n)          
+            fn = self._pres_(n)
             notdone = (fn.kernel().dimension() == 0)
             if notdone:  # so the kernel is 0 in this degree n. Move on to the next.
                 n += 1
         if notdone: # If the kernel is 0 in all degrees.
-            ker = FP_Module([],[],algebra=self.alg()) 
-            return ker, FP_Hom(ker,self.domain,values=0) 
+            ker = FP_Module([],[],algebra=self.alg())
+            return ker, FP_Hom(ker,self.domain,values=0)
         else:
             ker = FP_Module(fn.kernel().dimension()*[n],[],algebra=self.alg())
             quo,q,sec,bas_gen = self.domain._pres_(n,profile=self.profile())
@@ -1866,17 +1866,17 @@ class FP_Hom(Morphism):
                    [self.domain._lc_(sec(v),bas_gen) for v in fn.kernel().basis()])
             n += 1
             while n <= limit:
-                incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n,profile=self.profile()) 
+                incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n,profile=self.profile())
                 fn = self._pres_(n)
                 if fn.kernel().dimension() != 0:  # so we found something new
                     Kfn = VectorSpace(GF(self.domain.algebra._prime),\
                                    fn.kernel().dimension())
                     kin = Hom(Kfn,Mn)(fn.kernel().basis())
-                    jn = Hom(Kn,Kfn)(kin.matrix().solve_left(incln.matrix())) 
+                    jn = Hom(Kn,Kfn)(kin.matrix().solve_left(incln.matrix()))
                     imjn = jn.image()
                     num_new_gens = 0
-                    for v in Kfn.basis():  
-                        if not v in imjn:  
+                    for v in Kfn.basis():
+                        if not v in imjn:
                             num_new_gens += 1
                             imjn += Kfn.subspace([v])
                             incl.values.append(self.domain._lc_(s(kin(v)),Mbas_gen))
@@ -1884,13 +1884,13 @@ class FP_Hom(Morphism):
                 n += 1
             ker.algebra = SteenrodAlgebra(p=ker.char, profile = ker.min_profile())
             incl.algebra = SteenrodAlgebra(p=ker.char, profile = incl.min_profile())
-            return ker, incl            
+            return ker, incl
 
-                
+
     def image(self):
         """
         Computes the Image of an FP_Hom, as an FP_Module. Returns the factorization of
-        self into epi, Image, mono. 
+        self into epi, Image, mono.
 
         Assumes generators of FP_Modules are in order of increasing degree.
 
@@ -1907,7 +1907,7 @@ class FP_Hom(Morphism):
         EXAMPLES::
 
 
-        
+
         """
         F = FP_Module([],algebra=self.alg())
         mono = FP_Hom(F,self.codomain,[])
@@ -1930,7 +1930,7 @@ class FP_Hom(Morphism):
         F.reldegs = K.degs
         F.rels = [x.coeffs for x in i.values]
         l = len(F.degs)
-        epivals = [ F(x.coeffs + [0]*(l-len(x.coeffs))) for x in epivals] 
+        epivals = [ F(x.coeffs + [0]*(l-len(x.coeffs))) for x in epivals]
         epi = FP_Hom(self.domain,F,epivals)
         # Now reduce profile functions
         F.algebra = SteenrodAlgebra(p=F.char, profile = F.min_profile())
@@ -1959,14 +1959,14 @@ class FP_Hom(Morphism):
          v = x.vec()[0]
          if x not in self.codomain:
              raise TypeError, "Element not in codomain."
-         if v not in pn.image(): 
+         if v not in pn.image():
              return False,self.domain(0)
          else:
              w = pn.matrix().solve_left(v)
              return True, self.domain._lc_(dsec(w),dbas)
 
-             
-        
+
+
 #--------------------------------------------------------------------------------
 #-----------------------Elements-of-FP_Modules-----------------------------------
 #--------------------------------------------------------------------------------
@@ -2003,7 +2003,7 @@ class FP_Element(ModuleElement):
 
         """
         self.module = module
-        if isinstance(coeffs,FP_Element): 
+        if isinstance(coeffs,FP_Element):
             self.coeffs = coeffs.coeffs
         else:
             self.coeffs = [SteenrodAlgebra(module.algebra._prime)(x) for x in coeffs]
@@ -2019,7 +2019,7 @@ class FP_Element(ModuleElement):
         if self.degree == None: # if self = 0, degree is None
             return y
         if y.degree == None:   # if y = 0, degree is None
-            return 
+            return
         if self.degree != y.degree:
             raise ValueError, "Can't add element of degree %s and %s"\
                   %(self.degree,y.degree)
@@ -2030,7 +2030,7 @@ class FP_Element(ModuleElement):
             raise TypeError, "Can't add element in different modules"
         if self.degree == None: # if self = 0, degree is None
             return FP_Element(y.coeffs,y.module)
-        if y.degree == None:   # if y = 0, degree is None 
+        if y.degree == None:   # if y = 0, degree is None
             return FP_Element(self.coeffs, self.module)
         if self.degree != y.degree:
             raise ValueError, "Can't add element of degree %s and %s"\
@@ -2051,7 +2051,7 @@ class FP_Element(ModuleElement):
 
     def __cmp__(self,y):
         """
-        Compares two FP_Elements for equality. Cannot compare elements in 
+        Compares two FP_Elements for equality. Cannot compare elements in
         different degrees or different modules.
         """
         if self.module != y.module:
@@ -2067,34 +2067,34 @@ class FP_Element(ModuleElement):
 
     def __nonzero__(self):
         if self.degree == None:
-            return False 
+            return False
         v,q,sec,bas = self.vec()
-        return v != 0 
+        return v != 0
 
     def _repr_(self):
         return '%s' % self.coeffs ## TO DO: Add parents when coeffs are sums:
-                                  ## Sq(3)*M.0 + Sq(1)*M.2 is fine, but we'll 
+                                  ## Sq(3)*M.0 + Sq(1)*M.2 is fine, but we'll
                                   ## need (Sq(3) + Sq(0,1))*M.0. Still a problem?
 
     def __rlmul__(self,x):
-        """ 
-        This is the action which is called when x*Sq(2) is evaluated. Really a left 
+        """
+        This is the action which is called when x*Sq(2) is evaluated. Really a left
         action but must be written on the right.
         """
         return FP_Element(\
           [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
     def __lmul__(self,x):
-        """ 
-        This is the action which is called when x*Sq(2) is evaluated. Really a left 
+        """
+        This is the action which is called when x*Sq(2) is evaluated. Really a left
         action but must be written on the right.
         """
         return FP_Element(\
           [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
     def __mul__(self,x):
-        """ 
-        This is the action which is called when x*Sq(2) is evaluated. Really a left 
+        """
+        This is the action which is called when x*Sq(2) is evaluated. Really a left
         action but must be written on the right.
         """
         return FP_Element(\
@@ -2104,13 +2104,13 @@ class FP_Element(ModuleElement):
         """
         ## FIX
         Multiplication of an FP_Element by a Steenrod Algebra element.
-        This is written as a right multiplication, but its really a left 
+        This is written as a right multiplication, but its really a left
         multiplication.
         """
         return FP_Element(
                [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
-        
-    def free_vec(self,profile=None):          
+
+    def free_vec(self,profile=None):
         """
             Returns the vector in the free vector space corresponding to self.coeffs.
         If the coeffs are all 0, then we return the scalar 0, since it will be
@@ -2140,40 +2140,40 @@ class FP_Element(ModuleElement):
         r = reduce(lambda x,y: x+y,\
                [map(lambda xx: (pr[0],\
                alg._milnor_on_basis(xx[0]), xx[1]),\
-               [z for z in pr[1]]) for pr in r])  
+               [z for z in pr[1]]) for pr in r])
                   # now, r = [....(gen,basis_op,coeff)...]
-        return reduce(lambda x,y: x+y, map(lambda x : x[2]*bas_dict[(x[0],x[1])],r))            
-    def vec(self,profile=None):    
+        return reduce(lambda x,y: x+y, map(lambda x : x[2]*bas_dict[(x[0],x[1])],r))
+    def vec(self,profile=None):
         """
         Returns the vector form of self, as well as the linear transformation
-        `q : F_n \rightarrow M_n` and `s:M_n \rightarrow F_n`, where `M_n` 
+        `q : F_n \rightarrow M_n` and `s:M_n \rightarrow F_n`, where `M_n`
         and `F_n` are the degree `n` parts of the module and free vector
-        space, respectively. 
+        space, respectively.
 
         OUTPUT:
 
         -    ``x``    - The unique vector form of self in `M_n`.
 
-        -    ``q``    - The linear transformation from the free vector 
+        -    ``q``    - The linear transformation from the free vector
                         space to the module.
 
-        -    ``s``    - The linear transformation from the module to the 
+        -    ``s``    - The linear transformation from the module to the
                         free vector space.
 
-        -    ``bas``  - A list of pairs (gen_number,algebra element) 
+        -    ``bas``  - A list of pairs (gen_number,algebra element)
                         corresponding to self in the std basis of the free module.
 
         """
         if profile == None:
            profile = self.profile
         n = self.degree
-        if n == None: 
-            return 0,0,0,0  
+        if n == None:
+            return 0,0,0,0
         quo, q, s, bas = self.module._pres_(n,profile=profile)
         return q(self.free_vec(profile=profile)),q,s,bas
 
 
-    def nf(self,profile=None):       
+    def nf(self,profile=None):
         """
         Computes the normal form of self.
         """
