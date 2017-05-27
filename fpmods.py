@@ -531,7 +531,8 @@ def extension(R,e,test=True):
 
 # These functions return the P part first, and then the Q part.
 
-from sage.algebras.steenrod.steenrod_algebra_misc import *
+# XXX Sverre -- Let this be commencted out until we find out where it is used:
+#from sage.algebras.steenrod.steenrod_algebra_misc import *
 
 def profile_ele(alist,char=2):
     """
@@ -822,7 +823,7 @@ def find_min_profile(prof,char=2):
 #--------------------------------------------------------------------------------
 #----------------------Finitely-Presented-Modules--------------------------------
 #--------------------------------------------------------------------------------
-
+from sage.structure.sage_object import SageObject
 class FP_Module(SageObject):
     r"""
     A finitely presented module over a sub-Hopf algebra of the
@@ -1140,7 +1141,7 @@ and computing with elements involves finding the enveloping profile.
                             map(lambda x: x[2]*bas_dict[(x[0],x[1])],r))])
         quo = bas_vec/rel_vec
         if quo.dimension() == 0:
-            sec = Hom(quo,bas_vec)(0)
+            sec = Hom(quo,bas_vec).zero()
             q = Hom(bas_vec,quo)([quo(0) for xx in bas_vec.basis()])
         else:
             sec = Hom(quo,bas_vec)([quo.lift(xx) for xx in quo.basis()])
@@ -1480,6 +1481,7 @@ and computing with elements involves finding the enveloping profile.
 #----------------------Homomorphisms-between-FP_Modules--------------------------
 #--------------------------------------------------------------------------------
 
+from sage.categories.morphism import Morphism
 class FP_Hom(Morphism):
     r"""
     A finitely presented Homomorphism between two Finitely Presented Modules.
@@ -1971,6 +1973,7 @@ class FP_Hom(Morphism):
 #-----------------------Elements-of-FP_Modules-----------------------------------
 #--------------------------------------------------------------------------------
 
+from sage.structure.element import ModuleElement
 class FP_Element(ModuleElement):
     r"""
     Yields an element of an FP_Module, given by defining the coefficients on each
