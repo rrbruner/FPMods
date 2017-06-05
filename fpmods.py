@@ -146,7 +146,7 @@ def max_deg(alg):
             prof2 = list(alg._profile[1])
         for i in range(len(prof2)):
             epsdeg += (2*p**(i)-1)*(prof2[i]-1)
-            return epsdeg+topdeg
+        return epsdeg+topdeg
 
 def pmax_deg(prof,p=2):
     """
