@@ -55,7 +55,7 @@ def maxim(L):
     EXAMPLES::
 
     sage: maxim([[1,2,3,4],[5,4]])
-    [5,4,3,4]
+    [5, 4, 3, 4]
     sage: maxim([[1,2,3,4],[1,1,1,5],[9]])
     [9, 2, 3, 5]
 
@@ -214,6 +214,8 @@ def _del_(i,n):
     sage: _del_(0,3)
     [1, 0, 0]
     sage: _del_(6,4)
+    Traceback (most recent call last):
+    ...
     ValueError: List of length 4 has no entry in position 6.
 
     """
@@ -1026,7 +1028,7 @@ and computing with elements involves finding the enveloping profile.
         EXAMPLES::
 
             sage: M = FP_Module([0,2],[[Sq(3),Sq(1)]])
-            sage: m = FP_Element([Sq(2),Sq(1)],M)
+            sage: m = FP_Element([Sq(3),Sq(1)],M)
             sage: M.__contains__(m)
             True
         """
@@ -1102,21 +1104,34 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
-            sage: quo,q,sec,bas = M._pres_(2)
+            sage: M = FP_Module([0,2,4],[[Sq(4),Sq(2),0]]); M([Sq(2),0,0])
+            [Sq(2), 0, 0]
+            sage: quo,q,sec,bas = M._pres_(4)
             sage: dim(quo)
-            1
+            3
             sage: q
-            Free module morphism defined by the matrix
-            [1]
-            Domain: Vector space of dimension 1 over Finite Field of size 2
-            Codomain: Vector space quotient V/W of dimension 1 over Finite Field of ...
+            Vector space morphism represented by the matrix:
+            [1 0 0]
+            [0 1 0]
+            [0 1 0]
+            [0 0 1]
+            Domain: Vector space of dimension 4 over Finite Field of size 2
+            Codomain: Vector space quotient V/W of dimension 3 over Finite Field of size 2 where
+            V: Vector space of dimension 4 over Finite Field of size 2
+            W: Vector space of degree 4 and dimension 1 over Finite Field of size 2
+            Basis matrix:
+            [0 1 1 0]
             sage: sec
-            Free module morphism defined by the matrix
-            [1]
-            Domain: Vector space quotient V/W of dimension 1 over Finite Field of ...
-            Codomain: Vector space of dimension 1 over Finite Field of size 2
-
-
+            Vector space morphism represented by the matrix:
+            [1 0 0 0]
+            [0 1 0 0]
+            [0 0 0 1]
+            Domain: Vector space quotient V/W of dimension 3 over Finite Field of size 2 where
+            V: Vector space of dimension 4 over Finite Field of size 2
+            W: Vector space of degree 4 and dimension 1 over Finite Field of size 2
+            Basis matrix:
+            [0 1 1 0]
+            Codomain: Vector space of dimension 4 over Finite Field of size 2
         """
         if profile == None:
             profile = self.profile()
@@ -1174,7 +1189,7 @@ and computing with elements involves finding the enveloping profile.
             [Sq(1), 0]
             sage: bas2 = [(1,1)]
             sage: y = M._lc_(co,bas2);y
-            [0,Sq(1)]
+            [0, Sq(1)]
 
         """
         if len(co) != len(bas):
@@ -1203,20 +1218,19 @@ and computing with elements involves finding the enveloping profile.
             sage: M.basis(0)
             []
             sage: M.basis(3)
-            [[Sq(1),0],[0,1]]
+            [[Sq(1), 0], [0, 1]]
             sage: for i in range(10):
-                print "Basis for M in dimension ", i, " : ", M.basis(i)
-                ....:
-                Basis for M in dimension  0  :  []
-                Basis for M in dimension  1  :  []
-                Basis for M in dimension  2  :  [[1, 0]]
-                Basis for M in dimension  3  :  [[Sq(1), 0], [0, 1]]
-                Basis for M in dimension  4  :  [[Sq(2), 0]]
-                Basis for M in dimension  5  :  [[Sq(0,1), 0]]
-                Basis for M in dimension  6  :  [[Sq(1,1), 0]]
-                Basis for M in dimension  7  :  []
-                Basis for M in dimension  8  :  []
-                Basis for M in dimension  9  :  []
+            ....:     print "Basis for M in dimension ", i, " : ", M.basis(i)
+            Basis for M in dimension  0  :  []
+            Basis for M in dimension  1  :  []
+            Basis for M in dimension  2  :  [[1, 0]]
+            Basis for M in dimension  3  :  [[Sq(1), 0], [0, 1]]
+            Basis for M in dimension  4  :  [[Sq(2), 0]]
+            Basis for M in dimension  5  :  [[Sq(0,1), 0]]
+            Basis for M in dimension  6  :  [[Sq(1,1), 0]]
+            Basis for M in dimension  7  :  []
+            Basis for M in dimension  8  :  []
+            Basis for M in dimension  9  :  []
 
         """
         if profile == None:
@@ -1296,7 +1310,7 @@ and computing with elements involves finding the enveloping profile.
 
             sage: K = FP_Module([0,1],[[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: KK, g, h = K.min_pres();KK.rels
-            [[Sq(2),Sq(1)],[0,Sq(2)]]
+            [[Sq(2), Sq(1)], [0, Sq(2)]]
         """
         M,e,i = self.identity().image()
         return M,e,i
