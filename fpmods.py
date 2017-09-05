@@ -1541,7 +1541,7 @@ class FP_Hom(Morphism):
         self.degree = degree
         if self.domain.rels:
             for x in self.domain.rels:
-                ximage = reduce(lambda xx,y: xx+y, [values[i]*x[i] for i in\
+                ximage = reduce(lambda xx,y: xx+y, [x[i]*values[i] for i in\
                       range(len(x))])
                 if not ximage.is_zero():
                     raise ValueError, "Relation %s is not sent to 0" % x
@@ -1624,7 +1624,7 @@ class FP_Hom(Morphism):
             raise ValueError,\
                   "Cannot evaluate morphism on element not in domain"
         value = reduce(lambda x,y: x+y,\
-                [self.values[i]*x.coeffs[i] for i in range(len(self.domain.degs))],
+                [x.coeffs[i]*self.values[i] for i in range(len(self.domain.degs))],
                 self.codomain(0))
         return value.nf()
 
