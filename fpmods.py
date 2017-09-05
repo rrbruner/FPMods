@@ -1202,7 +1202,7 @@ and computing with elements involves finding the enveloping profile.
             "Number of coefficients (%s) must be the same as number of basis elements (%s) " \
                 % (len(co),len(bas))
         return reduce(lambda x,y : x+y, \
-              [self.gen(bas[i][0])*(co[i]*bas[i][1]) for i in range(len(co))],
+              [(co[i]*bas[i][1])*self.gen(bas[i][0]) for i in range(len(co))],
               self(0))
 
     def basis(self,n,profile=None):
