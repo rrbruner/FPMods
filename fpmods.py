@@ -826,7 +826,9 @@ def find_min_profile(prof,char=2):
 #----------------------Finitely-Presented-Modules--------------------------------
 #--------------------------------------------------------------------------------
 from sage.structure.sage_object import SageObject
-class FP_Module(SageObject):
+from sage.modules.module import Module 
+
+class FP_Module(Module):
     r"""
     A finitely presented module over a sub-Hopf algebra of the
     Steenrod Algebra (including the full Steenrod Algebra).
@@ -911,6 +913,7 @@ and computing with elements involves finding the enveloping profile.
         sub-Hopf algebra of mod 3 Steenrod algebra, milnor basis, profile function ([1], [])
 
     """
+    Element = FP_Element
 
     def __init__(self,degs,rels=[],char=None,algebra=None):
         """
@@ -957,6 +960,8 @@ and computing with elements involves finding the enveloping profile.
                    _deg_(degs,r)
                 except ValueError:
                    raise ValueError, "Inhomogeneous relation %s" % r
+        self._populate_coercion_lists_()
+        Module.__init__(self, SteenrodAlgebra(self.char))
 
 
     def profile(self):
@@ -1054,7 +1059,7 @@ and computing with elements involves finding the enveloping profile.
         return "Finitely presented module on %s generators and %s relations over %s"\
                            %(len(self.degs),len(self.rels),self.algebra)
 
-    def __call__(self,x):
+    def _element_constructor_(self,x):
         """
         Forms the element with ith coefficient x[i].
         This results in The identity operation if x is already in the module.
@@ -2029,8 +2034,9 @@ class FP_Element(ModuleElement):
         profile_coeffs = [profile_ele(j,self.module.char) for j in self.coeffs]
         self.profile = enveloping_profile_profiles(\
                  [list(module.algebra._profile)]+profile_coeffs,self.module.char)
+        ModuleElement.__init__(self, module)
 
-    def __iadd__(self,y):
+    def _iadd_(self,y):
         if self.module != y.module:
             raise TypeError, "Can't add element in different modules"
         if self.degree == None: # if self = 0, degree is None
@@ -2040,33 +2046,33 @@ class FP_Element(ModuleElement):
         if self.degree != y.degree:
             raise ValueError, "Can't add element of degree %s and %s"\
                   %(self.degree,y.degree)
-        return FP_Element([self.coeffs[i]+y.coeffs[i] for i in range(len(self.coeffs))],self.module)
+        return self.__class__([self.coeffs[i]+y.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
-    def __add__(self,y):
+    def _add_(self,y):
         if self.module != y.module:
             raise TypeError, "Can't add element in different modules"
         if self.degree == None: # if self = 0, degree is None
-            return FP_Element(y.coeffs,y.module)
+            return self.__class__(y.coeffs,y.module)
         if y.degree == None:   # if y = 0, degree is None
-            return FP_Element(self.coeffs, self.module)
+            return self.__class__(self.coeffs, self.module)
         if self.degree != y.degree:
             raise ValueError, "Can't add element of degree %s and %s"\
                   %(self.degree,y.degree)
-        return FP_Element([self.coeffs[i]+y.coeffs[i] for i in range(len(self.coeffs))],self.module)
+        return self.__class__([self.coeffs[i]+y.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
-    def __neg__(self):
+    def _neg_(self):
         """
         Returns the negative of the element.
         """
-        return FP_Element([-self.coeffs[i] for i in range(len(self.coeffs))],self.module)
+        return self.__class__([-self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
-    def __sub__(self,y):
+    def _sub_(self,y):
         """
         Returns the difference of the two elements.
         """
         return self.__add__(y.__neg__())
 
-    def __cmp__(self,y):
+    def _cmp_(self,y):
         """
         Compares two FP_Elements for equality. Cannot compare elements in
         different degrees or different modules.
@@ -2093,7 +2099,7 @@ class FP_Element(ModuleElement):
                                   ## Sq(3)*M.0 + Sq(1)*M.2 is fine, but we'll
                                   ## need (Sq(3) + Sq(0,1))*M.0. Still a problem?
 
-    def __rlmul__(self,x):
+    def _rmul_(self,x):
         """
         This is the action which is called when x*Sq(2) is evaluated. Really a left
         action but must be written on the right.
@@ -2101,31 +2107,31 @@ class FP_Element(ModuleElement):
         return FP_Element(\
           [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
-    def __lmul__(self,x):
-        """
-        This is the action which is called when x*Sq(2) is evaluated. Really a left
-        action but must be written on the right.
-        """
-        return FP_Element(\
-          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
+#    def __lmul__(self,x):
+#        """
+#        This is the action which is called when x*Sq(2) is evaluated. Really a left
+#        action but must be written on the right.
+#        """
+#        return FP_Element(\
+#          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
-    def __mul__(self,x):
-        """
-        This is the action which is called when x*Sq(2) is evaluated. Really a left
-        action but must be written on the right.
-        """
-        return FP_Element(\
-          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
+#    def __mul__(self,x):
+#        """
+#        This is the action which is called when x*Sq(2) is evaluated. Really a left
+#        action but must be written on the right.
+#        """
+#        return FP_Element(\
+#          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
-    def _l_action_(self,x):
-        """
-        ## FIX
-        Multiplication of an FP_Element by a Steenrod Algebra element.
-        This is written as a right multiplication, but its really a left
-        multiplication.
-        """
-        return FP_Element(
-               [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
+#    def _r_action_(self,x):
+#        """
+#        ## FIX
+#        Multiplication of an FP_Element by a Steenrod Algebra element.
+#        This is written as a right multiplication, but its really a left
+#        multiplication.
+#        """
+#        return FP_Element(
+#               [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
     def free_vec(self,profile=None):
         """
