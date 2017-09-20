@@ -941,31 +941,6 @@ class FP_Element(ModuleElement):
         return FP_Element(\
           [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
-#    def __lmul__(self,x):
-#        """
-#        This is the action which is called when x*Sq(2) is evaluated. Really a left
-#        action but must be written on the right.
-#        """
-#        return FP_Element(\
-#          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-#    def __mul__(self,x):
-#        """
-#        This is the action which is called when x*Sq(2) is evaluated. Really a left
-#        action but must be written on the right.
-#        """
-#        return FP_Element(\
-#          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-#    def _r_action_(self,x):
-#        """
-#        ## FIX
-#        Multiplication of an FP_Element by a Steenrod Algebra element.
-#        This is written as a right multiplication, but its really a left
-#        multiplication.
-#        """
-#        return FP_Element(
-#               [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
 
     def free_vec(self,profile=None):
         """
