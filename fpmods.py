@@ -1248,7 +1248,7 @@ and computing with elements involves finding the enveloping profile.
         EXAMPLES::
 
             sage: M = FP_Module([0,2,4],[[Sq(4),Sq(2),0]]); M
-            Finitely presented module on 3 generators and 1 relations over sub-Hopf
+            Finitely presented module on 3 generators and 1 relation over sub-Hopf
             algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
 
             sage: N = FP_Module([0,1],[[Sq(2),Sq(1)],[Sq(2)*Sq(1),Sq(2)]]); N
@@ -1257,8 +1257,10 @@ and computing with elements involves finding the enveloping profile.
 
 
         """
-        return "Finitely presented module on %s generators and %s relations over %s"\
-                           %(len(self.degs),len(self.rels),self.algebra)
+        return "Finitely presented module on %s generator%s and %s relation%s over %s"\
+            %(len(self.degs), "" if len(self.degs) == 1 else "s",
+              len(self.rels), "" if len(self.rels) == 1 else "s",
+              self.algebra)
 
     def _element_constructor_(self,x):
         """
@@ -1489,9 +1491,9 @@ and computing with elements involves finding the enveloping profile.
 
             sage: N = FP_Module([0,1],[[Sq(2),Sq(1)]]);N.identity()
             Homomorphism from
-             Finitely presented module on 2 generators and 1 relations over sub-Hopf algebra of mod 2
+             Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2
             Steenrod algebra, milnor basis, profile function [2, 1] to
-             Finitely presented module on 2 generators and 1 relations over sub-Hopf algebra of mod 2
+             Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2
             Steenrod algebra, milnor basis, profile function [2, 1]
 
         """
