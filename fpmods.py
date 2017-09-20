@@ -1134,6 +1134,11 @@ and computing with elements involves finding the enveloping profile.
         sub-Hopf algebra of mod 3 Steenrod algebra, milnor basis, profile function ([1], [])
 
     """
+    # In the category framework, Elements of the class FP_Module are of the
+    # class FP_Element, see
+    # http://doc.sagemath.org/html/en/thematic_tutorials/\
+    # coercion_and_categories.html#\
+    # implementing-the-category-framework-for-the-elements
     Element = FP_Element
 
     def __init__(self,degs,rels=[],char=None,algebra=None):
