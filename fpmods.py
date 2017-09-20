@@ -823,10 +823,208 @@ def find_min_profile(prof,char=2):
         return (P,Q)
 
 #--------------------------------------------------------------------------------
+#-----------------------Elements-of-FP_Modules-----------------------------------
+#--------------------------------------------------------------------------------
+
+from sage.structure.element import ModuleElement
+class FP_Element(ModuleElement):
+    r"""
+    Yields an element of an FP_Module, given by defining the coefficients on each
+    generator of the module.
+
+    *** Do we really need FP_Elements to have profiles?
+    ***
+    """
+
+    def __init__(self, coeffs, module):
+        """
+        Defines an element of a Finitely Presented module.
+
+        INPUT:
+
+        -  ``coeffs``  - A list of Steenrod Algebra elements of GF(p)
+                         coefficients.
+
+        -  ``module``  - An FP_Module corresponding to the parent module.
+
+        OUTPUT: The FP_Element defined by the sum over `i` of coeffs[i]*module.gen(i).
+
+        Users can also define elements using the call() method of FP_Modules. See
+        that function for documentation.
+
+        EXAMPLES::
+
+        sage: m = FP_Element([0,Sq(3),Sq(1)],FP_Module([2,3,5]));m
+        [0, Sq(3), Sq(1)]
+
+        """
+        self.module = module
+        if isinstance(coeffs,FP_Element):
+            self.coeffs = coeffs.coeffs
+        else:
+            self.coeffs = [SteenrodAlgebra(module.algebra._prime)(x) for x in coeffs]
+        self._parent = module
+        self.degree = _deg_(self.module.degs,self.coeffs) # degree will find errors passed
+        profile_coeffs = [profile_ele(j,self.module.char) for j in self.coeffs]
+        self.profile = enveloping_profile_profiles(\
+                 [list(module.algebra._profile)]+profile_coeffs,self.module.char)
+        ModuleElement.__init__(self, module)
+
+    def _iadd_(self,y):
+        if self.module != y.module:
+            raise TypeError, "Can't add element in different modules"
+        if self.degree == None: # if self = 0, degree is None
+            return y
+        if y.degree == None:   # if y = 0, degree is None
+            return
+        if self.degree != y.degree:
+            raise ValueError, "Can't add element of degree %s and %s"\
+                  %(self.degree,y.degree)
+        return self.__class__([self.coeffs[i]+y.coeffs[i] for i in range(len(self.coeffs))],self.module)
+
+    def _add_(self,y):
+        if self.module != y.module:
+            raise TypeError, "Can't add element in different modules"
+        if self.degree == None: # if self = 0, degree is None
+            return self.__class__(y.coeffs,y.module)
+        if y.degree == None:   # if y = 0, degree is None
+            return self.__class__(self.coeffs, self.module)
+        if self.degree != y.degree:
+            raise ValueError, "Can't add element of degree %s and %s"\
+                  %(self.degree,y.degree)
+        return self.__class__([self.coeffs[i]+y.coeffs[i] for i in range(len(self.coeffs))],self.module)
+
+    def _neg_(self):
+        """
+        Returns the negative of the element.
+        """
+        return self.__class__([-self.coeffs[i] for i in range(len(self.coeffs))],self.module)
+
+    def _sub_(self,y):
+        """
+        Returns the difference of the two elements.
+        """
+        return self.__add__(y.__neg__())
+
+    def _cmp_(self,y):
+        """
+        Compares two FP_Elements for equality. Cannot compare elements in
+        different degrees or different modules.
+        """
+        if self.module != y.module:
+            raise TypeError, "Cannot compare elements in different modules."
+        if self.degree != y.degree and self.degree != None and y.degree != None:
+            raise ValueError, \
+            "Cannot compare elements of different degrees %s and %s"\
+            %(self.degree, y.degree)
+        if (self.__add__(y.__neg__())).__nonzero__():
+            return 1
+        else:
+            return 0
+
+    def __nonzero__(self):
+        if self.degree == None:
+            return False
+        v,q,sec,bas = self.vec()
+        return v != 0
+
+    def _repr_(self):
+        return '%s' % self.coeffs ## TO DO: Add parents when coeffs are sums:
+                                  ## Sq(3)*M.0 + Sq(1)*M.2 is fine, but we'll
+                                  ## need (Sq(3) + Sq(0,1))*M.0. Still a problem?
+
+    def _rmul_(self,x):
+        """
+        This is the action which is called when x*Sq(2) is evaluated. Really a left
+        action but must be written on the right.
+        """
+        return FP_Element(\
+          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
+
+
+    def free_vec(self,profile=None):
+        """
+            Returns the vector in the free vector space corresponding to self.coeffs.
+        If the coeffs are all 0, then we return the scalar 0, since it will be
+        coerced up to the 0 vector in any vector space.
+
+        INPUT:
+
+        -  ``profile``  - The profile function of a larger algebra than
+           the one currently defined.
+
+        OUTPUT:  The vector in the vector space for self.parent corresponding
+                 to self.
+        """
+        if profile == None:
+           profile = self.profile
+        n = self.degree
+        if n == None:
+             return 0
+        alg = SteenrodAlgebra(p=self.module.char,profile=profile)
+        bas_gen = reduce(lambda x,y : x+y,\
+          [[(i,bb) for bb in alg.basis(n-self.module.degs[i])] \
+                   for i in range(len(self.module.degs))])
+        bas_vec = VectorSpace(GF(self.module.char),len(bas_gen))
+        bas_dict = dict(zip(bas_gen,bas_vec.basis()))
+        r = zip(range(len(self.coeffs)),self.coeffs)  #[...(gen,op)...]
+        r = filter(lambda x: not x[1].is_zero(),r)   #remove trivial ops
+        r = reduce(lambda x,y: x+y,\
+               [map(lambda xx: (pr[0],\
+               alg._milnor_on_basis(xx[0]), xx[1]),\
+               [z for z in pr[1]]) for pr in r])
+                  # now, r = [....(gen,basis_op,coeff)...]
+        return reduce(lambda x,y: x+y, map(lambda x : x[2]*bas_dict[(x[0],x[1])],r))
+    def vec(self,profile=None):
+        """
+        Returns the vector form of self, as well as the linear transformation
+        `q : F_n \rightarrow M_n` and `s:M_n \rightarrow F_n`, where `M_n`
+        and `F_n` are the degree `n` parts of the module and free vector
+        space, respectively.
+
+        OUTPUT:
+
+        -    ``x``    - The unique vector form of self in `M_n`.
+
+        -    ``q``    - The linear transformation from the free vector
+                        space to the module.
+
+        -    ``s``    - The linear transformation from the module to the
+                        free vector space.
+
+        -    ``bas``  - A list of pairs (gen_number,algebra element)
+                        corresponding to self in the std basis of the free module.
+
+        """
+        if profile == None:
+           profile = self.profile
+        n = self.degree
+        if n == None:
+            return 0,0,0,0
+        quo, q, s, bas = self.module._pres_(n,profile=profile)
+        return q(self.free_vec(profile=profile)),q,s,bas
+
+
+    def nf(self,profile=None):
+        """
+        Computes the normal form of self.
+        """
+        if profile == None:
+           profile = self.profile
+        if self.degree == None:
+            return self
+        v,q,sec,bas = self.vec(profile=profile)
+        return self.module._lc_(sec(v),bas)
+
+# The End
+
+#--------------------------------------------------------------------------------
 #----------------------Finitely-Presented-Modules--------------------------------
 #--------------------------------------------------------------------------------
 from sage.structure.sage_object import SageObject
-class FP_Module(SageObject):
+from sage.modules.module import Module 
+
+class FP_Module(Module):
     r"""
     A finitely presented module over a sub-Hopf algebra of the
     Steenrod Algebra (including the full Steenrod Algebra).
@@ -911,6 +1109,12 @@ and computing with elements involves finding the enveloping profile.
         sub-Hopf algebra of mod 3 Steenrod algebra, milnor basis, profile function ([1], [])
 
     """
+    # In the category framework, Elements of the class FP_Module are of the
+    # class FP_Element, see
+    # http://doc.sagemath.org/html/en/thematic_tutorials/\
+    # coercion_and_categories.html#\
+    # implementing-the-category-framework-for-the-elements
+    Element = FP_Element
 
     def __init__(self,degs,rels=[],char=None,algebra=None):
         """
@@ -957,6 +1161,8 @@ and computing with elements involves finding the enveloping profile.
                    _deg_(degs,r)
                 except ValueError:
                    raise ValueError, "Inhomogeneous relation %s" % r
+        self._populate_coercion_lists_()
+        Module.__init__(self, SteenrodAlgebra(self.char))
 
 
     def profile(self):
@@ -1054,7 +1260,7 @@ and computing with elements involves finding the enveloping profile.
         return "Finitely presented module on %s generators and %s relations over %s"\
                            %(len(self.degs),len(self.rels),self.algebra)
 
-    def __call__(self,x):
+    def _element_constructor_(self,x):
         """
         Forms the element with ith coefficient x[i].
         This results in The identity operation if x is already in the module.
@@ -1197,7 +1403,7 @@ and computing with elements involves finding the enveloping profile.
             "Number of coefficients (%s) must be the same as number of basis elements (%s) " \
                 % (len(co),len(bas))
         return reduce(lambda x,y : x+y, \
-              [self.gen(bas[i][0])*(co[i]*bas[i][1]) for i in range(len(co))],
+              [(co[i]*bas[i][1])*self.gen(bas[i][0]) for i in range(len(co))],
               self(0))
 
     def basis(self,n,profile=None):
@@ -1536,7 +1742,7 @@ class FP_Hom(Morphism):
         self.degree = degree
         if self.domain.rels:
             for x in self.domain.rels:
-                ximage = reduce(lambda xx,y: xx+y, [values[i]*x[i] for i in\
+                ximage = reduce(lambda xx,y: xx+y, [x[i]*values[i] for i in\
                       range(len(x))])
                 if not ximage.is_zero():
                     raise ValueError, "Relation %s is not sent to 0" % x
@@ -1619,7 +1825,7 @@ class FP_Hom(Morphism):
             raise ValueError,\
                   "Cannot evaluate morphism on element not in domain"
         value = reduce(lambda x,y: x+y,\
-                [self.values[i]*x.coeffs[i] for i in range(len(self.domain.degs))],
+                [x.coeffs[i]*self.values[i] for i in range(len(self.domain.degs))],
                 self.codomain(0))
         return value.nf()
 
@@ -1983,222 +2189,4 @@ class FP_Hom(Morphism):
 
 
 
-#--------------------------------------------------------------------------------
-#-----------------------Elements-of-FP_Modules-----------------------------------
-#--------------------------------------------------------------------------------
 
-from sage.structure.element import ModuleElement
-class FP_Element(ModuleElement):
-    r"""
-    Yields an element of an FP_Module, given by defining the coefficients on each
-    generator of the module.
-
-    *** Do we really need FP_Elements to have profiles?
-    ***
-    """
-
-    def __init__(self, coeffs, module):
-        """
-        Defines an element of a Finitely Presented module.
-
-        INPUT:
-
-        -  ``coeffs``  - A list of Steenrod Algebra elements of GF(p)
-                         coefficients.
-
-        -  ``module``  - An FP_Module corresponding to the parent module.
-
-        OUTPUT: The FP_Element defined by the sum over `i` of coeffs[i]*module.gen(i).
-
-        Users can also define elements using the call() method of FP_Modules. See
-        that function for documentation.
-
-        EXAMPLES::
-
-        sage: m = FP_Element([0,Sq(3),Sq(1)],FP_Module([2,3,5]));m
-        [0, Sq(3), Sq(1)]
-
-        """
-        self.module = module
-        if isinstance(coeffs,FP_Element):
-            self.coeffs = coeffs.coeffs
-        else:
-            self.coeffs = [SteenrodAlgebra(module.algebra._prime)(x) for x in coeffs]
-        self._parent = module
-        self.degree = _deg_(self.module.degs,self.coeffs) # degree will find errors passed
-        profile_coeffs = [profile_ele(j,self.module.char) for j in self.coeffs]
-        self.profile = enveloping_profile_profiles(\
-                 [list(module.algebra._profile)]+profile_coeffs,self.module.char)
-
-    def __iadd__(self,y):
-        if self.module != y.module:
-            raise TypeError, "Can't add element in different modules"
-        if self.degree == None: # if self = 0, degree is None
-            return y
-        if y.degree == None:   # if y = 0, degree is None
-            return
-        if self.degree != y.degree:
-            raise ValueError, "Can't add element of degree %s and %s"\
-                  %(self.degree,y.degree)
-        return FP_Element([self.coeffs[i]+y.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-    def __add__(self,y):
-        if self.module != y.module:
-            raise TypeError, "Can't add element in different modules"
-        if self.degree == None: # if self = 0, degree is None
-            return FP_Element(y.coeffs,y.module)
-        if y.degree == None:   # if y = 0, degree is None
-            return FP_Element(self.coeffs, self.module)
-        if self.degree != y.degree:
-            raise ValueError, "Can't add element of degree %s and %s"\
-                  %(self.degree,y.degree)
-        return FP_Element([self.coeffs[i]+y.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-    def __neg__(self):
-        """
-        Returns the negative of the element.
-        """
-        return FP_Element([-self.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-    def __sub__(self,y):
-        """
-        Returns the difference of the two elements.
-        """
-        return self.__add__(y.__neg__())
-
-    def __cmp__(self,y):
-        """
-        Compares two FP_Elements for equality. Cannot compare elements in
-        different degrees or different modules.
-        """
-        if self.module != y.module:
-            raise TypeError, "Cannot compare elements in different modules."
-        if self.degree != y.degree and self.degree != None and y.degree != None:
-            raise ValueError, \
-            "Cannot compare elements of different degrees %s and %s"\
-            %(self.degree, y.degree)
-        if (self.__add__(y.__neg__())).__nonzero__():
-            return 1
-        else:
-            return 0
-
-    def __nonzero__(self):
-        if self.degree == None:
-            return False
-        v,q,sec,bas = self.vec()
-        return v != 0
-
-    def _repr_(self):
-        return '%s' % self.coeffs ## TO DO: Add parents when coeffs are sums:
-                                  ## Sq(3)*M.0 + Sq(1)*M.2 is fine, but we'll
-                                  ## need (Sq(3) + Sq(0,1))*M.0. Still a problem?
-
-    def __rlmul__(self,x):
-        """
-        This is the action which is called when x*Sq(2) is evaluated. Really a left
-        action but must be written on the right.
-        """
-        return FP_Element(\
-          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-    def __lmul__(self,x):
-        """
-        This is the action which is called when x*Sq(2) is evaluated. Really a left
-        action but must be written on the right.
-        """
-        return FP_Element(\
-          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-    def __mul__(self,x):
-        """
-        This is the action which is called when x*Sq(2) is evaluated. Really a left
-        action but must be written on the right.
-        """
-        return FP_Element(\
-          [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-    def _l_action_(self,x):
-        """
-        ## FIX
-        Multiplication of an FP_Element by a Steenrod Algebra element.
-        This is written as a right multiplication, but its really a left
-        multiplication.
-        """
-        return FP_Element(
-               [x*self.coeffs[i] for i in range(len(self.coeffs))],self.module)
-
-    def free_vec(self,profile=None):
-        """
-            Returns the vector in the free vector space corresponding to self.coeffs.
-        If the coeffs are all 0, then we return the scalar 0, since it will be
-        coerced up to the 0 vector in any vector space.
-
-        INPUT:
-
-        -  ``profile``  - The profile function of a larger algebra than
-           the one currently defined.
-
-        OUTPUT:  The vector in the vector space for self.parent corresponding
-                 to self.
-        """
-        if profile == None:
-           profile = self.profile
-        n = self.degree
-        if n == None:
-             return 0
-        alg = SteenrodAlgebra(p=self.module.char,profile=profile)
-        bas_gen = reduce(lambda x,y : x+y,\
-          [[(i,bb) for bb in alg.basis(n-self.module.degs[i])] \
-                   for i in range(len(self.module.degs))])
-        bas_vec = VectorSpace(GF(self.module.char),len(bas_gen))
-        bas_dict = dict(zip(bas_gen,bas_vec.basis()))
-        r = zip(range(len(self.coeffs)),self.coeffs)  #[...(gen,op)...]
-        r = filter(lambda x: not x[1].is_zero(),r)   #remove trivial ops
-        r = reduce(lambda x,y: x+y,\
-               [map(lambda xx: (pr[0],\
-               alg._milnor_on_basis(xx[0]), xx[1]),\
-               [z for z in pr[1]]) for pr in r])
-                  # now, r = [....(gen,basis_op,coeff)...]
-        return reduce(lambda x,y: x+y, map(lambda x : x[2]*bas_dict[(x[0],x[1])],r))
-    def vec(self,profile=None):
-        """
-        Returns the vector form of self, as well as the linear transformation
-        `q : F_n \rightarrow M_n` and `s:M_n \rightarrow F_n`, where `M_n`
-        and `F_n` are the degree `n` parts of the module and free vector
-        space, respectively.
-
-        OUTPUT:
-
-        -    ``x``    - The unique vector form of self in `M_n`.
-
-        -    ``q``    - The linear transformation from the free vector
-                        space to the module.
-
-        -    ``s``    - The linear transformation from the module to the
-                        free vector space.
-
-        -    ``bas``  - A list of pairs (gen_number,algebra element)
-                        corresponding to self in the std basis of the free module.
-
-        """
-        if profile == None:
-           profile = self.profile
-        n = self.degree
-        if n == None:
-            return 0,0,0,0
-        quo, q, s, bas = self.module._pres_(n,profile=profile)
-        return q(self.free_vec(profile=profile)),q,s,bas
-
-
-    def nf(self,profile=None):
-        """
-        Computes the normal form of self.
-        """
-        if profile == None:
-           profile = self.profile
-        if self.degree == None:
-            return self
-        v,q,sec,bas = self.vec(profile=profile)
-        return self.module._lc_(sec(v),bas)
-
-# The End
