@@ -1428,7 +1428,8 @@ and computing with elements involves finding the enveloping profile.
             sage: M.basis(3)
             [[Sq(1), 0], [0, 1]]
             sage: for i in range(10):
-            ....:     print "Basis for M in dimension ", i, " : ", M.basis(i)
+            ....:     print("Basis for M in dimension {0} : {1} ".format(i,
+            ....:            M.basis(i)))
             Basis for M in dimension  0  :  []
             Basis for M in dimension  1  :  []
             Basis for M in dimension  2  :  [[1, 0]]
