@@ -60,15 +60,18 @@ def maxim(L):
     [9, 2, 3, 5]
 
     """
-    if len(L) == 1:
-        return [L[0][i] for i in range(len(L[0]))]
-    else:
-        t1 = maxim([L[i] for i in range(1,len(L))])
-        t2 = [L[0][i] for i in range(len(L[0]))]
-        mm = max(len(t1),len(t2))
-        t1 = t1 + (mm - len(t1))*[0]
-        t2 = t2 + (mm - len(t2))*[0]
-        return map(max,zip(t1,t2))
+    from itertools import izip_longest
+    return map(max, izip_longest(*L, fillvalue=0))
+
+#    if len(L) == 1:
+#        return [L[0][i] for i in range(len(L[0]))]
+#    else:
+#        t1 = maxim([L[i] for i in range(1,len(L))])
+#        t2 = [L[0][i] for i in range(len(L[0]))]
+#        mm = max(len(t1),len(t2))
+#        t1 = t1 + (mm - len(t1))*[0]
+#        t2 = t2 + (mm - len(t2))*[0]
+#        return map(max,zip(t1,t2))
 
 def _deg_(degs,co):
     """
