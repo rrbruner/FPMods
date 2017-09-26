@@ -21,6 +21,7 @@ AUTHORS:
 
 EXAMPLES:
 
+    sage: from sage.modules.fpmods.fpmods import FP_Module
     sage: M = FP_Module([0,1],[[Sq(2),Sq(1)],[0,Sq(2)]])
 
 
@@ -39,6 +40,19 @@ fpmods.py
 Ver 1.1
 12/13/2011
 """
+
+import sage.modules.fpmods.utility as Utility
+import sage.modules.fpmods.profile as Profile
+import sage.modules.fpmods.resolutions as Resolutions
+
+from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
+from sage.modules.free_module import VectorSpace
+from sage.rings.finite_rings.finite_field_constructor import FiniteField
+from sage.categories.homset import Hom
+
+from sage.rings.infinity import PlusInfinity
+
+from copy import copy
 
 #--------------------------------------------------------------------------------
 #-----------------------Elements-of-FP_Modules-----------------------------------
@@ -60,7 +74,7 @@ class FP_Element(ModuleElement):
 
         INPUT:
 
-        -  ``coeffs``  - A list of Steenrod Algebra elements of GF(p)
+        -  ``coeffs``  - A list of Steenrod Algebra elements of FiniteField(p)
                          coefficients.
 
         -  ``module``  - An FP_Module corresponding to the parent module.
@@ -72,6 +86,7 @@ class FP_Element(ModuleElement):
 
         EXAMPLES::
 
+        sage: from sage.modules.fpmods.fpmods import FP_Module, FP_Element
         sage: m = FP_Element([0,Sq(3),Sq(1)],FP_Module([2,3,5]));m
         [0, Sq(3), Sq(1)]
 
@@ -82,9 +97,9 @@ class FP_Element(ModuleElement):
         else:
             self.coeffs = [SteenrodAlgebra(module.algebra._prime)(x) for x in coeffs]
         self._parent = module
-        self.degree = _deg_(self.module.degs,self.coeffs) # degree will find errors passed
-        profile_coeffs = [profile_ele(j,self.module.char) for j in self.coeffs]
-        self.profile = enveloping_profile_profiles(\
+        self.degree = Utility._deg_(self.module.degs,self.coeffs) # degree will find errors passed
+        profile_coeffs = [Profile.profile_ele(j,self.module.char) for j in self.coeffs]
+        self.profile = Profile.enveloping_profile_profiles(\
                  [list(module.algebra._profile)]+profile_coeffs,self.module.char)
         ModuleElement.__init__(self, module)
 
@@ -183,7 +198,7 @@ class FP_Element(ModuleElement):
         bas_gen = reduce(lambda x,y : x+y,\
           [[(i,bb) for bb in alg.basis(n-self.module.degs[i])] \
                    for i in range(len(self.module.degs))])
-        bas_vec = VectorSpace(GF(self.module.char),len(bas_gen))
+        bas_vec = VectorSpace(FiniteField(self.module.char),len(bas_gen))
         bas_dict = dict(zip(bas_gen,bas_vec.basis()))
         r = zip(range(len(self.coeffs)),self.coeffs)  #[...(gen,op)...]
         r = filter(lambda x: not x[1].is_zero(),r)   #remove trivial ops
@@ -282,6 +297,7 @@ and computing with elements involves finding the enveloping profile.
 
     ::
 
+        sage: from sage.modules.fpmods.fpmods import FP_Module
         sage: M = FP_Module([2,3],[[Sq(2),Sq(1)],[0,Sq(2)]])
         sage: N = FP_Module([0,1],[[Sq(2),Sq(1)]])
         sage: K = FP_Module([4])
@@ -362,21 +378,21 @@ and computing with elements involves finding the enveloping profile.
             prof = self.algebra._profile
         else:
 
-            prof = enveloping_profile_profiles(\
-                     [enveloping_profile_elements(r,self.char) for r in rels]\
-                     +[list(self.algebra._profile)],self.char)
-        self.algebra = SteenrodAlgebra(p=self.char,profile=prof)
+            prof = Profile.enveloping_profile_profiles(\
+                     [Profile.enveloping_profile_elements(r, self.char) for r in rels]\
+                     +[list(self.algebra._profile)], self.char)
+        self.algebra = SteenrodAlgebra(p=self.char, profile=prof)
         for r in rels:
             if r == [0]*len(degs):
                 rels.remove([0]*len(degs))
         self.rels = [[self.algebra(coeff) for coeff in r] for r in rels]
         self.degs = copy(degs)
         try:                        # Figure out if a rel isnt right
-            self.reldegs = [_deg_(self.degs,r) for r in self.rels]
+            self.reldegs = [Utility._deg_(self.degs,r) for r in self.rels]
         except ValueError:
             for r in rels:          # Figure out which rel isnt right
                 try:
-                   _deg_(degs,r)
+                   Utility._deg_(degs,r)
                 except ValueError:
                    raise ValueError, "Inhomogeneous relation %s" % r
         self._populate_coercion_lists_()
@@ -390,6 +406,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: Z = FP_Module([0],[[Sq(1)],[Sq(2)],[Sq(4)]]); Z.profile()
             (3, 2, 1)
 
@@ -403,6 +420,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: X = FP_Module([0,2,3]);X.alg()
             sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
             sage: XX = FP_Module([0,2,3],[[0,Sq(1),1]]);XX.alg()
@@ -417,6 +435,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: X = FP_Module([0,2,3]);X.conn()
             0
             sage: M = FP_Module([2,3],[[Sq(2),Sq(1)],[0,Sq(2)]]);M.conn()
@@ -424,7 +443,7 @@ and computing with elements involves finding the enveloping profile.
             sage: Q = FP_Module([]);Q.conn()
             +Infinity
         """
-        return min(self.degs+[+infinity])
+        return min(self.degs + [PlusInfinity()])
 
     def rdegs(self):
         """
@@ -432,12 +451,13 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: XX = FP_Module([0,2,3],[[0,Sq(1),1]]);XX.rdegs()
             [3]
             sage: M = FP_Module([2,3],[[Sq(2),Sq(1)],[0,Sq(2)]]);M.rdegs()
             [4, 5]
         """
-        return [_deg_(self.degs,r) for r in self.rels]
+        return [Utility._deg_(self.degs,r) for r in self.rels]
 
     def __contains__(self,x):
         r"""
@@ -451,6 +471,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module, FP_Element
             sage: M = FP_Module([0,2],[[Sq(3),Sq(1)]])
             sage: m = FP_Element([Sq(3),Sq(1)],M)
             sage: M.__contains__(m)
@@ -465,6 +486,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module([0,2,4],[[Sq(4),Sq(2),0]]); M
             Finitely presented module on 3 generators and 1 relation over sub-Hopf
             algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
@@ -493,6 +515,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module([0,2,4],[[Sq(4),Sq(2),0]]); M([Sq(2),0,0])
             [Sq(2), 0, 0]
 
@@ -530,6 +553,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module([0,2,4],[[Sq(4),Sq(2),0]]); M([Sq(2),0,0])
             [Sq(2), 0, 0]
             sage: quo,q,sec,bas = M._pres_(4)
@@ -565,7 +589,7 @@ and computing with elements involves finding the enveloping profile.
         bas_gen = reduce(lambda x,y : x+y,\
                   [[(i,bb) for bb in alg.basis(n-self.degs[i])]\
                            for i in range(len(self.degs))],[])
-        bas_vec = VectorSpace(GF(self.char),len(bas_gen))
+        bas_vec = VectorSpace(FiniteField(self.char),len(bas_gen))
         bas_dict = dict(zip(bas_gen,bas_vec.basis()))
         rel_vec = bas_vec.subspace([0])
         for i in range(len(self.rels)):
@@ -596,7 +620,7 @@ and computing with elements involves finding the enveloping profile.
 
         INPUT:
 
-        -    ``co``   -  A list of (either GF(p) elements or algebra elements)
+        -    ``co``   -  A list of (either FiniteField(p) elements or algebra elements)
              coefficients.
 
         -    ``bas``   -  A list of tuples (gen_number, algebra elt)
@@ -604,11 +628,12 @@ and computing with elements involves finding the enveloping profile.
 
        OUTPUT: The linear combination given by the sum of co[i]*basi][1]*gen(bas[i][0])
 
-       NOTE: The list of coefficients can lie in GF(p) or the algebra.
+       NOTE: The list of coefficients can lie in FiniteField(p) or the algebra.
              This does not normalize, the sum is taken in the free module.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module([2,3],[[Sq(2),Sq(1)],[0,Sq(2)]])
             sage: bas = [(0,1)]; co = [Sq(1)]
             sage: x = M._lc_(co,bas); x
@@ -640,23 +665,24 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module([2,3],[[Sq(2),Sq(1)],[0,Sq(2)]])
             sage: M.basis(0)
             []
             sage: M.basis(3)
             [[Sq(1), 0], [0, 1]]
             sage: for i in range(10):
-            ....:     print "Basis for M in dimension ", i, " : ", M.basis(i)
-            Basis for M in dimension  0  :  []
-            Basis for M in dimension  1  :  []
-            Basis for M in dimension  2  :  [[1, 0]]
-            Basis for M in dimension  3  :  [[Sq(1), 0], [0, 1]]
-            Basis for M in dimension  4  :  [[Sq(2), 0]]
-            Basis for M in dimension  5  :  [[Sq(0,1), 0]]
-            Basis for M in dimension  6  :  [[Sq(1,1), 0]]
-            Basis for M in dimension  7  :  []
-            Basis for M in dimension  8  :  []
-            Basis for M in dimension  9  :  []
+            ....:     print ("Basis for M in dimension %d: %s" % (i, M.basis(i)))
+            Basis for M in dimension 0: []
+            Basis for M in dimension 1: []
+            Basis for M in dimension 2: [[1, 0]]
+            Basis for M in dimension 3: [[Sq(1), 0], [0, 1]]
+            Basis for M in dimension 4: [[Sq(2), 0]]
+            Basis for M in dimension 5: [[Sq(0,1), 0]]
+            Basis for M in dimension 6: [[Sq(1,1), 0]]
+            Basis for M in dimension 7: []
+            Basis for M in dimension 8: []
+            Basis for M in dimension 9: []
 
         """
         if profile == None:
@@ -672,13 +698,14 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: X = FP_Module([0,2,3]);X.gens()
             [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
             sage: N = FP_Module([0,1],[[Sq(2),Sq(1)]]);N.gens()
             [[1, 0], [0, 1]]
 
         """
-        return [FP_Element(_del_(i,len(self.degs)),self) \
+        return [FP_Element(Utility._del_(i,len(self.degs)),self) \
            for i in range(len(self.degs))]
 
     def gen(self,i=0):
@@ -687,6 +714,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: X = FP_Module([0,2,3]);X.gen(0)
             [1, 0, 0]
             sage: N = FP_Module([0,1],[[Sq(2),Sq(1)]]);N.gen(1)
@@ -696,7 +724,7 @@ and computing with elements involves finding the enveloping profile.
         if i < 0 or i >= len(self.degs):
             raise ValueError,\
             "Module has generators numbered 0 to %s; generator %s does not exist" % (len(self.degs)-1,i)
-        return FP_Element(_del_(i,len(self.degs)),self)
+        return FP_Element(Utility._del_(i,len(self.degs)),self)
 
 
     def identity(self):
@@ -707,6 +735,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module, FP_Hom
             sage: N = FP_Module([0,1],[[Sq(2),Sq(1)]]);N.identity()
             Homomorphism from
              Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2
@@ -715,7 +744,7 @@ and computing with elements involves finding the enveloping profile.
             Steenrod algebra, milnor basis, profile function [2, 1]
 
         """
-        return FP_Hom(self,self,[_del_(i,len(self.degs))\
+        return FP_Hom(self,self,[Utility._del_(i,len(self.degs))\
                          for i in range(len(self.degs))])
 
     def min_pres(self):
@@ -734,6 +763,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: K = FP_Module([0,1],[[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: KK, g, h = K.min_pres();KK.rels
             [[Sq(2), Sq(1)], [0, Sq(2)]]
@@ -750,6 +780,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: A3 = SteenrodAlgebra(p=2,profile=(4,3,2,1))
             sage: Y = FP_Module([0],[[Sq(1)]],algebra=A3)
             sage: Y.profile()
@@ -760,8 +791,8 @@ and computing with elements involves finding the enveloping profile.
         if not self.rels:
             return self.algebra._profile
         else:
-            profile = enveloping_profile_profiles(\
-                     [enveloping_profile_elements(r,self.char) for r in self.rels],\
+            profile = Profile.enveloping_profile_profiles(\
+                     [Profile.enveloping_profile_elements(r,self.char) for r in self.rels],\
                       self.char)
             return profile
 
@@ -782,29 +813,32 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module([0,4],[[Sq(1),0],[Sq(5),Sq(1)]])
-            sage: N,i,p = M.copy(); N,i,p
-            (Finitely presented module on 2 generators and 2 relations over sub-Hopf
-            algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1],
+            sage: N,i,p = M.copy()
+            sage: N
+            Finitely presented module on 2 generators and 2 relations over sub-Hopf
+            algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            sage: i
             Homomorphism from
             Finitely presented module on 2 generators and 2 relations over sub-Hopf
             algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1] to
             Finitely presented module on 2 generators and 2 relations over sub-Hopf
             algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-            , Homomorphism from
+            sage: p
+            Homomorphism from
             Finitely presented module on 2 generators and 2 relations over sub-Hopf
             algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
             to
             Finitely presented module on 2 generators and 2 relations over sub-Hopf
             algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-            )
 
         """
         C = FP_Module(self.degs, self.rels, algebra=self.algebra)
         return C,\
-           FP_Hom(C,self,[_del_(i,len(self.degs))\
+           FP_Hom(C,self,[Utility._del_(i,len(self.degs))\
                   for i in range(len(self.degs))]),\
-           FP_Hom(self,C,[_del_(i,len(self.degs))\
+           FP_Hom(self,C,[Utility._del_(i,len(self.degs))\
                  for i in range(len(self.degs))])
 
     def suspension(self,t):
@@ -821,6 +855,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: Y = FP_Module([0],[[Sq(1)]])
             sage: X = Y.suspension(4)
             sage: X.degs;X.rels
@@ -863,6 +898,7 @@ and computing with elements involves finding the enveloping profile.
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: N = FP_Module([0,1],[[Sq(2),Sq(1)]]);
             sage: Y,g,h = N.submodule([N.gen(0)])
             sage: Y.degs;Y.rels
@@ -876,7 +912,7 @@ and computing with elements involves finding the enveloping profile.
         return N,p,i
 
 
-    def resolution(self,k,verbose=false):
+    def resolution(self,k,verbose=False):
         """
         Returns a list of length `k`, consisting of chain maps. These
         maps form a resolution of length `k` of `self`.
@@ -894,7 +930,7 @@ and computing with elements involves finding the enveloping profile.
             return [eps] + r
 
 
-    def resolution_kernels(self,k,kers=[],verbose=false):
+    def resolution_kernels(self,k,kers=[],verbose=False):
         """
         Returns a list of length `k`, consisting of chain maps and
         a list of pairs [K_n,i_n] corresponding to the kernels
@@ -966,8 +1002,8 @@ class FP_Hom(Morphism):
                       range(len(x))])
                 if not ximage.is_zero():
                     raise ValueError, "Relation %s is not sent to 0" % x
-        prof = enveloping_profile_profiles([domain.profile(),codomain.profile(),\
-                           enveloping_profile_elements(reduce(lambda x,y: x+y,\
+        prof = Profile.enveloping_profile_profiles([domain.profile(),codomain.profile(),\
+                      Profile.enveloping_profile_elements(reduce(lambda x,y: x+y,\
                            [x.coeffs for x in values],initialval.coeffs),\
                             domain.char)],domain.char)
         self.algebra = SteenrodAlgebra(p = domain.algebra.prime(),\
@@ -1143,8 +1179,8 @@ class FP_Hom(Morphism):
                           containing self.
         """
         initialval = FP_Element([0]*len(self.domain.degs),self.domain)
-        profile = enveloping_profile_profiles([self.domain.profile(),self.codomain.profile(),\
-                           enveloping_profile_elements(reduce(lambda x,y: x+y,\
+        profile = Profile.enveloping_profile_profiles([self.domain.profile(),self.codomain.profile(),\
+                           Profile.enveloping_profile_elements(reduce(lambda x,y: x+y,\
                            [x.coeffs for x in self.values],initialval.coeffs),\
                            self.domain.char)], self.domain.char)
         return profile
@@ -1193,7 +1229,7 @@ class FP_Hom(Morphism):
         coker = FP_Module(self.codomain.degs,\
                 self.codomain.rels + [x.coeffs for x in self.values],\
                 algebra = self.alg())
-        vals = [_del_(i,len(self.codomain.degs)) for i in \
+        vals = [Utility._del_(i,len(self.codomain.degs)) for i in \
                 range(len(self.codomain.degs))]
         if min == False:
             return coker,FP_Hom(self.codomain,coker,vals)
@@ -1221,11 +1257,11 @@ class FP_Hom(Morphism):
         EXAMPLES::
         """
         n = self.domain.conn()
-        if n == +Infinity:
+        if n == PlusInfinity():
             ker = FP_Module([])
             return ker, FP_Hom(ker,self.domain,values=0)
         notdone = True
-        limit = max_deg(self.algebra) + max(self.domain.degs)
+        limit = Utility.max_deg(self.algebra) + max(self.domain.degs)
         while notdone and n <= limit:
             fn = self._pres_(n)
             notdone = (fn.kernel().dimension() == 0)
@@ -1244,7 +1280,7 @@ class FP_Hom(Morphism):
                 incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n)
                 fn = self._pres_(n)
                 if fn.kernel().dimension() != 0:  # so we found something new
-                    Kfn = VectorSpace(GF(self.domain.algebra._prime),\
+                    Kfn = VectorSpace(FiniteField(self.domain.algebra._prime),\
                                    fn.kernel().dimension())
                     kin = Hom(Kfn,Mn)(fn.kernel().basis())
                     jn = Hom(Kn,Kfn)(kin.matrix().solve_left(incln.matrix()))
@@ -1262,7 +1298,7 @@ class FP_Hom(Morphism):
                 ker.reldegs += incln.kernel().dimension()*[n]
                 n += 1
             # All generators have been found.  Now see if we need any more relations.
-            while n <= max_deg(self.algebra) + max(ker.degs):
+            while n <= Utility.max_deg(self.algebra) + max(ker.degs):
                 incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n,profile=self.profile())
                 ker.rels += [ker._lc_(sec(v),bas).coeffs for v in incln.kernel().basis()]
                 ker.reldegs += incln.kernel().dimension()*[n]
@@ -1292,7 +1328,7 @@ class FP_Hom(Morphism):
         """
         n = self.domain.conn()
         notdone = True
-        limit = max_deg(self.algebra) + max(self.domain.degs)
+        limit = Utility.max_deg(self.algebra) + max(self.domain.degs)
         while notdone and n <= limit:
             fn = self._pres_(n)
             notdone = (fn.kernel().dimension() == 0)
@@ -1311,7 +1347,7 @@ class FP_Hom(Morphism):
                 incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n,profile=self.profile())
                 fn = self._pres_(n)
                 if fn.kernel().dimension() != 0:  # so we found something new
-                    Kfn = VectorSpace(GF(self.domain.algebra._prime),\
+                    Kfn = VectorSpace(FiniteField(self.domain.algebra._prime),\
                                    fn.kernel().dimension())
                     kin = Hom(Kfn,Mn)(fn.kernel().basis())
                     jn = Hom(Kn,Kfn)(kin.matrix().solve_left(incln.matrix()))

@@ -2,6 +2,7 @@
 #--------------------------Utility-functions------------------------------------
 #-------------------------------------------------------------------------------
 
+from sage.rings.infinity import PlusInfinity
 
 def maxim(L):
     """
@@ -92,7 +93,7 @@ def max_deg(alg):
 
 
     """
-    if alg._truncation_type == +Infinity:
+    if alg._truncation_type == PlusInfinity():
         raise ValueError, "Maximum degree is +Infinity"
     p = alg._prime
     if p == 2:

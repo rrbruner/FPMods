@@ -10,6 +10,8 @@
 
 # XXX Sverre -- Let this be commencted out until we find out where it is used:
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
+import sage.modules.fpmods.utility as Utility
+from copy import copy
 
 def profile_ele(alist,char=2):
     """
@@ -42,7 +44,7 @@ def profile_ele(alist,char=2):
         alist2 = [list(e) + (maxlength-len(e))*[0] for e in alist2]
         minprofile = [max([alist2[i][j] for i in range(len(alist2))]) \
                                                 for j in range(maxlength)]
-        minprofile = tuple(map(lambda xx: mod_p_log(xx,char),minprofile))
+        minprofile = tuple(map(lambda xx: Utility.mod_p_log(xx,char),minprofile))
         return find_min_profile(minprofile,char)
     if char != 2:
         alistQ = [e[0][0] for e in alist]
@@ -55,7 +57,7 @@ def profile_ele(alist,char=2):
                                             for j in range(maxlengthQ)]
         minprofileP = [max([alistP[i][j] for i in range(len(alistP))]) \
                                             for j in range(maxlengthP)]
-        minprofileP = tuple(map(lambda xx: mod_p_log(xx,char),minprofileP))
+        minprofileP = tuple(map(lambda xx: Utility.mod_p_log(xx,char),minprofileP))
         if not minprofileQ:
             minpQ=[]
         else:
@@ -176,7 +178,7 @@ def valid(LL,char=2):
     """
     if char == 2:
         L = [0] + list(LL) + [0]*(len(LL)) # Add 0 in beginning to keep rels correct
-        value = true                       # so r - i works when i = 0
+        value = True                       # so r - i works when i = 0
         for r in range(2,len(L)):
             for i in range(1,r):
                 value = value and ((L[r] >= L[r-i] - i) or (L[r] >= L[i]))
