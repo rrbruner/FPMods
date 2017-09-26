@@ -254,7 +254,6 @@ class FP_Element(ModuleElement):
 #--------------------------------------------------------------------------------
 #----------------------Finitely-Presented-Modules--------------------------------
 #--------------------------------------------------------------------------------
-from sage.structure.sage_object import SageObject
 from sage.modules.module import Module 
 
 class FP_Module(Module):
