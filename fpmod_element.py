@@ -44,7 +44,7 @@ class FP_Element(ModuleElement):
         sage: type(m)
         <class 'sage.modules.fpmods.fpmods.FP_Module_with_category.element_class'>
         sage: type(n)
-        <class 'sage.modules.fpmods.fpmods.FP_Element'>
+        <class 'sage.modules.fpmods.fpmod_element.FP_Element'>
 
         EXAMPLES::
 
@@ -78,6 +78,35 @@ class FP_Element(ModuleElement):
                  [list(module.profile())] + profile_coeffs, module.char)
 
         ModuleElement.__init__(self, parent=module)
+
+    def _get_coefficients(self):
+        """
+        TESTS::
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: M = FP_Module((2,3,5), ((0, Sq(2), 1),))
+            sage: m = M((0,Sq(3),Sq(1)));m
+            [0, Sq(3), Sq(1)]
+            sage: m.get_degree()
+            6
+            sage: m._get_coefficients()
+            [0, Sq(3), Sq(1)]
+
+        """
+        return self.coefficients
+
+    def get_degree(self):
+        """
+        EXAMPLES::
+
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: M = FP_Module((2,3,5))
+            sage: m = M((0,Sq(3),Sq(1)));m
+            [0, Sq(3), Sq(1)]
+            sage: m.get_degree()
+            6
+
+        """
+        return self.degree
 
     def _repr_(self):
         ## TO DO: Add parents when coeffs are sums:
