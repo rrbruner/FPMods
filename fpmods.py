@@ -51,13 +51,13 @@ class FP_Module(UniqueRepresentation, Module):
         sage: from sage.modules.fpmods.fpmods import FP_Module
         sage: degs = [1,3]
         sage: K = FP_Module(degs = tuple(degs));K
-        Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+        Finitely presented module on 2 generators and 0 relations ...
         sage: K.category()
         Category of modules over mod 2 Steenrod algebra, milnor basis
         sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));L
-        Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+        Finitely presented module on 2 generators and 2 relations ...
         sage: M = FP_Module((2,3),((Sq(2),Sq(1)),));M
-        Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+        Finitely presented module on 2 generators and 1 relation ...
         sage: K.element_class
         <class 'sage.modules.fpmods.fpmods.FP_Module_with_category.element_class'>
         sage: m = M((0,1)); m
@@ -99,13 +99,13 @@ class FP_Module(UniqueRepresentation, Module):
 
         sage: from sage.modules.fpmods.fpmods import FP_Module
         sage: K = FP_Module(degs = tuple([1,3]));K
-        Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+        Finitely presented module on 2 generators and 0 relations ...
         sage: K.category()
         Category of modules over mod 2 Steenrod algebra, milnor basis
         sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));L
-        Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+        Finitely presented module on 2 generators and 2 relations ...
         sage: M = FP_Module((2,3),((Sq(2),Sq(1)),));M
-        Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+        Finitely presented module on 2 generators and 1 relation ...
         sage: m = M((0,1)); m
         [0, 1]
         sage: M(m)
