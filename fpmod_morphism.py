@@ -427,4 +427,50 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         return profile
 
+    def suspension(self,t):
+        """
+        Suspends an FP_Hom, which requires suspending the domain and codomain as well.
+
+        INPUT:
+
+        -  ``t``  - The degree by which the homomorphism is suspended.
+
+        OUTPUT: The FP_Hom suspended by degree `t`.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: F1 = FP_Module(degs = (4,5));
+            sage: F2 = FP_Module(degs = (3,4));
+            sage: H1 = Hom(F1, F2);
+            sage: f = H1( ( F2((Sq(1), 0)), F2((0, Sq(1))) ) ); f
+            Module homomorphism of degree 0:
+              Domain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+            defined by sending the generators
+              [[1, 0], [0, 1]]
+            to
+              [[Sq(1), 0], [0, Sq(1)]]
+            sage: e1 = F1((1, 0))
+            sage: e2 = F2((0, 1))
+            sage: f(e1)
+            [Sq(1), 0]
+            sage: f(e2)
+            [0, Sq(1)]
+            sage: sf = f.suspension(4); sf
+            Module homomorphism of degree 1:
+              Domain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+            defined by sending the generators
+              [[1, 0], [0, 1]]
+            to
+              [[Sq(1), 0], [0, Sq(1)]]
+        """
+        if t == 0:
+            return self
+        else:
+            D = self.domain().suspension(t)
+            C = self.codomain().suspension(t)
+            homset = Hom(D, C)
+            return homset([D(x._get_coefficients()) for x in self.values])
 
