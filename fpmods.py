@@ -273,7 +273,7 @@ class FP_Module(UniqueRepresentation, Module):
             if r == [0]*len(degs):
                 rels.remove([0]*len(degs))
 
-        self.rels = [[(self._profile_algebra)(c) for c in r] for r in rels]
+        self.rels = tuple([tuple([(self._profile_algebra)(c) for c in r]) for r in rels])
 
         self.degs = list(degs)
 
@@ -715,7 +715,7 @@ class FP_Module(UniqueRepresentation, Module):
         EXAMPLES:
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: FP_Module((0, 2, 3)).get_rels()
-            []
+            ()
             sage: N = FP_Module((0,1),((Sq(2),Sq(1)),)).get_rels()
 
         """
@@ -761,4 +761,55 @@ class FP_Module(UniqueRepresentation, Module):
         from .fpmod_homspace import FP_ModuleHomspace
         return FP_ModuleHomspace(self, Y, category)
 
+    def copy(self):
+        """
+        Returns a copy of the module, with 2 ``identity'' morphisms from
+        1. the copy to the module
+        2. the module to the copy.
+
+        OUTPUT:
+
+        -   ``C``  - A duplicate of the module.
+
+        -   Two Finitely Presented Homomorphisms: the first is a map from `C` to self,
+            and the second is the map from self to `C`.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: M = FP_Module((0,4), ((Sq(1),0), (Sq(5),Sq(1)),))
+            sage: N,i,p = M.copy(); N
+            Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            sage: i
+            Module homomorphism of degree 0:
+              Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+              Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            defined by sending the generators
+              [[1, 0], [0, 1]]
+            to
+              [[1, 0], [0, 1]]
+            sage: p
+            Module homomorphism of degree 0:
+              Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+              Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            defined by sending the generators
+              [[1, 0], [0, 1]]
+            to
+              [[1, 0], [0, 1]]
+            sage: i*p
+            The identity module homomorphism:
+              Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+              Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            sage: p*i
+            The identity module homomorphism:
+              Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+              Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            sage: p*i == i*p
+            False
+
+        """
+        degrees = tuple(self.degs)
+        relations = self.rels
+        C = FP_Module(degrees, relations, algebra=self.profile_algebra())
+        return C, Hom(C, self)(self.gens()), Hom(self, C)(C.gens())
 
