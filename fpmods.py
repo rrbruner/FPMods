@@ -813,3 +813,38 @@ class FP_Module(UniqueRepresentation, Module):
         C = FP_Module(degrees, relations, algebra=self.profile_algebra())
         return C, Hom(C, self)(self.gens()), Hom(self, C)(C.gens())
 
+    def suspension(self,t):
+        """
+        Suspends a module by degree t.
+
+        INPUT:
+
+        -   ``t``  - An integer by which the module is suspended.
+
+        OUTPUT:
+
+        -   ``C``  ` A copy of the module `self` which is suspended by `t`.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: Y = FP_Module((0,), ((Sq(1),),))
+            sage: X = Y.suspension(4)
+            sage: X.degs;X.rels
+            [4]
+            ((Sq(1),),)
+            sage: M = FP_Module( (2,3), ( (Sq(2), Sq(1)), (0, Sq(2)) ) )
+            sage: Q = M.suspension(1)
+            sage: Q.degs;Q.rels
+            [3, 4]
+            ((Sq(2), Sq(1)), (0, Sq(2)))
+
+        """
+        if t == 0:
+            return self
+        else:
+            C = self.copy()[0]
+            C.degs = [g + t for g in C.get_degs()]
+            C.reldegs = [r + t for r in C.reldegs]
+            return C
+
