@@ -45,6 +45,24 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         EXAMPLES::
 
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: F1 = FP_Module(degs = (4,5));
+            sage: F2 = FP_Module(degs = (3,4));
+            sage: F3 = FP_Module(degs = (2,3));
+            sage: H1 = Hom(F1, F2);
+            sage: H2 = Hom(F2, F3);
+            sage: f = H1( ( F2((Sq(1), 0)), F2((0, Sq(1))) ) )
+            sage: g = H2( ( F3((Sq(1), 0)), F3((0, Sq(1))) ) )
+            sage: f*g
+            Traceback (most recent call last):
+             ...
+            ValueError: Morphisms not composable.
+            sage: g*f
+            The trivial module homomorphism:
+              Domain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+
+
         """
         from .fpmod_homspace import is_FP_ModuleHomspace
         if not is_FP_ModuleHomspace(parent):
@@ -163,11 +181,12 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
     def __mul__(self, g):
         """
-        Composition of morphisms.
+        Composition of morphisms: self \circ g
         """
-        if self.domain != g.codomain:
+        if self.parent().domain() != g.parent().codomain():
             raise ValueError, "Morphisms not composable."
-        return self.parent()([self(g(x)) for x in g.domain().gens()])
+        homset = Hom(g.parent().domain(), self.parent().codomain())
+        return homset([self(g(x)) for x in g.domain().gens()])
 
     def is_zero(self):
         """
