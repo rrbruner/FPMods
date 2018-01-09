@@ -113,13 +113,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         sage.categories.morphism.Morphism.__init__(self, parent)
 
-#        initialval = D([0]*len(D.get_degs()))
-#
-#        prof = Profile.enveloping_profile_profiles([D.profile(), C.profile(),\
-#                      Profile.enveloping_profile_elements(reduce(lambda x,y: x+y,\
-#                           [x._get_coefficients() for x in _values], initialval._get_coefficients()),\
-#                            D.char)], D.char)
-
         self.algebra = SteenrodAlgebra(p = D.profile_algebra().prime(), profile = self.min_profile())
 
 
