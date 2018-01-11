@@ -61,7 +61,7 @@ class FP_Module(UniqueRepresentation, Module):
         sage: K.element_class
         <class 'sage.modules.fpmods.fpmods.FP_Module_with_category.element_class'>
         sage: m = M((0,1)); m
-        [0, 1]
+        <0, 1>
         sage: K.is_parent_of(m)
         False
         sage: L.is_parent_of(m)
@@ -107,9 +107,9 @@ class FP_Module(UniqueRepresentation, Module):
         sage: M = FP_Module((2,3),((Sq(2),Sq(1)),));M
         Finitely presented module on 2 generators and 1 relation ...
         sage: m = M((0,1)); m
-        [0, 1]
+        <0, 1>
         sage: M(m)
-        [0, 1]
+        <0, 1>
 
     Creating homomorphisms::
 
@@ -128,9 +128,9 @@ class FP_Module(UniqueRepresentation, Module):
           Domain: Finitely presented module on 2 generators and 0 relations ...
           Codomain: Finitely presented module on 2 generators and 2 relations ...
         defined by sending the generators
-          [[1, 0], [0, 1]]
+          [<1, 0>, <0, 1>]
         to
-          [[Sq(1), 1], [0, Sq(2)]]
+          [<Sq(1), 1>, <0, Sq(2)>]
         sage: TestSuite(homset).run(verbose=True)
         running ._test_additive_associativity() . . . pass
         running ._test_an_element() . . . pass
@@ -171,9 +171,9 @@ class FP_Module(UniqueRepresentation, Module):
           Domain: Finitely presented module on 2 generators and 0 relations ...
           Codomain: Finitely presented module on 2 generators and 2 relations ...
         defined by sending the generators
-          [[1, 0], [0, 1]]
+          [<1, 0>, <0, 1>]
         to
-          [[Sq(1), 1], [0, Sq(2)]]
+          [<Sq(1), 1>, <0, Sq(2)>]
         sage: f - H.zero() == f
         True
         sage: Hom(L, F).zero()
@@ -204,11 +204,11 @@ class FP_Module(UniqueRepresentation, Module):
         sage: f == id
         True
         sage: el = L((Sq(5), Sq(4))); el.normalize()
-        [Sq(5), Sq(4)]
+        <Sq(5), Sq(4)>
         sage: End(L).identity()(el)
-        [Sq(5), Sq(4)]
+        <Sq(5), Sq(4)>
         sage: f(el)
-        [Sq(5), Sq(4)]
+        <Sq(5), Sq(4)>
 
     TESTS::
 
@@ -220,8 +220,8 @@ class FP_Module(UniqueRepresentation, Module):
         Traceback (most recent call last):
          ...
         ValueError: Ill defined homomorphism (degrees do not match)
-          Generator #0 (degree 1) -> [Sq(1), 1] (degree 3) shifts degrees by 2
-          Generator #1 (degree 3) -> [0, Sq(3)] (degree 6) shifts degrees by 3
+          Generator #0 (degree 1) -> <Sq(1), 1> (degree 3) shifts degrees by 2
+          Generator #1 (degree 3) -> <0, Sq(3)> (degree 6) shifts degrees by 3
 
     """
 
@@ -287,6 +287,8 @@ class FP_Module(UniqueRepresentation, Module):
                                Utility._deg_(degs,r)
                             except ValueError:
                                raise ValueError, "Inhomogeneous relation %s" % r
+                    except NotImplementedError:
+                        print (r)
 
         self.rels = tuple(rels)
 
@@ -373,17 +375,17 @@ class FP_Module(UniqueRepresentation, Module):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: e = M(0); e
-            [0, 0, 0]
+            <0, 0, 0>
             sage: type(e)
             <class 'sage.modules.fpmods.fpmods.FP_Module_with_category.element_class'>
             sage: f = M((Sq(6), 0, Sq(2))); f
-            [Sq(6), 0, Sq(2)]
+            <Sq(6), 0, Sq(2)>
             sage: type(f)
             <class 'sage.modules.fpmods.fpmods.FP_Module_with_category.element_class'>
             sage: g = M((Sq(6), 0, Sq(2))); g
-            [Sq(6), 0, Sq(2)]
+            <Sq(6), 0, Sq(2)>
             sage: M(g)
-            [Sq(6), 0, Sq(2)]
+            <Sq(6), 0, Sq(2)>
             sage: type(g)
             <class 'sage.modules.fpmods.fpmods.FP_Module_with_category.element_class'>
 
@@ -404,48 +406,48 @@ class FP_Module(UniqueRepresentation, Module):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: M.zero()
-            [0, 0, 0]
+            <0, 0, 0>
             sage: M.an_element()
-            [Sq(1,1,1), Sq(3,2), Sq(0,0,1)]
+            <Sq(1,1,1), Sq(3,2), Sq(0,0,1)>
             sage: M.an_element(0)
-            [1, 0, 0]
+            <1, 0, 0>
             sage: M.an_element(1)
-            [Sq(1), 0, 0]
+            <Sq(1), 0, 0>
             sage: M.an_element(2)
-            [Sq(2), 1, 0]
+            <Sq(2), 1, 0>
             sage: M.an_element(3)
-            [Sq(0,1), Sq(1), 0]
+            <Sq(0,1), Sq(1), 0>
             sage: M.an_element(4)
-            [Sq(1,1), Sq(2), 1]
+            <Sq(1,1), Sq(2), 1>
             sage: M.an_element(5)
-            [Sq(2,1), Sq(0,1), Sq(1)]
+            <Sq(2,1), Sq(0,1), Sq(1)>
             sage: M.an_element(6)
-            [Sq(0,2), Sq(1,1), Sq(2)]
+            <Sq(0,2), Sq(1,1), Sq(2)>
             sage: M.an_element(17)
-            [Sq(2,0,0,1), Sq(2,2,1), Sq(4,3)]
+            <Sq(2,0,0,1), Sq(2,2,1), Sq(4,3)>
             sage: N = FP_Module(degs=(2,), algebra = SteenrodAlgebra(2))
             sage: for d in range(20):
             ....:     N.an_element(degree=d)
-            [0]
-            [0]
-            [1]
-            [Sq(1)]
-            [Sq(2)]
-            [Sq(0,1)]
-            [Sq(1,1)]
-            [Sq(2,1)]
-            [Sq(6)]
-            [Sq(4,1)]
-            [Sq(5,1)]
-            [Sq(3,2)]
-            [Sq(1,3)]
-            [Sq(2,3)]
-            [Sq(0,4)]
-            [Sq(6,0,1)]
-            [Sq(4,1,1)]
-            [Sq(2,2,1)]
-            [Sq(0,3,1)]
-            [Sq(3,0,2)]
+            <0>
+            <0>
+            <1>
+            <Sq(1)>
+            <Sq(2)>
+            <Sq(0,1)>
+            <Sq(1,1)>
+            <Sq(2,1)>
+            <Sq(6)>
+            <Sq(4,1)>
+            <Sq(5,1)>
+            <Sq(3,2)>
+            <Sq(1,3)>
+            <Sq(2,3)>
+            <Sq(0,4)>
+            <Sq(6,0,1)>
+            <Sq(4,1,1)>
+            <Sq(2,2,1)>
+            <Sq(0,3,1)>
+            <Sq(3,0,2)>
 
         """
 
@@ -517,7 +519,7 @@ class FP_Module(UniqueRepresentation, Module):
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((0,2,4),((Sq(4),Sq(2),0),)); M((Sq(2),0,0))
-            [Sq(2), 0, 0]
+            <Sq(2), 0, 0>
             sage: quo,q,sec,bas = M._pres_(4)
             sage: dim(quo)
             3
@@ -623,10 +625,10 @@ class FP_Module(UniqueRepresentation, Module):
             sage: M = FP_Module((2, 3), ((Sq(2), Sq(1)), (0, Sq(2))))
             sage: bas = [(0, 1)]; co = [Sq(1)]
             sage: x = M._lc_(co, bas); x
-            [Sq(1), 0]
+            <Sq(1), 0>
             sage: bas2 = [(1, 1)]
             sage: y = M._lc_(co, bas2); y
-            [0, Sq(1)]
+            <0, Sq(1)>
 
         """
         if len(coefficients) != len(basis_elements):
@@ -662,16 +664,16 @@ class FP_Module(UniqueRepresentation, Module):
             sage: M.basis(0)
             []
             sage: M.basis(3)
-            [[Sq(1), 0], [0, 1]]
+            [<Sq(1), 0>, <0, 1>]
             sage: for i in range(10):
             ....:     print ("Basis for M in dimension %d: %s" % (i, M.basis(i)))
             Basis for M in dimension 0: []
             Basis for M in dimension 1: []
-            Basis for M in dimension 2: [[1, 0]]
-            Basis for M in dimension 3: [[Sq(1), 0], [0, 1]]
-            Basis for M in dimension 4: [[Sq(2), 0]]
-            Basis for M in dimension 5: [[Sq(0,1), 0]]
-            Basis for M in dimension 6: [[Sq(1,1), 0]]
+            Basis for M in dimension 2: [<1, 0>]
+            Basis for M in dimension 3: [<Sq(1), 0>, <0, 1>]
+            Basis for M in dimension 4: [<Sq(2), 0>]
+            Basis for M in dimension 5: [<Sq(0,1), 0>]
+            Basis for M in dimension 6: [<Sq(1,1), 0>]
             Basis for M in dimension 7: []
             Basis for M in dimension 8: []
             Basis for M in dimension 9: []
@@ -692,9 +694,9 @@ class FP_Module(UniqueRepresentation, Module):
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((0, 2, 3)); M.gens()
-            [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+            [<1, 0, 0>, <0, 1, 0>, <0, 0, 1>]
             sage: N = FP_Module((0,1),((Sq(2),Sq(1)),)); N.gens()
-            [[1, 0], [0, 1]]
+            [<1, 0>, <0, 1>]
 
         """
         return [self.element_class(self, Utility._del_(i, len(self.degs)))
@@ -740,9 +742,9 @@ class FP_Module(UniqueRepresentation, Module):
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((0,2,3)); M.gen(0)
-            [1, 0, 0]
+            <1, 0, 0>
             sage: N = FP_Module((0, 1), ((Sq(2), Sq(1)),)); N.gen(1)
-            [0, 1]
+            <0, 1>
 
         """
         if index < 0 or index >= len(self.degs):
@@ -796,17 +798,17 @@ class FP_Module(UniqueRepresentation, Module):
               Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
               Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
             defined by sending the generators
-              [[1, 0], [0, 1]]
+              [<1, 0>, <0, 1>]
             to
-              [[1, 0], [0, 1]]
+              [<1, 0>, <0, 1>]
             sage: p
             Module homomorphism of degree 0:
               Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
               Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
             defined by sending the generators
-              [[1, 0], [0, 1]]
+              [<1, 0>, <0, 1>]
             to
-              [[1, 0], [0, 1]]
+              [<1, 0>, <0, 1>]
             sage: i*p
             The identity module homomorphism:
               Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]

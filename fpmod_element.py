@@ -38,9 +38,9 @@ class FP_Element(ModuleElement):
         sage: M = FP_Module((2,3,5))
         sage: generators = (0,Sq(3),Sq(1))
         sage: m = M(generators);m
-        [0, Sq(3), Sq(1)]
+        <0, Sq(3), Sq(1)>
         sage: n = FP_Element(M, generators);n
-        [0, Sq(3), Sq(1)]
+        <0, Sq(3), Sq(1)>
         sage: type(m)
         <class 'sage.modules.fpmods.fpmods.FP_Module_with_category.element_class'>
         sage: type(n)
@@ -52,15 +52,15 @@ class FP_Element(ModuleElement):
         sage: M = FP_Module((2,3,5));M
         Finitely presented module on 3 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
         sage: m = FP_Element(M, (0,Sq(3),Sq(1)));m
-        [0, Sq(3), Sq(1)]
+        <0, Sq(3), Sq(1)>
         sage: n = FP_Element(M, (Sq(4),Sq(1)*Sq(2),0));n
-        [Sq(4), Sq(3), 0]
+        <Sq(4), Sq(3), 0>
         sage: m+n
-        [Sq(4), 0, Sq(1)]
+        <Sq(4), 0, Sq(1)>
         sage: m-n
-        [Sq(4), 0, Sq(1)]
+        <Sq(4), 0, Sq(1)>
         sage: Sq(7)*(m+n)
-        [0, 0, Sq(5,1)]
+        <0, 0, Sq(5,1)>
 
         """
 
@@ -85,7 +85,7 @@ class FP_Element(ModuleElement):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((2,3,5), ((0, Sq(2), 1),))
             sage: m = M((0,Sq(3),Sq(1)));m
-            [0, Sq(3), Sq(1)]
+            <0, Sq(3), Sq(1)>
             sage: m.get_degree()
             6
             sage: m._get_coefficients()
@@ -101,7 +101,7 @@ class FP_Element(ModuleElement):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((2,3,5))
             sage: m = M((0,Sq(3),Sq(1)));m
-            [0, Sq(3), Sq(1)]
+            <0, Sq(3), Sq(1)>
             sage: m.get_degree()
             6
 
@@ -112,7 +112,7 @@ class FP_Element(ModuleElement):
         ## TO DO: Add parents when coeffs are sums:
         ## Sq(3)*M.0 + Sq(1)*M.2 is fine, but we'll
         ## need (Sq(3) + Sq(0,1))*M.0. Still a problem?
-        return '%s' % self.coefficients
+        return '<%s>' % ', '.join(['%s' % c for c in self.coefficients])
 
     def _lmul_(self, a):
         """
@@ -125,9 +125,9 @@ class FP_Element(ModuleElement):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: x = M((Sq(6), Sq(4), Sq(2))); x
-            [Sq(6), Sq(4), Sq(2)]
+            <Sq(6), Sq(4), Sq(2)>
             sage: x._lmul_(Sq(5))
-            [Sq(5,2), Sq(3,2), Sq(1,2) + Sq(7)]
+            <Sq(5,2), Sq(3,2), Sq(1,2) + Sq(7)>
 
         """
         return self.parent()([a*c for c in self.coefficients])
@@ -142,14 +142,14 @@ class FP_Element(ModuleElement):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: x = M((Sq(6), Sq(4), Sq(2))); x
-            [Sq(6), Sq(4), Sq(2)]
+            <Sq(6), Sq(4), Sq(2)>
             sage: x._neg_()
-            [Sq(6), Sq(4), Sq(2)]
+            <Sq(6), Sq(4), Sq(2)>
             sage: N = FP_Module(degs=(2,), algebra = SteenrodAlgebra(5))
             sage: a = N((3,)); a
-            [3]
+            <3>
             sage: a._neg_()
-            [2]
+            <2>
 
         """
         return self.parent()([-c for c in self.coefficients])
@@ -168,11 +168,11 @@ class FP_Element(ModuleElement):
             sage: c = M((Sq(4), 0, 0))
             sage: d = M((0, Sq(2), 1))
             sage: a+b
-            [Sq(6), 0, Sq(2)]
+            <Sq(6), 0, Sq(2)>
             sage: b+b
-            [0, 0, 0]
+            <0, 0, 0>
             sage: c+d
-            [Sq(4), Sq(2), 1]
+            <Sq(4), Sq(2), 1>
         """
         if self.parent() != other.parent():
             raise TypeError, "Can't add element in different modules"
@@ -319,12 +319,12 @@ class FP_Element(ModuleElement):
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: m = M((Sq(6), 0, Sq(2)))
             sage: m; m.normalize()
-            [Sq(6), 0, Sq(2)]
-            [Sq(6), 0, Sq(2)]
+            <Sq(6), 0, Sq(2)>
+            <Sq(6), 0, Sq(2)>
             sage: n = M((Sq(4), Sq(2), 0))
             sage: n; n.normalize()
-            [Sq(4), Sq(2), 0]
-            [0, 0, 0]
+            <Sq(4), Sq(2), 0>
+            <0, 0, 0>
 
         """
 
