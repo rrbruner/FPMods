@@ -268,23 +268,26 @@ class FP_Module(UniqueRepresentation, Module):
 
         self.char = _char
 
-        rels = [] if relations is None else list(relations) 
-        for r in rels:
-            if r == [0]*len(degs):
-                rels.remove([0]*len(degs))
-
-        self.rels = tuple([tuple([(self._profile_algebra)(c) for c in r]) for r in rels])
-
         self.degs = list(degs)
 
-        try:
-            self.reldegs = [Utility._deg_(self.degs,r) for r in self.rels]
-        except ValueError:
-            for r in rels:
-                try:
-                   Utility._deg_(degs,r)
-                except ValueError:
-                   raise ValueError, "Inhomogeneous relation %s" % r
+        rels = [] 
+        self.reldegs = []
+        # Append all the non-zero relations.
+        if relations != None:
+            for r in relations:
+                if not all(v == 0 for v in r):
+                    rels.append(tuple([(self._profile_algebra)(c) for c in r]))
+                    try:
+                        x = Utility._deg_(self.degs, r)
+                        self.reldegs.append(x)
+                    except ValueError:
+                        for r in rels:
+                            try:
+                               Utility._deg_(degs,r)
+                            except ValueError:
+                               raise ValueError, "Inhomogeneous relation %s" % r
+
+        self.rels = tuple(rels)
 
         self._populate_coercion_lists_()
 
