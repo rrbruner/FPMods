@@ -721,13 +721,16 @@ class FP_Module(UniqueRepresentation, Module):
 
     def get_rels(self):
         """
-        Returns the list of degrees of the relations for this module.
+        Returns a tuple of relations, where each relation is a tuple 
+        of coefficients (which are elements of the profile algebra) defining
+        a relation this module.
 
         EXAMPLES:
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: FP_Module((0, 2, 3)).get_rels()
             ()
-            sage: N = FP_Module((0,1),((Sq(2),Sq(1)),)).get_rels()
+            sage: N = FP_Module((0,1),((Sq(2),Sq(1)),)).get_rels(); N
+            ((Sq(2), Sq(1)),)
 
         """
         return self.rels
