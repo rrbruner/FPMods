@@ -276,9 +276,10 @@ class FP_Module(UniqueRepresentation, Module):
         if relations != None:
             for r in relations:
                 if not all(v == 0 for v in r):
-                    rels.append(tuple([(self._profile_algebra)(c) for c in r]))
+                    relation = tuple([(self._profile_algebra)(c) for c in r])
+                    rels.append(relation)
                     try:
-                        x = Utility._deg_(self.degs, r)
+                        x = Utility._deg_(self.degs, relation)
                         self.reldegs.append(x)
                     except ValueError:
                         for r in rels:
@@ -575,10 +576,6 @@ class FP_Module(UniqueRepresentation, Module):
 
         numRelations = len(self.rels)
         numRelDegs = len(self.reldegs)
-        if numRelDegs != numRelations:
-            raise ValueError, ("numRelDegs != numRelations: %d != %d" % (numRelDegs, numRelations))
-        if not all(type(n) == type(reldeg) for reldeg in self.reldegs):
-            raise ValueError, "wrong type: %s" % self.reldegs
 
         for i in range(numRelations):
             if self.reldegs[i] <= n:
