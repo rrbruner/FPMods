@@ -572,9 +572,17 @@ class FP_Module(UniqueRepresentation, Module):
         bas_vec = VectorSpace(FiniteField(self.char),len(bas_gen))
         bas_dict = dict(zip(bas_gen,bas_vec.basis()))
         rel_vec = bas_vec.subspace([0])
-        for i in range(len(self.rels)):
+
+        numRelations = len(self.rels)
+        numRelDegs = len(self.reldegs)
+        if numRelDegs != numRelations:
+            raise ValueError, ("numRelDegs != numRelations: %d != %d" % (numRelDegs, numRelations))
+        if not all(type(n) == type(reldeg) for reldeg in self.reldegs):
+            raise ValueError, "wrong type: %s" % self.reldegs
+
+        for i in range(numRelations):
             if self.reldegs[i] <= n:
-                for co in alg.basis(n-self.reldegs[i]):
+                for co in alg.basis(n - self.reldegs[i]):
                     r = zip(range(len(self.degs)),[co*c for c in self.rels[i]])
                     r = filter(lambda x : not x[1].is_zero(),r) # remove trivial
                     if len(r) != 0:
