@@ -290,7 +290,9 @@ class FP_Module(UniqueRepresentation, Module):
                     except NotImplementedError:
                         print (r)
 
-        self.rels = tuple(rels)
+        # We keep the relations in a list so that we can add new relations
+        # later.
+        self.rels = rels
 
         self._populate_coercion_lists_()
 
@@ -727,9 +729,9 @@ class FP_Module(UniqueRepresentation, Module):
         EXAMPLES:
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: FP_Module((0, 2, 3)).get_rels()
-            ()
+            []
             sage: N = FP_Module((0,1),((Sq(2),Sq(1)),)).get_rels(); N
-            ((Sq(2), Sq(1)),)
+            [(Sq(2), Sq(1))]
 
         """
         return self.rels
@@ -822,7 +824,7 @@ class FP_Module(UniqueRepresentation, Module):
 
         """
         degrees = tuple(self.degs)
-        relations = self.rels
+        relations = tuple(self.rels)
         C = FP_Module(degrees, relations, algebra=self.profile_algebra())
         return C, Hom(C, self)(self.gens()), Hom(self, C)(C.gens())
 
@@ -845,12 +847,12 @@ class FP_Module(UniqueRepresentation, Module):
             sage: X = Y.suspension(4)
             sage: X.degs;X.rels
             [4]
-            ((Sq(1),),)
+            [(Sq(1),)]
             sage: M = FP_Module( (2,3), ( (Sq(2), Sq(1)), (0, Sq(2)) ) )
             sage: Q = M.suspension(1)
             sage: Q.degs;Q.rels
             [3, 4]
-            ((Sq(2), Sq(1)), (0, Sq(2)))
+            [(Sq(2), Sq(1)), (0, Sq(2))]
 
         """
         if t == 0:

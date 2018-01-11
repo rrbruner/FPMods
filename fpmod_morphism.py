@@ -76,7 +76,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: Q2, p = w.cokernel(); Q2
             Finitely presented module on 2 generators and 1 relation ...
             sage: Q2.get_rels()
-            ((Sq(6), Sq(5)),)
+            [(Sq(6), Sq(5))]
             sage: x = F1((Sq(7)*Sq(6), Sq(7)*Sq(5))); x
             <Sq(7,2), Sq(3,3)>
             sage: x.is_zero()
