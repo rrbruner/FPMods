@@ -14,13 +14,16 @@ from sage.modules.fpmods.fpmods import FP_Module
 
 from sage.categories.homset import Hom
 from sage.modules.free_module import VectorSpace
+from sage.rings.finite_rings.finite_field_constructor import FiniteField
 
 import sage.categories.morphism
 import sage.categories.homset
 
 from sage.structure.sequence import Sequence
+from sage.rings.infinity import PlusInfinity
 
 from inspect import isfunction
+from copy import copy
 
 
 def is_FP_ModuleMorphism(x):
@@ -90,6 +93,16 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             False
             sage: p(x + x2) == p(x2)
             True
+            sage: K, i = p.kernel(); K
+            Finitely presented module on 1 generator and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            sage: i
+            Module homomorphism of degree 0:
+              Domain: Finitely presented module on 1 generator and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+            defined by sending the generators
+              [<1>]
+            to
+              [<Sq(6), Sq(5)>]
 
         """
         from .fpmod_homspace import is_FP_ModuleHomspace
@@ -555,4 +568,77 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         else:
             MM, e, m = coker.min_pres()
             return MM, e*p
+
+
+    def kernel(self):
+        """
+        Computes the kernel of an FP_Hom, as an FP_Module.
+        The kernel is non-zero in degrees starting from connectivity of domain
+        through the top degree of the algebra the function is defined over plus
+        the top degree of the domain.
+
+        OUTPUT:
+
+        -  ``ker``  - An FP_Module corresponding to the kernel of `self`.
+
+        -  ``incl``  - An FP_Hom corresponding to the natural inclusion of `ker`
+                       into the domain.
+
+        EXAMPLES::
+        """
+        n = self.domain().conn()
+        if n == PlusInfinity():
+            ker = FP_Module(())
+            return ker, Hom(ker, self.domain())(0)
+
+        notdone = True
+        limit = Utility.max_deg(self.alg()) + max(self.domain().get_degs())
+
+        while notdone and n <= limit:
+            fn = self._pres_(n)
+            notdone = (fn.kernel().dimension() == 0)
+            if notdone:  # so the kernel is 0 in this degree n. Move on to the next.
+                n += 1
+        if notdone: # If the kernel is 0 in all degrees.
+            ker = FP_Module(degs = (), relations = (), algebra=self.alg())
+            return ker, Hom(ker, self.domain())(0)
+        else:
+            ker = FP_Module(fn.kernel().dimension()*(n,), relations=(), algebra=self.alg())
+            quo,q,sec,bas_gen = self.domain()._pres_(n,profile=self.profile())
+            incl = Hom(ker, self.domain())(
+                   [self.domain()._lc_(sec(v), bas_gen) for v in fn.kernel().basis()])
+            n += 1
+            while n <= limit:
+                incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n)
+                fn = self._pres_(n)
+                if fn.kernel().dimension() != 0:  # so we found something new
+                    Kfn = VectorSpace(FiniteField(self.domain().profile_algebra()._prime),\
+                                   fn.kernel().dimension())
+                    kin = Hom(Kfn,Mn)(fn.kernel().basis())
+                    jn = Hom(Kn,Kfn)(kin.matrix().solve_left(incln.matrix()))
+                    imjn = jn.image()
+                    num_new_gens = 0
+                    for v in Kfn.basis():
+                        if not v in imjn:
+                            num_new_gens += 1
+                            imjn += Kfn.subspace([v])
+                            incl.values.append(self.domain()._lc_(s(kin(v)),Mbas_gen))
+                    ker.degs += num_new_gens*[n]
+                    pad = num_new_gens*[0]
+                    ker.rels = [x + copy(pad) for x in ker.rels]
+
+                # Add relations.
+                ker.rels += [ker._lc_(sec(v),bas)._get_coefficients() for v in incln.kernel().basis()]
+                ker.reldegs += incln.kernel().dimension()*[n]
+                n += 1
+            # All generators have been found.  Now see if we need any more relations.
+            while n <= Utility.max_deg(self.alg()) + max(ker.get_degs()):
+                incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n, profile=self.profile())
+                ker.rels += [ker._lc_(sec(v),bas)._get_coefficients() for v in incln.kernel().basis()]
+                ker.reldegs += incln.kernel().dimension()*[n]
+                n += 1
+            ker.algebra = SteenrodAlgebra(p=ker.char, profile = ker.min_profile())
+            incl.algebra = SteenrodAlgebra(p=ker.char, profile = incl.min_profile())
+            return ker, incl
+
 

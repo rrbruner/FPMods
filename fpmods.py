@@ -776,6 +776,31 @@ class FP_Module(UniqueRepresentation, Module):
         from .fpmod_homspace import FP_ModuleHomspace
         return FP_ModuleHomspace(self, Y, category)
 
+    def min_profile(self):
+        """
+        Returns the profile of the smallest sub-Hopf algebra containing self.
+
+        OUTPUT: The profile function of the sub-Hopf algebra with the smallest
+        degree containing self.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: A3 = SteenrodAlgebra(p=2,profile=(4,3,2,1))
+            sage: Y = FP_Module((0,), ((Sq(1),),),algebra=A3)
+            sage: Y.profile()
+            (4, 3, 2, 1)
+            sage: Y.min_profile()
+            (1,)
+        """
+        if not self.rels:
+            return self.algebra._profile
+        else:
+            profile = Profile.enveloping_profile_profiles(\
+                     [Profile.enveloping_profile_elements(r,self.char) for r in self.rels],\
+                      self.char)
+            return profile
+
     def copy(self):
         """
         Returns a copy of the module, with 2 ``identity'' morphisms from
