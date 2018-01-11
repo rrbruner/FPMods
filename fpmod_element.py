@@ -338,5 +338,5 @@ class FP_Element(ModuleElement):
         return self.parent()._lc_(sec(v),bas)
 
     def __hash__(self):
-        return hash(self.x)
+        return hash(self.coefficients)
 
