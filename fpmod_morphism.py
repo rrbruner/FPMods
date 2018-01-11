@@ -10,6 +10,8 @@ from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 import sage.modules.fpmods.utility as Utility
 import sage.modules.fpmods.profile as Profile
 
+from sage.modules.fpmods.fpmods import FP_Module
+
 from sage.categories.homset import Hom
 from sage.modules.free_module import VectorSpace
 
@@ -427,6 +429,17 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         return profile
 
+
+    def get_values(self):
+        """
+            Returns a tuple of elements in the codomain, corresponding to the
+            value of the generator elements of the domain.
+
+            This defines the morphism.
+            
+        """
+        return self.values
+
     def suspension(self,t):
         """
         Suspends an FP_Hom, which requires suspending the domain and codomain as well.
@@ -473,4 +486,47 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             C = self.codomain().suspension(t)
             homset = Hom(D, C)
             return homset([D(x._get_coefficients()) for x in self.values])
+
+
+    def cokernel(self,min=False):
+        """
+        Computes the cokernel of an FP Hom.
+
+
+        Cheap way of computing cokernel. Cokernel is on same degs as codomain,
+        with rels = codomain.rels + self.values. Returns cokernel and the
+        projection map to it.
+
+        OUTPUT:
+
+        -  ``coker``  - The FP_Module corresponding to the cokernel of self.
+
+        -  The FP_Hom corresponding to the natural projection from self.codomain
+           to `coker`.
+
+        EXAMPLES::
+
+
+        """
+        newRelations = list(self.codomain().get_rels())
+        for value in self.get_values():
+            newRelations.append(tuple(value._get_coefficients()))
+
+        coker = FP_Module(degs = tuple(self.codomain().get_degs()),\
+                relations = tuple(newRelations),\
+                algebra = self.algebra)
+
+        homset = Hom(self.codomain(), coker)
+
+        # Create the quotient of the identity morhpism.
+        n = len(self.codomain().get_degs())
+        values = [coker( tuple(Utility._del_(i, n)) ) for i in range(n)]
+
+        p = homset(values)
+
+        if min == False:
+            return coker, p
+        else:
+            MM, e, m = coker.min_pres()
+            return MM, e*p
 
