@@ -103,6 +103,10 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
               [<1>]
             to
               [<Sq(6), Sq(5)>]
+            sage: S, epi, mono = p.image(); S
+            Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            sage: p(x + x2) == mono(epi(x + x2))
+            True
 
         """
         from .fpmod_homspace import is_FP_ModuleHomspace
@@ -123,9 +127,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         if len(D.gens()) != len(_values):
             raise ValueError, "The number of values must equal the number of" \
                 "generators in the domain.  Invalid argument: %s." % _values
-
-        if len(_values) == 0:
-            raise ValueError, "Invalid argument: %s." % _values
 
         if all(v.is_zero() for v in _values):
             # The zero homomoprhism does not get a degree.
@@ -641,4 +642,58 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             incl.algebra = SteenrodAlgebra(p=ker.char, profile = incl.min_profile())
             return ker, incl
 
+
+    def image(self):
+        """
+        Computes the Image of an FP_Hom, as an FP_Module. Returns the factorization of
+        self into epi, Image, mono.
+
+        Assumes generators of FP_Modules are in order of increasing degree.
+
+        OUTPUT:
+
+        -  ``F``  - The FP_Module corresponding to the image of self.
+
+        -  ``mono``  - The FP_Hom corresponding to the natural inclusion of `F` into
+                    the codomain of self.
+
+        -  ``epi``  - The FP_Hom corresponding to the natural projection of the
+                    domain of self onto `F`.
+
+        EXAMPLES::
+
+        """
+
+        F = FP_Module((), algebra = self.alg())
+        mono = Hom(F, self.codomain())([])
+        epivals = []
+
+        # Loop to find a minimal set of generators for the image.
+        for i in range(len(self.domain().get_degs())):
+            n = self.domain().get_degs()[i]
+            pn,Fquo,Fq,Fsec,Fbas,Cquo,Cq,Csec,Cbas = mono._full_pres_(n, profile=self.profile())
+            v = self.values[i].vec(profile=self.profile())[0]
+            if Cquo(v) in pn.image():
+                y = pn.matrix().solve_left(Cquo(v))
+
+                # Now convert the vector y into an FP_Element using lc
+                epivals.append(F._lc_(Fsec(y),Fbas))
+            else:
+                F.degs.append(n)
+                epivals.append(F.gen(len(F.get_degs())-1))
+                mono.values.append(self.values[i])
+
+        # Now compute the relations
+        K,i = mono.kernel()
+        F.reldegs = K.degs
+        F.rels = [x._get_coefficients() for x in i.values]
+        l = len(F.degs)
+        epivals = [ F(x._get_coefficients() + [0]*(l - len(x._get_coefficients()))) for x in epivals]
+        epi = Hom(self.domain(), F)(epivals)
+
+        # Now reduce profile functions
+        F.algebra = SteenrodAlgebra(p=F.char, profile = F.min_profile())
+        mono.algebra = SteenrodAlgebra(p=F.char,profile =  mono.min_profile())
+        epi.algebra = SteenrodAlgebra(p=F.char, profile = epi.min_profile())
+        return F,epi,mono
 
