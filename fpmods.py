@@ -912,7 +912,7 @@ class FP_Module(UniqueRepresentation, Module):
         EXAMPLES::
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
-            sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),));
+            sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),))
             sage: Y,g,h = N.submodule([N.gen(0)])
             sage: Y.get_degs();Y.get_rels()
             [0]
@@ -924,5 +924,63 @@ class FP_Module(UniqueRepresentation, Module):
         pr = Hom(F,self)(L)
         N,p,i = pr.image()
         return N,p,i
+
+
+    def resolution(self, k, verbose=False):
+        """
+        Returns a list of length `k`, consisting of chain maps. These
+        maps form a resolution of length `k` of `self`.
+
+
+        EXAMPLES::
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),))
+            sage: resolution = N.resolution(3, verbose=True)
+            Step  3
+            Step  2
+            Step  1
+            Step  0
+            sage: for i, r in enumerate(resolution): print ('f_%d: %s' % (i, r))
+            f_0: Module homomorphism of degree 0:
+              Domain: Finitely presented module on 2 generators and 0 relations ...
+              Codomain: Finitely presented module on 2 generators and 1 relation ...
+            defined by sending the generators
+              [<1, 0>, <0, 1>]
+            to
+              [<1, 0>, <0, 1>]
+            f_1: Module homomorphism of degree 0:
+              Domain: Finitely presented module on 1 generator and 0 relations ...
+              Codomain: Finitely presented module on 2 generators and 0 relations ...
+            defined by sending the generators
+              [<1>]
+            to
+              [<Sq(2), Sq(1)>]
+            f_2: Module homomorphism of degree 0:
+              Domain: Finitely presented module on 1 generator and 0 relations ...
+              Codomain: Finitely presented module on 1 generator and 0 relations ...
+            defined by sending the generators
+              [<1>]
+            to
+              [<Sq(3,1)>]
+            f_3: Module homomorphism of degree 0:
+              Domain: Finitely presented module on 2 generators and 0 relations ...
+              Codomain: Finitely presented module on 1 generator and 0 relations ...
+            defined by sending the generators
+              [<1, 0>, <0, 1>]
+            to
+              [<Sq(1)>, <Sq(2)>]
+
+        """
+        C0 = FP_Module(tuple(self.degs), algebra=self.profile_algebra())
+        eps = Hom(C0,self)(self.gens())
+        if verbose:
+              print "Step ",k
+        if k <= 0:
+            return [eps]
+        else:
+            K0,i0 = eps.kernel()
+            r = K0.resolution(k-1, verbose=verbose)
+            r[0] = i0*r[0]
+            return [eps] + r
 
 
