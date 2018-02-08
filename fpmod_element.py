@@ -218,7 +218,8 @@ class FP_Element(ModuleElement):
 
     def free_vec(self,profile=None):
         """
-        Returns the vector in the free vector space corresponding to self.coeffs.
+        Returns a tuple of coefficients corresponding to the standard basis of
+        the free vector space <---> self.coeffs.
         If the coeffs are all 0, then we return the scalar 0, since it will be
         coerced up to the 0 vector in any vector space.
 
@@ -264,9 +265,6 @@ class FP_Element(ModuleElement):
         -    ``q``    - The linear transformation from the free vector
                         space to the module.
 
-        -    ``s``    - The linear transformation from the module to the
-                        free vector space.
-
         -    ``bas``  - A list of pairs (gen_number,algebra element)
                         corresponding to self in the std basis of the free module.
 
@@ -276,8 +274,9 @@ class FP_Element(ModuleElement):
         n = self.degree
         if n == None:
             return 0,0,0,0
-        quo, q, s, bas = self.parent()._pres_(n, profile=profile)
-        return q(self.free_vec(profile=profile)),q,s,bas
+        quo, bas = self.parent()._pres_(n, profile=profile)
+        free_vector = quo.V().coordinate_vector(self.free_vec(profile=profile))
+        return quo.quotient_map()(free_vector), quo, bas
 
     def _nonzero_(self):
         """
@@ -304,7 +303,7 @@ class FP_Element(ModuleElement):
         """
         if self.degree == None:
             return False
-        v,q,sec,bas = self.vec()
+        v,quo,bas = self.vec()
         return v != 0
 
     def normalize(self,profile=None):
@@ -334,8 +333,8 @@ class FP_Element(ModuleElement):
         if self.degree == None:
             return self
 
-        v,q,sec,bas = self.vec(profile=profile)
-        return self.parent()._lc_(sec(v),bas)
+        v,quo,bas = self.vec(profile=profile)
+        return self.parent()._lc_(quo.lift(v), bas)
 
     def __hash__(self):
         return hash(self.coefficients)

@@ -79,7 +79,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: Q2, p = w.cokernel(); Q2
             Finitely presented module on 2 generators and 1 relation ...
             sage: Q2.get_rels()
-            [(Sq(6), Sq(5))]
+            ((Sq(6), Sq(5)),)
             sage: x = F1((Sq(7)*Sq(6), Sq(7)*Sq(5))); x
             <Sq(7,2), Sq(3,3)>
             sage: x.is_zero()
@@ -93,7 +93,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             False
             sage: p(x + x2) == p(x2)
             True
-            sage: K, i = p.kernel(); K
+            sage: i = p.kernel(); i.domain()
             Finitely presented module on 1 generator and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
             sage: i
             Module homomorphism of degree 0:
@@ -103,7 +103,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
               [<1>]
             to
               [<Sq(6), Sq(5)>]
-            sage: S, epi, mono = p.image(); S
+            sage: mono,epi = p.image(); mono.domain()
             Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
             sage: p(x + x2) == mono(epi(x + x2))
             True
@@ -125,15 +125,23 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         # Check the homomorphism is well defined.
         if len(D.gens()) != len(_values):
-            raise ValueError, "The number of values must equal the number of" \
+            raise ValueError, "The number of values must equal the number of " \
                 "generators in the domain.  Invalid argument: %s." % _values
 
         if all(v.is_zero() for v in _values):
-            # The zero homomoprhism does not get a degree.
+            # The zero homomorphism does not get a degree.
             self.degree = None
+#            print ('This is the zero map.')
         else:
             # Check the homomorphism is well defined.
-            self.degree = _values[0].get_degree() - D.get_degs()[0]
+
+            # Find the first non-zero value.
+            for i, value in enumerate(_values):
+                if not value.is_zero():
+                    self.degree = value.get_degree() - D.get_degs()[i]
+                    break
+
+            # check all the remaining ones.
             if not all(not v.get_degree() or self.degree == (v.get_degree() - g) \
                        for g, v in zip(D.get_degs(), _values)):
                 errorMessage = "Ill defined homomorphism (degrees do not match)\n"
@@ -151,20 +159,19 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
                 if not r.is_zero():
                     raise ValueError, "Relation %s is not sent to zero" % relation
 
+#            print ('This map has degree %d' % self.degree)
+
         self.values = _values
 
         sage.categories.morphism.Morphism.__init__(self, parent)
 
         self.algebra = SteenrodAlgebra(p = D.profile_algebra().prime(), profile = self.min_profile())
 
-
-
     def profile(self):
         return self.algebra._profile
 
     def alg(self):
         return self.algebra
-
 
 
     def _richcmp_(self, other, op):
@@ -276,10 +283,12 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
     def _full_pres_(self,n,profile=None):
         """
-        Computes the linear transformation from domain in degree n
-        to codomain in degree n+degree(self). 9 items returned: the
-        linear transformation, self.dom._pres_(n), & self.codomain._pres_(n).
-        See the documentation for _pres_ in class FP_Module for further explanation.
+        Returns the  linear transformation from domain in degree n
+        to codomain in degree n+degree(self). 3 items returned: the
+        linear transformation, the domain and codomain generator sets.
+        The last two items correspond to isomorphisms between the degree n
+        parts of the module and the domain and codomain vector spaces of the
+        first return value.
 
         INPUT:
 
@@ -294,25 +303,8 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         -  The linear transformation corresponding to the degree `n` piece of this
            mapping (see the documentation for _pres_ below).
 
-        -  ``dquo``  - The vector space corresponding to self.domain in degree `n`.
-
-        -  ``dq``  - The quotient map from the vector space for the free module on
-           the generators to `dquo`.
-
-        -  ``dsec``  - Elements of the domain of `dq` which project to the standard
-           basis for `dquo`.
-
         -  ``dbas_gen``  - A list of pairs (gen_number, algebra element)
            corresponding to the standard basis for the free module.
-
-        -  ``cquo``  - The vector space corresponding to self.codomain in degree `n` +
-           self.degree.
-
-        -  ``cq``  - The quotient map from the vector space for the free module on
-           the generators to `cquo`.
-
-        -  ``csec``  - Elements of the domain of `cq` which project to the standard basis
-           for `cquo`.
 
         -  ``cbas_gen``  - A list of pairs (gen_number, algebra element) corresponding
            to the standard basis for the free module.
@@ -322,75 +314,59 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((2,3),((Sq(2),Sq(1)),))
             sage: N = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))))
-            sage: f = Hom(M,N).an_element();
-            sage: f._full_pres_(9)
+            sage: f = Hom(M,N) ( [N((1,0)), N((0,1))] );
+            sage: f._full_pres_(2)
             (Vector space morphism represented by the matrix:
-             []
-             Domain: Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
-             V: Vector space of dimension 1 over Finite Field of size 2
-             W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
-             Basis matrix:
              [1]
-             Codomain: Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
+             Domain: Vector space quotient V/W of dimension 1 over Finite Field of size 2 where
              V: Vector space of dimension 1 over Finite Field of size 2
-             W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
+             W: Vector space of degree 1 and dimension 0 over Finite Field of size 2
              Basis matrix:
-             [1],
-             Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
-             V: Vector space of dimension 1 over Finite Field of size 2
-             W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
-             Basis matrix:
-             [1],
-             Vector space morphism represented by the matrix:
              []
-             Domain: Vector space of dimension 1 over Finite Field of size 2
-             Codomain: Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
+             Codomain: Vector space quotient V/W of dimension 1 over Finite Field of size 2 where
              V: Vector space of dimension 1 over Finite Field of size 2
-             W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
+             W: Vector space of degree 1 and dimension 0 over Finite Field of size 2
              Basis matrix:
-             [1],
-             Vector space morphism represented by the matrix:
-             []
-             Domain: Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
-             V: Vector space of dimension 1 over Finite Field of size 2
-             W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
-             Basis matrix:
+             [], [(0, 1)], [(0, 1)])
+            sage: f._full_pres_(5)
+            (Vector space morphism represented by the matrix:
              [1]
-             Codomain: Vector space of dimension 1 over Finite Field of size 2,
-             [(1, Sq(3,1))],
-             Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
-             V: Vector space of dimension 1 over Finite Field of size 2
-             W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
+             [0]
+             Domain: Vector space quotient V/W of dimension 2 over Finite Field of size 2 where
+             V: Vector space of dimension 3 over Finite Field of size 2
+             W: Vector space of degree 3 and dimension 1 over Finite Field of size 2
              Basis matrix:
-             [1],
-             Vector space morphism represented by the matrix:
-             []
-             Domain: Vector space of dimension 1 over Finite Field of size 2
-             Codomain: Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
-             V: Vector space of dimension 1 over Finite Field of size 2
-             W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
+             [0 1 0]
+             Codomain: Vector space quotient V/W of dimension 1 over Finite Field of size 2 where
+             V: Vector space of dimension 3 over Finite Field of size 2
+             W: Vector space of degree 3 and dimension 2 over Finite Field of size 2
              Basis matrix:
-             [1],
-             Vector space morphism represented by the matrix:
-             []
-             Domain: Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
-             V: Vector space of dimension 1 over Finite Field of size 2
-             W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
-             Basis matrix:
-             [1]
-             Codomain: Vector space of dimension 1 over Finite Field of size 2,
-             [(1, Sq(3,1))])
+             [0 1 0]
+             [0 0 1],
+             [(0, Sq(0,1)), (0, Sq(3)), (1, Sq(2))],
+             [(0, Sq(0,1)), (0, Sq(3)), (1, Sq(2))])
 
         """
         if profile == None:
             profile = self.profile()
-        dquo,dq,dsec,dbas_gen = self.parent().domain()._pres_(n, profile=profile)
-        cquo,cq,csec,cbas_gen = self.parent().codomain()._pres_(n, profile=profile)
-        return Hom(dquo,cquo)(
-            [cq(self(self.parent().domain()._lc_(dsec(x), dbas_gen)).free_vec(profile=profile))\
-            for x in dquo.basis()]),\
-            dquo,dq,dsec,dbas_gen,\
-            cquo,cq,csec,cbas_gen
+
+        if self.degree == None:
+            return 0,0,0
+        # raise ValueError, "Cannot create presentation of the n-th part of the trivial morphism."
+
+        codomain_degree = n + self.degree
+
+        D_n, dbas_gen = self.domain()._pres_(n, profile=profile)
+        C_n, cbas_gen = self.codomain()._pres_(codomain_degree, profile=profile)
+
+        target_values = [C_n.quotient_map()(\
+            self(self.domain()._lc_(D_n.lift(x), dbas_gen)).free_vec(profile=profile)) for x in D_n.basis()]
+
+        # print ('target_values: %s' % target_values)
+        #   return Hom(dquo,cquo)([0 for x in dquo.basis()]),\
+
+        return Hom(D_n, C_n)(target_values),\
+            dbas_gen, cbas_gen
 
     def _pres_(self,n,profile=None):
         """
@@ -414,40 +390,38 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((2,3),((Sq(2),Sq(1)),))
             sage: N = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))))
-            sage: f = Hom(M,N).an_element(); f
-            The trivial module homomorphism:
-              Domain: Finitely presented module on 2 generators and 1 relation ...
-              Codomain: Finitely presented module on 2 generators and 2 relations ...
-            sage: f._pres_(9)
+            sage: f = Hom(M,N) ( [N((1,0)), N((0,1))] )
+            sage: f._pres_(6)
             Vector space morphism represented by the matrix:
-            []
-            Domain: Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
-            V: Vector space of dimension 1 over Finite Field of size 2
-            W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
-            Basis matrix:
             [1]
-            Codomain: Vector space quotient V/W of dimension 0 over Finite Field of size 2 where
-            V: Vector space of dimension 1 over Finite Field of size 2
-            W: Vector space of degree 1 and dimension 1 over Finite Field of size 2
-            Basis matrix:
             [1]
-
+            Domain: Vector space quotient V/W of dimension 2 over Finite Field of size 2 where
+            V: Vector space of dimension 3 over Finite Field of size 2
+            W: Vector space of degree 3 and dimension 1 over Finite Field of size 2
+            Basis matrix:
+            [1 1 1]
+            Codomain: Vector space quotient V/W of dimension 1 over Finite Field of size 2 where
+            V: Vector space of dimension 3 over Finite Field of size 2
+            W: Vector space of degree 3 and dimension 2 over Finite Field of size 2
+            Basis matrix:
+            [1 1 0]
+            [0 0 1]
         """
         return self._full_pres_(n, profile)[0]
 
 
     def min_profile(self):
         """
-        Returns the profile function for the smallest sub-Hopf algebra over which self
-        is defined.
+        Returns the profile function for the smallest sub-Hopf algebra over
+        which self is defined.
 
-        This function is useful when reducing to the smallest profile function (and sub-Hopf algebra)
-        an FP_Module can be defined over.
+        This function is useful when reducing to the smallest profile function
+        (and sub-Hopf algebra) an FP_Module can be defined over.
 
         OUTPUT:
 
-        -  ``profile``  - The profile function corresponding to the smallest sub-Hopf algebra
-                          containing self.
+        -  ``profile``  - The profile function corresponding to the smallest
+                          sub-Hopf algebra containing self.
 
         EXAMPLES::
 
@@ -580,68 +554,146 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         OUTPUT:
 
-        -  ``ker``  - An FP_Module corresponding to the kernel of `self`.
-
-        -  ``incl``  - An FP_Hom corresponding to the natural inclusion of `ker`
-                       into the domain.
+        -  ``j``  -  An injective homomorphism K -> self such that 
+                     im(j) = ker(self).
 
         EXAMPLES::
-        """
-        n = self.domain().conn()
-        if n == PlusInfinity():
-            ker = FP_Module(())
-            return ker, Hom(ker, self.domain())(0)
 
-        notdone = True
+            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: F = FP_Module(degs = tuple([1,3]));
+            sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));
+            sage: homset = Hom(F, L);
+            sage: homset([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
+            Module homomorphism of degree 0:
+              Domain: Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+            defined by sending the generators
+              [<1, 0>, <0, 1>]
+            to
+              [<0, 1>, <Sq(0,1), 0>]
+
+        """
+
+        K = FP_Module(degs=(), relations=(), algebra=self.alg())
+        j = Hom(K, self.domain()).zero()
+
+        n = self.domain().conn()
+
+        if n == PlusInfinity():
+            return j
+
+        # XXX Shouldn't this loop termination limit derive more directly from
+        #     the profile associated to this homomorphism?
         limit = Utility.max_deg(self.alg()) + max(self.domain().get_degs())
 
-        while notdone and n <= limit:
-            fn = self._pres_(n)
-            notdone = (fn.kernel().dimension() == 0)
-            if notdone:  # so the kernel is 0 in this degree n. Move on to the next.
-                n += 1
-        if notdone: # If the kernel is 0 in all degrees.
-            ker = FP_Module(degs = (), relations = (), algebra=self.alg())
-            return ker, Hom(ker, self.domain())(0)
-        else:
-            ker = FP_Module(fn.kernel().dimension()*(n,), relations=(), algebra=self.alg())
-            quo,q,sec,bas_gen = self.domain()._pres_(n,profile=self.profile())
-            incl = Hom(ker, self.domain())(
-                   [self.domain()._lc_(sec(v), bas_gen) for v in fn.kernel().basis()])
+        self_n = self._pres_(n)
+        while n <= limit and self_n.kernel().dimension() == 0:
+            n += 1; self_n = self._pres_(n)
+
+        if n > limit:
+            return j
+
+        prime = self.alg().prime()
+
+        kernel_n = self_n.kernel()
+        # assert : kernel_n.dimension() > 0:
+
+
+        #
+        # Assume by induction that we have created a homomorphism j
+        #
+        #       j      self
+        #    K ---> D ------> C
+        #
+        # with im(j) contained in ker(self) such that j is an isomorphism in
+        # degrees < n.
+        #
+        # The following code creates a j for the first n such that ker(self)_n != 0
+        #
+        D_n, bas_gen = self.domain()._pres_(n, profile=self.profile())
+        K = FP_Module(tuple(kernel_n.dimension()*[n]), relations=(), algebra=self.alg())
+        j = Hom(K, self.domain()) (
+               [self.domain()._lc_(D_n.lift(v), bas_gen) for v in kernel_n.basis()])
+
+        #
+        # Consider the F_p-linear part of the above diagram by restricting to
+        # degree n in the domain.
+        #
+        #         j_n        self_n
+        #    K_n -----> D_n --------> C_n'   ( n' - n = self.degree() )
+        #
+        # By construction, im(self_n) \subset ker(f_n), but not necessarily
+        # onto the kernel.  The loop below improves j in two steps:
+        # 1. Introduces new relations in degree n such that j_n becomes 
+        #    injective.
+        # 2. Adds new generators to K in degree n, and extend j on these
+        #    generators to take values in ker(j)_n such that j becomes onto the
+        #    kernel.
+        #
+        # Both steps leave everything in degrees below n as they were.
+        #
+        while True:
             n += 1
-            while n <= limit:
-                incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n)
-                fn = self._pres_(n)
-                if fn.kernel().dimension() != 0:  # so we found something new
-                    Kfn = VectorSpace(FiniteField(self.domain().profile_algebra()._prime),\
-                                   fn.kernel().dimension())
-                    kin = Hom(Kfn,Mn)(fn.kernel().basis())
-                    jn = Hom(Kn,Kfn)(kin.matrix().solve_left(incln.matrix()))
-                    imjn = jn.image()
-                    num_new_gens = 0
-                    for v in Kfn.basis():
-                        if not v in imjn:
-                            num_new_gens += 1
-                            imjn += Kfn.subspace([v])
-                            incl.values.append(self.domain()._lc_(s(kin(v)),Mbas_gen))
-                    ker.degs += num_new_gens*[n]
-                    pad = num_new_gens*[0]
-                    ker.rels = [x + copy(pad) for x in ker.rels]
+            if n > limit:
+                break
 
-                # Add relations.
-                ker.rels += [ker._lc_(sec(v),bas)._get_coefficients() for v in incln.kernel().basis()]
-                ker.reldegs += incln.kernel().dimension()*[n]
-                n += 1
-            # All generators have been found.  Now see if we need any more relations.
-            while n <= Utility.max_deg(self.alg()) + max(ker.get_degs()):
-                incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = incl._full_pres_(n, profile=self.profile())
-                ker.rels += [ker._lc_(sec(v),bas)._get_coefficients() for v in incln.kernel().basis()]
-                ker.reldegs += incln.kernel().dimension()*[n]
-                n += 1
-            ker.algebra = SteenrodAlgebra(p=ker.char, profile = ker.min_profile())
-            incl.algebra = SteenrodAlgebra(p=ker.char, profile = incl.min_profile())
-            return ker, incl
+            # Find new relations that, when introduced, will make j(n+1)
+            # injective.
+            j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(n, profile=self.profile())
+            new_relations = [tuple(j.domain()._lc_(j_n.domain().lift(v), j_n_domain_basis)._get_coefficients()) \
+                             for v in j_n.kernel().basis()]
 
+            # Find the missing values that will make j(n+1) onto the kernel.
+            kernel_self_n = self._pres_(n).kernel()
+
+            cokernel_values = []
+            if kernel_self_n.dimension() > 0:
+
+                # The matrix giving the lift of j_n into kernel_self_n.
+                #
+                #            j_n        f_n
+                #       K_n -----> D_n -----> C_n
+                #
+                #         \       /\
+                #          \      /
+                #          \/    /
+                #
+                #        kernel_self_n
+                #
+                lift_j_n = kernel_self_n.basis_matrix().solve_left(j_n.matrix())
+
+                jn = Hom(j_n.domain(), kernel_self_n)(lift_j_n)
+                image_j_n = jn.image()
+                cokernel_j_n = kernel_self_n.quotient(image_j_n)
+                cokernel_values = [
+                    self.domain()._lc_(cokernel_j_n.lift(e) , j_n_codomain_basis)\
+                        for e in cokernel_j_n.basis()] 
+
+            # Add any new generators found in the loop above.
+            num_new_gens = len(cokernel_values)
+            new_degs = list(j.domain().get_degs()) + num_new_gens*[n]
+
+
+            # Pad the existing relations-tuples with zeros.
+            relations = [ (r + num_new_gens*(0,)) for r in \
+                (list(j.domain().get_rels()) + new_relations) ]
+
+            K = FP_Module(tuple(new_degs), tuple(relations), algebra=self.alg())
+            ttv = list(j.get_values()) + cokernel_values
+            j = Hom(K, self.domain())(ttv)
+
+#        # All generators have been found.  Now see if we need any more relations.
+#        # XXX Necessary??
+#        while n <= Utility.max_deg(self.alg()) + max(K.get_degs()):
+#            incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = F._full_pres_(n, profile=self.profile())
+#            ker.rels += _create_module_elements(K, sec, F.kernel().basis(), bas)
+#            ker.reldegs += F.kernel().dimension()*[n]
+#            n += 1
+#
+#        K._profile_algebra = SteenrodAlgebra(p=K.char, profile = K.min_profile())
+#        F._profile_algebra = SteenrodAlgebra(p=K.char, profile = F.min_profile())
+
+        return j
 
     def image(self):
         """
@@ -652,48 +704,70 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         OUTPUT:
 
-        -  ``F``  - The FP_Module corresponding to the image of self.
-
         -  ``mono``  - The FP_Hom corresponding to the natural inclusion of `F` into
                     the codomain of self.
 
         -  ``epi``  - The FP_Hom corresponding to the natural projection of the
-                    domain of self onto `F`.
+                    domain of self onto `F`, such that mono*epi = self.
 
         EXAMPLES::
 
         """
 
-        F = FP_Module((), algebra = self.alg())
-        mono = Hom(F, self.codomain())([])
-        epivals = []
+        # Values of the epi homomorphism.
+        epi_values = []
+
+        # Generators by degrees.
+        image_module_degs = []
+
+        # Values as elements in self.codomain().
+        image_module_values = []
 
         # Loop to find a minimal set of generators for the image.
-        for i in range(len(self.domain().get_degs())):
-            n = self.domain().get_degs()[i]
-            pn,Fquo,Fq,Fsec,Fbas,Cquo,Cq,Csec,Cbas = mono._full_pres_(n, profile=self.profile())
-            v = self.values[i].vec(profile=self.profile())[0]
-            if Cquo(v) in pn.image():
-                y = pn.matrix().solve_left(Cquo(v))
+        for n, v in zip(self.domain().get_degs(), self.values):
 
-                # Now convert the vector y into an FP_Element using lc
-                epivals.append(F._lc_(Fsec(y),Fbas))
+            image_module = FP_Module(tuple(image_module_degs), algebra = self.alg())
+            mono = Hom(image_module, self.codomain())(image_module_values)
+
+            mono_n, image_module_bas, Cbas = mono._full_pres_(n, profile=self.profile())
+
+            v_ = v.vec(profile=self.profile())[0]
+            v__ = 0 if mono_n == 0 else mono_n.codomain().quotient_map()(v_)
+
+            if v__ == 0 or not v__ in mono_n.image():
+                image_module_degs.append(n)
+                image_module_values.append(v)
+
+                # append [0, 0,..., 0, 1] to the values for 'epi'.
+                epi_value = [0]*len(image_module_degs)
+                epi_value[-1] = 1
+                epi_values.append(epi_value)
             else:
-                F.degs.append(n)
-                epivals.append(F.gen(len(F.get_degs())-1))
-                mono.values.append(self.values[i])
+                y = mono_n.matrix().solve_left(v__)
+                y_ = image_module._lc_(
+                        mono_n.domain().lift(y),
+                        image_module_bas)
+                epi_values.append(y_._get_coefficients())
 
-        # Now compute the relations
-        K,i = mono.kernel()
-        F.reldegs = K.degs
-        F.rels = [x._get_coefficients() for x in i.values]
-        l = len(F.degs)
-        epivals = [ F(x._get_coefficients() + [0]*(l - len(x._get_coefficients()))) for x in epivals]
-        epi = Hom(self.domain(), F)(epivals)
+        # Compute the relations.
+        image_module = FP_Module(tuple(image_module_degs), algebra = self.alg())
+        mono = Hom(image_module, self.codomain())(image_module_values)
 
-        # Now reduce profile functions
-        F.algebra = SteenrodAlgebra(p=F.char, profile = F.min_profile())
-        mono.algebra = SteenrodAlgebra(p=F.char,profile =  mono.min_profile())
-        epi.algebra = SteenrodAlgebra(p=F.char, profile = epi.min_profile())
-        return F,epi,mono
+        # Recreate the module again, this time including the relations.
+        image_module = FP_Module( \
+            degs=tuple(image_module_degs), \
+            relations=tuple([tuple(x._get_coefficients()) for x in mono.kernel().get_values()]), \
+            algebra = self.alg())
+
+        # Create the monomorphism.
+        mono = Hom(image_module, self.codomain())(image_module_values)
+
+        # Create the epimorphism.
+        l = len(image_module.get_degs())
+        epi_values = [ image_module(x + [0]*(l - len(x))) for x in epi_values ]
+        epi = Hom(self.domain(), image_module)(epi_values)
+
+        # XXX todo: reduce profile functions.
+
+        return mono, epi
 

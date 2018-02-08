@@ -127,10 +127,14 @@ class FP_Module(UniqueRepresentation, Module):
         Module homomorphism of degree 2:
           Domain: Finitely presented module on 2 generators and 0 relations ...
           Codomain: Finitely presented module on 2 generators and 2 relations ...
+        sage: Hom(F, L) ([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
+        Module homomorphism of degree 0:
+          Domain: Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+          Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
         defined by sending the generators
           [<1, 0>, <0, 1>]
         to
-          [<Sq(1), 1>, <0, Sq(2)>]
+          [<0, 1>, <Sq(0,1), 0>]
         sage: TestSuite(homset).run(verbose=True)
         running ._test_additive_associativity() . . . pass
         running ._test_an_element() . . . pass
@@ -168,12 +172,20 @@ class FP_Module(UniqueRepresentation, Module):
           Codomain: Finitely presented module on 2 generators and 2 relations ...
         sage: f = H( [L((Sq(1), 1)), L((0, Sq(2)))] ); f
         Module homomorphism of degree 2:
-          Domain: Finitely presented module on 2 generators and 0 relations ...
-          Codomain: Finitely presented module on 2 generators and 2 relations ...
+          Domain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+          Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
         defined by sending the generators
           [<1, 0>, <0, 1>]
         to
           [<Sq(1), 1>, <0, Sq(2)>]
+        sage: Hom(F, L) ([L((0, 0)), L((0, 1))]).kernel()
+        Module homomorphism of degree 0:
+          Domain: Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+          Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
+        defined by sending the generators
+          [<1, 0>, <0, 1>]
+        to
+          [<1, 0>, <0, Sq(2)>]
         sage: f - H.zero() == f
         True
         sage: Hom(L, F).zero()
@@ -268,10 +280,10 @@ class FP_Module(UniqueRepresentation, Module):
 
         self.char = _char
 
-        self.degs = list(degs)
+        self.degs = degs
 
         rels = [] 
-        self.reldegs = []
+        reldegs = []
         # Append all the non-zero relations.
         if relations != None:
             for r in relations:
@@ -280,7 +292,7 @@ class FP_Module(UniqueRepresentation, Module):
                     rels.append(relation)
                     try:
                         x = Utility._deg_(self.degs, relation)
-                        self.reldegs.append(x)
+                        reldegs.append(x)
                     except ValueError:
                         for r in rels:
                             try:
@@ -290,9 +302,8 @@ class FP_Module(UniqueRepresentation, Module):
                     except NotImplementedError:
                         print (r)
 
-        # We keep the relations in a list so that we can add new relations
-        # later.
-        self.rels = rels
+        self.rels = tuple(rels)
+        self.reldegs = tuple(reldegs)
 
         self._populate_coercion_lists_()
 
@@ -345,7 +356,7 @@ class FP_Module(UniqueRepresentation, Module):
             sage: Q = FP_Module(());Q.conn()
             +Infinity
         """
-        return min(self.degs + [PlusInfinity()])
+        return min(self.degs + (PlusInfinity(),))
 
     def rdegs(self):
         """
@@ -453,6 +464,9 @@ class FP_Module(UniqueRepresentation, Module):
 
         """
 
+        if len(self.degs) == 0:
+            return self.element_class(self, [])
+
         if degree == None:
             degree = max(self.degs) + 7
 
@@ -506,74 +520,32 @@ class FP_Module(UniqueRepresentation, Module):
 
         OUTPUT:
 
-        -  ``quo``  - A vector space for the degree `n` part of Module.
-
-        -  ``q``  - The quotient map from the vector space for the free module on
-           the generators to quo.
-
-        -  ``sec``  - Elements of the domain of `q` which project to the std basis for
-           quo.
-
+        -  ``M_n`` - A finite dimensional vector space over F_p isomorphic to
+                    the degree n part of the module.
+                      
         -  `` bas_gen``  - A list of pairs (gen_number, algebra element)
-           corresponding to the std basis for the free module.
+            corresponding to the std basis for the domain of q.  This set of
+            elements gives the chosen isomorphism between q.domain() and F_n.
 
         EXAMPLES::
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((0,2,4),((Sq(4),Sq(2),0),)); M((Sq(2),0,0))
             <Sq(2), 0, 0>
-            sage: quo,q,sec,bas = M._pres_(4)
-            sage: dim(quo)
+            sage: M_n, bas = M._pres_(4)
+            sage: dim(M_n)
             3
-            sage: q
-            Vector space morphism represented by the matrix:
-            [1 0 0]
-            [0 1 0]
-            [0 1 0]
-            [0 0 1]
-            Domain: Vector space of dimension 4 over Finite Field of size 2
-            Codomain: Vector space quotient V/W of dimension 3 over Finite Field of size 2 where
-            V: Vector space of dimension 4 over Finite Field of size 2
-            W: Vector space of degree 4 and dimension 1 over Finite Field of size 2
-            Basis matrix:
-            [0 1 1 0]
-            sage: sec
-            Vector space morphism represented by the matrix:
-            [1 0 0 0]
-            [0 1 0 0]
-            [0 0 0 1]
-            Domain: Vector space quotient V/W of dimension 3 over Finite Field of size 2 where
-            V: Vector space of dimension 4 over Finite Field of size 2
-            W: Vector space of degree 4 and dimension 1 over Finite Field of size 2
-            Basis matrix:
-            [0 1 1 0]
-            Codomain: Vector space of dimension 4 over Finite Field of size 2
             sage: bas
             [(0, Sq(1,1)), (0, Sq(4)), (1, Sq(2)), (2, 1)]
-
-            sage: U = VectorSpace(FiniteField(2), 5); U
-            Vector space of dimension 5 over Finite Field of size 2
-            sage: V = U.subspace([0]); V
-            Vector space of degree 5 and dimension 0 over Finite Field of size 2
-            Basis matrix:
-            []
-            sage: W = U/V; W
-            Vector space quotient V/W of dimension 5 over Finite Field of size 2 where
-            V: Vector space of dimension 5 over Finite Field of size 2
-            W: Vector space of degree 5 and dimension 0 over Finite Field of size 2
-            Basis matrix:
-            []
-            sage: from sage.categories.homset import Hom
-            sage: Hom(U, U)
-            Set of Morphisms (Linear Transformations) from Vector space of dimension 5 over Finite Field of size 2 to Vector space of dimension 5 over Finite Field of size 2
 
         """
         if profile == None:
             profile = self.profile()
         alg = SteenrodAlgebra(p=self.char,profile=profile)
         bas_gen = reduce(lambda x,y : x+y,\
-                  [[(i,bb) for bb in alg.basis(n-self.degs[i])]\
+                  [[(i,bb) for bb in alg.basis(n - self.degs[i])]\
                            for i in range(len(self.degs))],[])
+
         bas_vec = VectorSpace(FiniteField(self.char),len(bas_gen))
         bas_dict = dict(zip(bas_gen,bas_vec.basis()))
         rel_vec = bas_vec.subspace([0])
@@ -593,15 +565,8 @@ class FP_Module(UniqueRepresentation, Module):
                         rel_vec += bas_vec.subspace(\
                             [reduce(lambda x,y: x+y,\
                             map(lambda x: x[2]*bas_dict[(x[0],x[1])],r))])
-        quo = bas_vec/rel_vec
-        if quo.dimension() == 0:
-            sec = Hom(quo,bas_vec).zero()
-            q = Hom(bas_vec,quo)([quo(0) for xx in bas_vec.basis()])
-        else:
-            sec = Hom(quo,bas_vec)([quo.lift(xx) for xx in quo.basis()])
-            q = Hom(bas_vec,quo)([quo(xx) for xx in bas_vec.basis()])
-        return quo, q, sec, bas_gen
-
+        quotient = bas_vec/rel_vec
+        return quotient, bas_gen
 
     def _lc_(self, coefficients, basis_elements):
         """
@@ -641,6 +606,7 @@ class FP_Module(UniqueRepresentation, Module):
         return reduce(lambda x,y : x+y, \
               [(coefficients[i]*basis_elements[i][1])*self.gen(basis_elements[i][0]) for i in range(len(coefficients))],
               self(0))
+
 
     def basis(self,n,profile=None):
         """
@@ -683,8 +649,8 @@ class FP_Module(UniqueRepresentation, Module):
         """
         if profile == None:
             profile = self.profile()
-        quo,q,s,bas = self._pres_(n, profile=profile)
-        return [self._lc_(s(v),bas) for v in quo.basis()]
+        M_n, bas = self._pres_(n, profile=profile)
+        return [self._lc_(M_n.lift(v), bas) for v in M_n.basis()]
 
 #    __getitem__ = basis
 
@@ -712,10 +678,10 @@ class FP_Module(UniqueRepresentation, Module):
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module((0, 2, 3));
             sage: M.get_degs()
-            [0, 2, 3]
+            (0, 2, 3)
             sage: N = FP_Module((0,1),((Sq(2),Sq(1)),));
             sage: N.get_degs()
-            [0, 1]
+            (0, 1)
 
         """
         return self.degs
@@ -729,16 +695,17 @@ class FP_Module(UniqueRepresentation, Module):
         EXAMPLES:
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: FP_Module((0, 2, 3)).get_rels()
-            []
+            ()
             sage: N = FP_Module((0,1),((Sq(2),Sq(1)),)).get_rels(); N
-            [(Sq(2), Sq(1))]
+            ((Sq(2), Sq(1)),)
 
         """
         return self.rels
 
     def gen(self, index=0):
         """
-        The index'th generator of the module as an FP_Element.
+        Returns the module generator (as an module element) with the given 
+        index.
 
         EXAMPLES::
 
@@ -801,58 +768,6 @@ class FP_Module(UniqueRepresentation, Module):
                       self.char)
             return profile
 
-    def copy(self):
-        """
-        Returns a copy of the module, with 2 ``identity'' morphisms from
-        1. the copy to the module
-        2. the module to the copy.
-
-        OUTPUT:
-
-        -   ``C``  - A duplicate of the module.
-
-        -   Two Finitely Presented Homomorphisms: the first is a map from `C` to self,
-            and the second is the map from self to `C`.
-
-        EXAMPLES::
-
-            sage: from sage.modules.fpmods.fpmods import FP_Module
-            sage: M = FP_Module((0,4), ((Sq(1),0), (Sq(5),Sq(1)),))
-            sage: N,i,p = M.copy(); N
-            Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-            sage: i
-            Module homomorphism of degree 0:
-              Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-              Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-            defined by sending the generators
-              [<1, 0>, <0, 1>]
-            to
-              [<1, 0>, <0, 1>]
-            sage: p
-            Module homomorphism of degree 0:
-              Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-              Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-            defined by sending the generators
-              [<1, 0>, <0, 1>]
-            to
-              [<1, 0>, <0, 1>]
-            sage: i*p
-            The identity module homomorphism:
-              Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-              Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-            sage: p*i
-            The identity module homomorphism:
-              Domain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-              Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-            sage: p*i == i*p
-            False
-
-        """
-        degrees = tuple(self.degs)
-        relations = tuple(self.rels)
-        C = FP_Module(degrees, relations, algebra=self.profile_algebra())
-        return C, Hom(C, self)(self.gens()), Hom(self, C)(C.gens())
-
     def suspension(self,t):
         """
         Suspends a module by degree t.
@@ -871,24 +786,17 @@ class FP_Module(UniqueRepresentation, Module):
             sage: Y = FP_Module((0,), ((Sq(1),),))
             sage: X = Y.suspension(4)
             sage: X.degs;X.rels
-            [4]
-            [(Sq(1),)]
+            (4,)
+            ((Sq(1),),)
             sage: M = FP_Module( (2,3), ( (Sq(2), Sq(1)), (0, Sq(2)) ) )
             sage: Q = M.suspension(1)
             sage: Q.degs;Q.rels
-            [3, 4]
-            [(Sq(2), Sq(1)), (0, Sq(2))]
+            (3, 4)
+            ((Sq(2), Sq(1)), (0, Sq(2)))
 
         """
-        if t == 0:
-            return self
-        else:
-            C = self.copy()[0]
-            C.degs = [g + t for g in C.get_degs()]
-            C.reldegs = [r + t for r in C.reldegs]
-            return C
-
-
+        generator_degrees = [g + t for g in self.get_degs()]
+        return FP_Module(degs=tuple(generator_degrees), relations=self.get_rels(), algebra=self.profile_algebra())
 
     def submodule(self,L):
         """
@@ -896,6 +804,7 @@ class FP_Module(UniqueRepresentation, Module):
 
         The map from the free module on the elements of L to
         the submodule, as well as the inclusion of the submodule are also returned.
+        ``N``  - The FP_Module generated by `L`, a submodule of `self`.
 
         INPUT:
 
@@ -903,84 +812,129 @@ class FP_Module(UniqueRepresentation, Module):
 
         OUTPUT:
 
-        -  ``N``  - The FP_Module generated by `L`, a submodule of `self`.
+
+        -  ``i``  - The inclusion of `N` into `self`.
 
         -  ``p``  - The map from the free module on the elements of L to `N`.
 
-        -  ``i``  - The inclusion of `N` into `self`.
 
         EXAMPLES::
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),))
-            sage: Y,g,h = N.submodule([N.gen(0)])
+            sage: h,g = N.submodule([N.gen(0)])
+            sage: Y=h.domain()
             sage: Y.get_degs();Y.get_rels()
-            [0]
-            [[Sq(3)]]
+            (0,)
+            ((Sq(3),),)
 
         """
         degs = [x.get_degree() for x in L]
         F = FP_Module(tuple(degs), algebra=self.profile_algebra())
         pr = Hom(F,self)(L)
-        N,p,i = pr.image()
-        return N,p,i
+        return pr.image()
 
 
-    def resolution(self, k, verbose=False):
+    def resolution(self,k,kernels=False,verbose=False):
         """
-        Returns a list of length `k`, consisting of chain maps. These
+        Returns a list of length `k`, consisting of chain maps and
+        a list of pairs [K_n,i_n] corresponding to the kernels
+        and inclusions of the resolution. These
         maps form a resolution of length `k` of `self`.
+
+
+        INPUT:
+
+        -  ``k``  - An non-negative integer.
+
+        OUTPUT:
+
+        -  ``res``   - A list of surjective homomorphisms [f_i | i = 0 ... k]
+                       making a free resolution of length `k`:
+
+                            f_k          f_k-1                 f_1       f_0
+                       F_k -----> F_k-1 ------> F_k-2 --> ... ----> F_0 ----> self.
+
+        -  ``kers``  - A list of tuples [(K_i, inj_i) | i = 0 ... k-1] where
+                       K_i is an FP_Module, and inj_i is an inclusion into F_i
+                       such that:
+
+                       im (inj_i: K_i -> F_i) = ker (f_i) for i = 0 ... k-1.
+
 
 
         EXAMPLES::
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),))
-            sage: resolution = N.resolution(3, verbose=True)
+            sage: res, kers = N.resolution(3, kernels=True, verbose=True)
+            Step  3
+            Step  2
+            Step  1
+            Step  0
+            sage: len(res)
+            4
+            sage: len(kers)
+            3
+            sage: for i, kernel_inj in enumerate(kers):
+            ....:     f = res[i]
+            ....:     x = kernel_inj.domain().an_element()
+            ....:     y = f(kernel_inj(x))
+            ....:     if not y.is_zero():
+            ....:         raise ValueError, 'The element %s should be in the kernel of:\n%s\n but it maps to %s.' % (x, f, y)
+            sage: M = FP_Module((0,1), ((Sq(2),Sq(1)),))
+            sage: resolution = M.resolution(3, verbose=True)
             Step  3
             Step  2
             Step  1
             Step  0
             sage: for i, r in enumerate(resolution): print ('f_%d: %s' % (i, r))
             f_0: Module homomorphism of degree 0:
-              Domain: Finitely presented module on 2 generators and 0 relations ...
-              Codomain: Finitely presented module on 2 generators and 1 relation ...
+              Domain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+              Codomain: Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
             defined by sending the generators
               [<1, 0>, <0, 1>]
             to
               [<1, 0>, <0, 1>]
             f_1: Module homomorphism of degree 0:
-              Domain: Finitely presented module on 1 generator and 0 relations ...
-              Codomain: Finitely presented module on 2 generators and 0 relations ...
+              Domain: Finitely presented module on 1 generator and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
             defined by sending the generators
               [<1>]
             to
               [<Sq(2), Sq(1)>]
-            f_2: Module homomorphism of degree 0:
-              Domain: Finitely presented module on 1 generator and 0 relations ...
-              Codomain: Finitely presented module on 1 generator and 0 relations ...
-            defined by sending the generators
-              [<1>]
-            to
-              [<Sq(3,1)>]
-            f_3: Module homomorphism of degree 0:
-              Domain: Finitely presented module on 2 generators and 0 relations ...
-              Codomain: Finitely presented module on 1 generator and 0 relations ...
-            defined by sending the generators
-              [<1, 0>, <0, 1>]
-            to
-              [<Sq(1)>, <Sq(2)>]
+            f_2: The trivial module homomorphism:
+              Domain: Finitely presented module on 0 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+              Codomain: Finitely presented module on 1 generator and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+            f_3: The trivial module homomorphism:
+              Domain: Finitely presented module on 0 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+              Codomain: Finitely presented module on 0 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
 
         """
+
+        kers = [] if kernels else None
+        res, kers = self._resolution(k, kers, verbose)
+        if kernels == True:
+            return res, kers
+        else:
+            return res
+
+    def _resolution(self,k,kers,verbose=False):
+        """
+            The private implementation of resolution()
+        """
+
         C0 = FP_Module(tuple(self.degs), algebra=self.profile_algebra())
         eps = Hom(C0,self)(self.gens())
+
         if verbose:
               print "Step ",k
         if k <= 0:
-            return [eps]
+            return [eps], kers
         else:
-            K0,i0 = eps.kernel()
-            r = K0.resolution(k-1, verbose=verbose)
+            i0 = eps.kernel()
+            if not kers is None:
+                kers.append(i0)
+            r, kz = i0.domain()._resolution(k-1, kers, verbose)
             r[0] = i0*r[0]
-            return [eps] + r
-
+            return [eps] + r, kers
 
