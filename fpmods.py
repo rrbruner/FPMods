@@ -20,19 +20,52 @@ from sage.rings.infinity import PlusInfinity
 
 from copy import copy
 
-
 #--------------------------------------------------------------------------------
 #----------------------Finitely-Presented-Modules--------------------------------
 #--------------------------------------------------------------------------------
+
 import sage.modules.fpmods.utility as Utility
+
 import sage.modules.fpmods.profile as Profile
 
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 
+# http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#the-parent
+# "You are encouraged to make your parent "unique". That's to say, parents 
+#  should only evaluate equal if they are identical. Sage provides frameworks to
+#  create unique parents. We use here the most easy one: Inheriting from the
+#  class sage.structure.unique_representation.UniqueRepresentation is enough.
+#  Making parents unique can be quite important for an efficient implementation,
+#  because the repeated creation of "the same" parent would take a lot of time."
+#
+# Deriving from the class UniqueRepresentation forces the condition that the
+# constructor arguments must be hashable.  This excludes the use of arrays [],
+# instead we use tuples () which are immutable and hashable.  The downside
+# is that notation is a bit ugly in some cases: E.g. the singleton tuple
+# notation in python is (5,) to be able to distinguish it from (5) which isn't
+# a tuple.
 from sage.structure.unique_representation import UniqueRepresentation
+
 from sage.modules.module import Module
 
 from sage.modules.fpmods.fpmod_element import FP_Element
+
+
+def create_fp_module(degs, relations=None, char=None, algebra=None):
+    """
+
+    Constructs an instance of the FP_Module class using non-hashable lists
+    assert input.
+
+    EXAMPLES::
+
+        sage: from sage.modules.fpmods.fpmods import create_fp_module
+        sage: K = create_fp_module(degs = [1,3], relations = [[Sq(3), Sq(1)]]);K
+        Finitely presented module on 2 generators and 1 relation ...
+
+    """
+    rels = None if relations is None else tuple(tuple(rel) for rel in relations)
+    return FP_Module(tuple(degs), rels, char, algebra)
 
 
 class FP_Module(UniqueRepresentation, Module):
@@ -237,11 +270,11 @@ class FP_Module(UniqueRepresentation, Module):
 
     """
 
-
     # In the category framework, Elements of the class FP_Module are of the
     # class FP_Element, see
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
     Element = FP_Element
+
 
     def __init__(self, degs, relations=None, char=None, algebra=None):
 
