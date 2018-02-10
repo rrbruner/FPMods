@@ -228,11 +228,6 @@ class FP_Module(UniqueRepresentation, Module):
         running ._test_pickling() . . . pass
         running ._test_some_elements() . . . pass
         running ._test_zero() . . . pass
-        sage: #V  = VectorSpace(QQ,3)
-        sage: #W1 = V.submodule([V.gen(0), V.gen(0) + V.gen(1)])
-        sage: #W2 = V.submodule([V.gen(1), V.gen(2)])
-        sage: #VHom = Hom(W1, W2); VHom
-        sage: #TestSuite(VHom).run(verbose=True)
         sage: H = Hom(F, L); H
         Set of Morphisms from Finitely presented module on 2 generators and 0 relations ...
         sage: H(0)
@@ -552,11 +547,6 @@ class FP_Module(UniqueRepresentation, Module):
 
         return self.element_class(self, coefficients)
 
-#    def __cmp__(self, other):
-#        if not isinstance(other, FP_Module):
-#            return cmp(type(other), FP_Module)
-#        return cmp(self.base_ring(),other.base_ring())
-
     def _repr_(self):
         """
         String representation of the module.
@@ -721,8 +711,6 @@ class FP_Module(UniqueRepresentation, Module):
         M_n, bas = self._pres_(n, profile=profile)
         return [self._lc_(M_n.lift(v), bas) for v in M_n.basis()]
 
-#    __getitem__ = basis
-
     def gens(self):
         """
         The list of generators of the module.
@@ -791,9 +779,6 @@ class FP_Module(UniqueRepresentation, Module):
         return self.element_class(self, Utility._del_(index, len(self.degs)))
 
 
-    # FIXME: what's the level of generality of FreeModuleHomspace?
-    # Should there be a category for free modules accepting it as hom space?
-    # See similar method for FreeModule_generic_field class
     def _Hom_(self, Y, category):
 #        r"""
 #        The internal hook used by the free function 
