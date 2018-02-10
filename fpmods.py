@@ -1,6 +1,42 @@
 
 #  http://doc.sagemath.org/html/en/developer/coding_basics.html#files-and-directory-structure
 
+r"""
+Finitely presented modules over the Steenrod Algebra.
+
+This package allows the user to define finitely presented modules
+over the Steenrod Algebra, elements of them, and morphisms. With
+these objects, the user can perform more complex computations, using
+the secondary functions defined.
+
+This package is designed to work with modules over the whole Steenrod
+algebra.  To make calculations finite, we take account of the fact
+that finitely presented modules are defined over a finite sub Hopf
+algebra of the Steenrod algebra.
+
+EXAMPLES:
+
+    sage: M = FP_Module([0,1],[[Sq(2),Sq(1)],[0,Sq(2)]])
+
+AUTHORS:
+
+- Robert R. Bruner, Michael J. Catanzaro (2012): initial version
+
+
+#*****************************************************************************
+#       Copyright (C) 2011 Robert R. Bruner <rrb@math.wayne.edu>
+#             and          Michael J. Catanzaro <mike@math.wayne.edu>
+#
+#  Distributed under the terms of the GNU General Public License (GPL)
+#                  http://www.gnu.org/licenses/
+#*****************************************************************************
+
+
+fpmods.py
+Ver 1.1
+12/13/2011
+"""
+
 
 
 import sage.modules.fpmods.utility as Utility
