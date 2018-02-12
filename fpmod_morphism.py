@@ -682,16 +682,23 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             ttv = list(j.get_values()) + cokernel_values
             j = Hom(K, self.domain())(ttv)
 
-#        # All generators have been found.  Now see if we need any more relations.
-#        # XXX Necessary??
-#        while n <= Utility.max_deg(self.alg()) + max(K.get_degs()):
-#            incln,Kn,p,sec,bas,Mn,q,s,Mbas_gen = F._full_pres_(n, profile=self.profile())
-#            ker.rels += _create_module_elements(K, sec, F.kernel().basis(), bas)
-#            ker.reldegs += F.kernel().dimension()*[n]
-#            n += 1
-#
-#        K._profile_algebra = SteenrodAlgebra(p=K.char, profile = K.min_profile())
-#        F._profile_algebra = SteenrodAlgebra(p=K.char, profile = F.min_profile())
+        while n <= Utility.max_deg(self.alg()) + max(K.get_degs()):
+
+            j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(n, profile=self.profile())
+            new_relations = [tuple(j.domain()._lc_(j_n.domain().lift(v), j_n_domain_basis)._get_coefficients()) \
+                             for v in j_n.kernel().basis()]
+
+            rels = list(j.domain().get_rels()) + new_relations
+
+            K = FP_Module(degs=tuple(K.get_degs()), relations=tuple(rels), algebra=self.alg())
+            j = Hom(K, self.domain())(j.get_values())
+
+            n += 1
+
+            # XXX todo: reduce profile functions.
+            # K._profile_algebra = SteenrodAlgebra(p=K.char, profile = K.min_profile())
+            # F._profile_algebra = SteenrodAlgebra(p=K.char, profile = F.min_profile())
+            # print ('K.profile():\n%s\n\nK.min_profile(): %s\nj.min_profile(): %s' % (K.profile(), K.min_profile(), j.min_profile()))
 
         return j
 
