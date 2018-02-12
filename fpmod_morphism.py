@@ -131,7 +131,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         if all(v.is_zero() for v in _values):
             # The zero homomorphism does not get a degree.
             self.degree = None
-#            print ('This is the zero map.')
         else:
             # Check the homomorphism is well defined.
 
@@ -158,8 +157,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
                 r = sum ([c*v for c, v in zip(relation, _values)], parent.codomain().zero())
                 if not r.is_zero():
                     raise ValueError, "Relation %s is not sent to zero" % relation
-
-#            print ('This map has degree %d' % self.degree)
 
         self.values = _values
 
@@ -578,8 +575,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         if n == PlusInfinity():
             return j
 
-        # XXX Shouldn't this loop termination limit derive more directly from
-        #     the profile associated to this homomorphism?
         limit = Utility.max_deg(self.alg()) + max(self.domain().get_degs())
 
         self_n = self._pres_(n)
@@ -593,7 +588,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         kernel_n = self_n.kernel()
         # assert : kernel_n.dimension() > 0:
-
 
         #
         # Assume by induction that we have created a homomorphism j
@@ -771,6 +765,5 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         epi = Hom(self.domain(), image_module)(epi_values)
 
         # XXX todo: reduce profile functions.
-
         return mono, epi
 
