@@ -350,20 +350,16 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         if profile == None:
             profile = self.profile()
 
-        if self.degree == None:
-            return 0,0,0
-        # raise ValueError, "Cannot create presentation of the n-th part of the trivial morphism."
-
-        codomain_degree = n + self.degree
+        codomain_degree = n + self.degree if self.degree != None else 0
 
         D_n, dbas_gen = self.domain()._pres_(n, profile=profile)
         C_n, cbas_gen = self.codomain()._pres_(codomain_degree, profile=profile)
 
+        if self.degree == None:
+            return Hom(D_n, C_n).zero(), dbas_gen, cbas_gen
+
         target_values = [C_n.quotient_map()(\
             self(self.domain()._lc_(D_n.lift(x), dbas_gen)).free_vec(profile=profile)) for x in D_n.basis()]
-
-        # print ('target_values: %s' % target_values)
-        #   return Hom(dquo,cquo)([0 for x in dquo.basis()]),\
 
         return Hom(D_n, C_n)(target_values),\
             dbas_gen, cbas_gen
@@ -738,21 +734,17 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
             mono_n, image_module_bas, Cbas = mono._full_pres_(n, profile=self.profile())
 
-            if mono_n == 0:
-                v__ = 0
-            else:
+            if not mono_n.is_zero():
                 free_vector = mono_n.codomain().V().coordinate_vector(v.free_vec(profile=self.profile()))
                 v__ = mono_n.codomain().quotient_map()(free_vector)
 
-
-            if v__ == 0 or not v__ in mono_n.image():
+            if mono_n.is_zero() or not v__ in mono_n.image():
                 image_module_degs.append(n)
                 image_module_values.append(v)
 
                 # append [0, 0,..., 0, 1] to the values for 'epi'.
-                epi_value = [0]*len(image_module_degs)
-                epi_value[-1] = 1
-                epi_values.append(epi_value)
+                num_degs = len(image_module_degs)
+                epi_values.append(Utility._del_(num_degs-1, num_degs))
             else:
                 y = mono_n.matrix().solve_left(v__)
                 y_ = image_module._lc_(
