@@ -76,7 +76,8 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
               [<1, 0>, <0, 1>]
             to
               [<Sq(6), Sq(5)>, <0, 0>]
-            sage: Q2, p = w.cokernel(); Q2
+            sage: p = w.cokernel()
+            sage: Q2 = p.codomain(); Q2
             Finitely presented module on 2 generators and 1 relation ...
             sage: Q2.get_rels()
             ((Sq(6), Sq(5)),)
@@ -497,16 +498,13 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
     def cokernel(self,min=False):
         """
-        Computes the cokernel of an FP Hom.
-
+        Compute the cokernel of an FP Hom.
 
         Cheap way of computing cokernel. Cokernel is on same degs as codomain,
         with rels = codomain.rels + self.values. Returns cokernel and the
         projection map to it.
 
         OUTPUT:
-
-        -  ``coker``  - The FP_Module corresponding to the cokernel of self.
 
         -  The FP_Hom corresponding to the natural projection from self.codomain
            to `coker`.
@@ -532,10 +530,10 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         p = homset(values)
 
         if min == False:
-            return coker, p
+            return p
         else:
-            MM, e, m = coker.min_pres()
-            return MM, e*p
+            i, e = coker.min_pres()
+            return e*p
 
 
     def kernel(self):
