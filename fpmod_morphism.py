@@ -731,8 +731,12 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
             mono_n, image_module_bas, Cbas = mono._full_pres_(n, profile=self.profile())
 
-            v_ = v.vec(profile=self.profile())[0]
-            v__ = 0 if mono_n == 0 else mono_n.codomain().quotient_map()(v_)
+            if mono_n == 0:
+                v__ = 0
+            else:
+                free_vector = mono_n.codomain().V().coordinate_vector(v.free_vec(profile=self.profile()))
+                v__ = mono_n.codomain().quotient_map()(free_vector)
+
 
             if v__ == 0 or not v__ in mono_n.image():
                 image_module_degs.append(n)
