@@ -797,6 +797,37 @@ class FP_Module(UniqueRepresentation, Module):
         from .fpmod_homspace import FP_ModuleHomspace
         return FP_ModuleHomspace(self, Y, category)
 
+    def min_pres(self):
+        """
+        Return the minimal presentation `M` of this module, along with maps
+        between `M` and this module.
+
+        OUTPUT:
+
+        -  ``i`` - An isomorphism from `M` to this module.
+
+        -  ``e`` - An isomorphism from this module to `M`.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fpmods.fpmods import create_fp_module
+            sage: K = create_fp_module([0,1], [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
+            sage: i, e = K.min_pres()
+            sage: i.domain().get_rels()
+            ((Sq(2), Sq(1)), (0, Sq(2)))
+            sage: i.codomain().get_rels()
+            ((Sq(2), Sq(1)), (0, Sq(2)), (Sq(3), 0))
+            sage: e.codomain() is i.domain()
+            True
+            sage: (i*e) is Hom(K, K).identity()
+            False
+            sage: (i*e) == Hom(K, K).identity()
+            True
+
+        """
+        identity_morphism = Hom(self, self).identity()
+        return identity_morphism.image()
+
     def min_profile(self):
         """
         Returns the profile of the smallest sub-Hopf algebra containing self.
