@@ -252,8 +252,8 @@ class FP_Element(ModuleElement):
         return reduce(lambda x,y: x+y, map(lambda x : x[2]*bas_dict[(x[0],x[1])],r))
 
     def vec(self,profile=None):
-        """
-        Returns the vector form of self, as well as the linear transformation
+        r"""
+        Return the vector form of self, as well as the linear transformation
         `q : F_n \rightarrow M_n` and `s:M_n \rightarrow F_n`, where `M_n`
         and `F_n` are the degree `n` parts of the module and free vector
         space, respectively.
@@ -262,8 +262,7 @@ class FP_Element(ModuleElement):
 
         -    ``x``    - The unique vector form of self in `M_n`.
 
-        -    ``q``    - The linear transformation from the free vector
-                        space to the module.
+        -    ``quotientSpace``    - The quotient vector space isomorphic to M_n
 
         -    ``bas``  - A list of pairs (gen_number,algebra element)
                         corresponding to self in the std basis of the free module.
