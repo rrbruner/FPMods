@@ -348,7 +348,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         if profile == None:
             profile = self.profile()
 
-        codomain_degree = n + self.degree if self.degree != None else 0
+        codomain_degree = n + (self.degree if self.degree != None else 0)
 
         D_n, dbas_gen = self.domain()._pres_(n, profile=profile)
         C_n, cbas_gen = self.codomain()._pres_(codomain_degree, profile=profile)
