@@ -262,7 +262,7 @@ class FP_Element(ModuleElement):
 
         -    ``x``    - The unique vector form of self in `M_n`.
 
-        -    ``quotientSpace``    - The quotient vector space isomorphic to M_n
+        -    ``quo``    - The quotient vector space isomorphic to M_n
 
         -    ``bas``  - A list of pairs (gen_number,algebra element)
                         corresponding to self in the std basis of the free module.
@@ -280,9 +280,7 @@ class FP_Element(ModuleElement):
     def _nonzero_(self):
         """
 
-        EXAMPLES:
-
-        ::
+        EXAMPLES::
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
@@ -309,9 +307,7 @@ class FP_Element(ModuleElement):
         """
         Computes the normal form of self.
 
-        EXAMPLES:
-
-        ::
+        EXAMPLES::
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
