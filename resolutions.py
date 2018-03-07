@@ -1,36 +1,33 @@
 #------------------------Functions-for-Resolutions---------------------------------------
 
-def lift(f,g):
+from sage.categories.homset import Hom
+
+def lift(f, g):
     """
-    Computes the lift of f over g, so that g*lift(f,g) = f.
-    All maps taken to be FP_Homs. If lift doesn't exist, False is
-    returned with the 0 map.
+    Compute the lift of `f` over `g`, so that `g\cdot \text{lift}(f,g) = f`.
+    All maps taken to be FP_Homs. If lift doesn't exist, ``False`` is
+    returned with the trivial morphism.
 
     INPUT:
 
-    -  `f`  - The map to be lifted over.
+    -  ``f``  - The map to be lifted over.
 
-    -  `g`  - The map lifted over.
+    -  ``g``  - The map lifted over.
 
     OUTPUT: The lift of f over g.
 
     EXAMPLES::
 
-
     """
     if f.codomain != g.codomain:
         raise TypeError, "Cannot lift maps with different codomains."
-    vals = []
-    cando = true
-    for x in f.domain.gens():
-        if cando:
-            newval = g.solve(f(x))
-            cando = cando and newval[0]
-            vals.append(newval[1])
-    if cando:
-        return true,FP_Hom(f.domain,g.domain,vals)
-    else:
-        return false,FP_Hom(f.domain,g.domain,0)
+    values = []
+    for x in f.domain().gens():
+        new_value = g.solve(f(x))
+        if new_value is None:
+            return None
+        values.append(new_value)
+    return Hom(f.domain(), g.domain())(values)
 
 
 def Homology(f,g):
@@ -45,9 +42,7 @@ def Homology(f,g):
 
     OUTPUT:
 
-    -  ``H``  - The quotient `Ker(g)/Im(f)`
-
-    -  ``p``  - The map from `Ker(g)` to `H`
+    -  ``p``  - The map from `Ker(g)` to `Ker(g)/Im(f)`
 
     -  ``i``  - The inclusion of `Ker(g)` into domain of `g`.
 
@@ -57,11 +52,13 @@ def Homology(f,g):
 
 
     """
-    K,i = g.kernel()
-    I,e,m = f.image()
-    l = lift(m,i)[1]  # the map, not the bool
-    H,p = l.cokernel()
-    return H,p,i,m,l
+    i = g.kernel()
+    m,e = f.image()
+    l = lift(m, i)
+    if l is None:
+        raise ValueError, "The image is not contained in the kernel."
+    p = l.cokernel()
+    return p,i,m,l
 
 
 def extend_resolution_kernels(R,n,verbose=False):
@@ -78,8 +75,9 @@ def extend_resolution_kernels(R,n,verbose=False):
 
     EXAMPLES::
 
-
     """
+    raise RuntimeError, 'Not implemented'
+
     if n < len(R):
         return R
     if verbose:
@@ -96,22 +94,33 @@ def extend_resolution(R,n,verbose=False):
 
     INPUT:
 
-    -  ``R``  - A list of FP_Homs, corresponding to a resolution.
+    - ``R`` -- A list of FP_Homs, corresponding to a resolution.
 
-    -  ``n``  - The length to which the resolution will be extended to.
+    - ``n`` -- The length to which the resolution will be extended to.
 
     OUTPUT: A list of FP_Homs, corresponding to the extended resolution.
 
     EXAMPLES::
 
+        sage: from sage.modules.fpmods.fpmods import create_fp_module
+        sage: from sage.modules.fpmods.resolutions import *
+        sage: M = create_fp_module([0, 5], [(Sq(2)*Sq(2)*Sq(2), Sq(1))])
+        sage: r1 = M.resolution(4)
+        sage: r12 = extend_resolution(r1, 8)
+        sage: r = M.resolution(8)
+        sage: # Compare each function in the lists:
+        sage: r == r12
+        True
+        sage: r[4] == r12[5]
+        False
 
     """
     if n < len(R):
         return R
     if verbose:
         print "Step ",1+n-len(R)
-    K,i = R[-1].kernel()
-    r = K.resolution(n-len(R),verbose=verbose)
+    i = R[-1].kernel()
+    r = i.domain().resolution(n-len(R),verbose=verbose)
     r[0] = i*r[0]
     return R + r
 
@@ -126,7 +135,6 @@ def is_complex(R):
     OUTPUT: True if `R` corresponds to a complex, false otherwise.
 
     EXAMPLES::
-
 
     """
     val = True
@@ -151,16 +159,29 @@ def is_exact(R):
     """
     if not is_complex(R):
         return False
-    val = True
-    i = 0
-    while val and i < len(R)-1:
-        K,j = R[i].kernel_gens()
-        for x in K.gens():
-            val = val and R[i+1].solve(j(x))[0]
-            if not val:
-                break
-        i += 1
-    return val
+    if len(R) < 2:
+        return False
+
+    # Use homology to show exactness.
+    for i in range(len(R) - 1):
+        p,i,m,l = Homology(R[i+1], R[i])
+        if not p.is_zero():
+            return False
+
+    return True
+    # Sverre: This is the original code, which might be faster than
+    #         using homology, as above:
+    #      
+    #    val = True
+    #    i = 0
+    #    while val and i < len(R)-1:
+    #        K,j = R[i].kernel_gens() ## Not implemented.
+    #        for x in K.gens():
+    #            val = val and R[i+1].solve(j(x))[0]
+    #            if not val:
+    #                break
+    #        i += 1
+    #    return val
 
 def chain_map(L,R,f):
     """
@@ -173,6 +194,8 @@ def chain_map(L,R,f):
 
     -  ``R``  - A list of FP_Homs, corresponding to a resolution.
     """
+    raise RuntimeError, 'Not implemented'
+
     if len(L) == 0 or len(R) == 0:
         return [f]
     l = lift(f*L[0],R[0])[1]
@@ -189,6 +212,8 @@ def extension(R,e,test=True):
     R must be a resolution of length at least 3, and e must be a cocycle.
     The checks of these can be bypassed by passing test=False.
     """
+    raise RuntimeError, 'Not implemented'
+
     if test == True:
         if len(R) < 3:
             raise ValueError, "Resolution not of length at least 3"
