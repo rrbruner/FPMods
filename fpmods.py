@@ -54,7 +54,6 @@ Creating module elements::
 Creating homomorphisms::
 
     sage: from sage.modules.fpmods.fpmods import FP_Module
-    sage: from sage.misc.sage_unittest import TestSuite
     sage: F = FP_Module(degs = tuple([1,3]));
     sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));
     sage: homset = Hom(F, L); homset
@@ -120,25 +119,71 @@ Creating homomorphisms::
     False
     sage: id.get_degree()
     0
-    sage: f = id + id + id; f
+    sage: g = id + id + id; g
     The identity module homomorphism:
       Domain: Finitely presented module on 2 generators and 2 relations ...
       Codomain: Finitely presented module on 2 generators and 2 relations ...
-    sage: f == id
+    sage: g == id
     True
     sage: el = L((Sq(5), Sq(4))); el.normalize()
     <Sq(5), Sq(4)>
     sage: End(L).identity()(el)
     <Sq(5), Sq(4)>
-    sage: f(el)
+    sage: g(el)
     <Sq(5), Sq(4)>
 
+Lifts::
+
+    sage: from sage.modules.fpmods.fpmods import FP_Module
+    sage: F = FP_Module(degs = tuple([1,3]));
+    sage: L = FP_Module((2,3), ((Sq(2),Sq(1)), (0,Sq(2))));
+    sage: H = Hom(F, L)
+    sage: f = H( [L((Sq(1), 1)), L((0, Sq(2)))] )
+    sage: f.solve(L((0, Sq(2))))
+    <0, 0>
+    sage: f.solve(L((Sq(1), 1)))
+    <1, 0>
+
+Computing resolutions::
+
+    sage: Hko = create_fp_module([0], [[Sq(1)], [Sq(2)]])
+    sage: R = Hko.resolution(5, verbose=True)
+    Step  5
+    Step  4
+    Step  3
+    Step  2
+    Step  1
+    Step  0
+    sage: import sage.modules.fpmods.resolutions as Resolutions
+    sage: Resolutions.is_complex(R)
+    True
+    sage: #Resolutions.is_exact(R)
+    sage: for i, C in enumerate(R):
+    ....:     print ('Stage %d\nDegrees: %s\nValues of R[i]: %s' % (i, C.domain().get_degs(), C.get_values()))
+    Stage 0
+    Degrees: (0,)
+    Values of R[i]: [<1>]
+    Stage 1
+    Degrees: (1, 2)
+    Values of R[i]: [<Sq(1)>, <Sq(2)>]
+    Stage 2
+    Degrees: (2, 4)
+    Values of R[i]: [<Sq(1), 0>, <Sq(0,1), Sq(2)>]
+    Stage 3
+    Degrees: (3, 7)
+    Values of R[i]: [<Sq(1), 0>, <Sq(2,1), Sq(3)>]
+    Stage 4
+    Degrees: (4, 8, 12)
+    Values of R[i]: [<Sq(1), 0>, <Sq(2,1), Sq(1)>, <0, Sq(2,1)>]
+    Stage 5
+    Degrees: (5, 9, 13, 14)
+    Values of R[i]: [<Sq(1), 0, 0>, <Sq(2,1), Sq(1), 0>, <0, Sq(2,1), Sq(1)>, <0, 0, Sq(2)>]
 
 AUTHORS:
 
     - Robert R. Bruner, Michael J. Catanzaro (2012): initial version
-    - Koen (date in ISO year-month-day format): Reformatted code, updating to Sage 8.1
-    - Sverre (date in ISO year-month-day format): Reformatted code, updating to Sage 8.1
+    - Koen (date in ISO year-month-day format): Updating to Sage 8.1
+    - Sverre (date in ISO year-month-day format): Updating to Sage 8.1
 
 """
 
@@ -219,6 +264,8 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
 
     EXAMPLES::
 
+        sage: # Mike's thesis:
+        sage: #
         sage: from sage.modules.fpmods.fpmods import create_fp_module
         sage: K = create_fp_module(degs = [1,3], relations = [[Sq(3), Sq(1)]]);K
         Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
@@ -294,37 +341,7 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
         (1,)
         sage: image_inj.domain().get_rels()
         ((Sq(1),), (Sq(2,1),))
-        sage: Hko = create_fp_module([0], [[Sq(1)], [Sq(2)]])
-        sage: R = Hko.resolution(5, verbose=True)
-        Step  5
-        Step  4
-        Step  3
-        Step  2
-        Step  1
-        Step  0
-        sage: #import sage.modules.fpmods.resolutions as Resolutions
-        sage: #Resolutions.is_complex(R)
-        sage: #Resolutions.is_exact(R)
-        sage: for i, C in enumerate(R):
-        ....:     print ('Stage %d\nDegrees: %s\nValues of R[i]: %s' % (i, C.domain().get_degs(), C.get_values()))
-        Stage 0
-        Degrees: (0,)
-        Values of R[i]: [<1>]
-        Stage 1
-        Degrees: (1, 2)
-        Values of R[i]: [<Sq(1)>, <Sq(2)>]
-        Stage 2
-        Degrees: (2, 4)
-        Values of R[i]: [<Sq(1), 0>, <Sq(0,1), Sq(2)>]
-        Stage 3
-        Degrees: (3, 7)
-        Values of R[i]: [<Sq(1), 0>, <Sq(2,1), Sq(3)>]
-        Stage 4
         Degrees: (4, 8, 12)
-        Values of R[i]: [<Sq(1), 0>, <Sq(2,1), Sq(1)>, <0, Sq(2,1)>]
-        Stage 5
-        Degrees: (5, 9, 13, 14)
-        Values of R[i]: [<Sq(1), 0, 0>, <Sq(2,1), Sq(1), 0>, <0, Sq(2,1), Sq(1)>, <0, 0, Sq(2)>]
         sage: A2 = SteenrodAlgebra(p=2,profile=(3,2,1))
         sage: P7 = create_fp_module([0,0], [[Sq(1),Sq(1)],[Sq(0,1),0],[Sq(0,2),0],[0,Sq(2)]], algebra=A2)
         sage: ko_a2 = create_fp_module([0], [[Sq(1)],[Sq(2)]], algebra=A2)
@@ -960,14 +977,13 @@ class FP_Module(UniqueRepresentation, Module):
 
     def min_pres(self):
         r"""
-        Return a module which is the minimal presentation of this module, along
-        with an isomorphim from it to this module, and its inverse.
+        Return a minimal presentation of this module.
 
         OUTPUT:
 
-        -  ``i`` - An isomorphism from `M` to this module.
+        -  ``i`` - An isomorphism from a minimal presentation `M` to this module.
 
-        -  ``e`` - An isomorphism from this module to `M`.
+        -  ``e`` - The inverse of ``i``.
 
         EXAMPLES::
 
@@ -994,7 +1010,7 @@ class FP_Module(UniqueRepresentation, Module):
 
     def min_profile(self):
         r"""
-        Returns the profile of the smallest sub-Hopf algebra containing self.
+        Return the profile of the smallest sub-Hopf algebra containing self.
 
         OUTPUT: The profile function of the sub-Hopf algebra with the smallest
         degree containing self.
@@ -1017,9 +1033,9 @@ class FP_Module(UniqueRepresentation, Module):
                       self.char)
             return profile
 
-    def suspension(self,t):
+    def suspension(self, t):
         r"""
-        Suspend the module by given degree.
+        Suspend the module by the given degree.
 
         INPUT:
 
@@ -1027,7 +1043,8 @@ class FP_Module(UniqueRepresentation, Module):
 
         OUTPUT:
 
-        - ``C`` -- A copy of the module ``self`` which is suspended by ``t``.
+        - ``C`` -- A a module which is identical to this module by a shift
+          of degrees by the integer ``t``.
 
         EXAMPLES::
 
@@ -1039,41 +1056,43 @@ class FP_Module(UniqueRepresentation, Module):
             ((Sq(1),),)
             sage: M = FP_Module( (2,3), ( (Sq(2), Sq(1)), (0, Sq(2)) ) )
             sage: Q = M.suspension(1)
-            sage: Q.degs;Q.rels
+            sage: Q.get_degs();Q.get_rels()
             (3, 4)
             ((Sq(2), Sq(1)), (0, Sq(2)))
+            sage: Q = M.suspension(-3)
+            sage: Q.get_degs()
+            (-1, 0)
+            sage: Q = M.suspension(0)
+            sage: Q.get_degs()
+            (2, 3)
 
         """
         generator_degrees = [g + t for g in self.get_degs()]
         return FP_Module(degs=tuple(generator_degrees), relations=self.get_rels(), algebra=self.profile_algebra())
 
-    def submodule(self,L):
-        """
-        The submodule of ``self`` spanned by elements of the list L.
-
-        The map from the free module on the elements of L to
-        the submodule, as well as the inclusion of the submodule are also
-        returned.
-        ``N``  - The FP_Module generated by `L`, a submodule of `self`.
+    def submodule(self, L):
+        r"""
+        Construct the submodule ``N`` of this module spanned by the give
+        elements.
 
         INPUT:
 
-        -  ``L``  - A list of elements of `self`.
+        -  ``L``  - A list of elements of this module.
 
         OUTPUT:
 
-        -  ``i``  - The inclusion of `N` into `self`.
+        - ``i`` -- The inclusion of ``N`` into ``self``.
 
-        -  ``p``  - The map from the free module on the elements of L to `N`.
-
+        - ``p`` -- The quotient homomorphism from the free module on the
+          elements of ``L`` to ``N``.
 
         EXAMPLES::
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
             sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),))
-            sage: h,g = N.submodule([N.gen(0)])
-            sage: Y = h.domain()
-            sage: Y.get_degs();Y.get_rels()
+            sage: i,p = N.submodule([N.gen(0)])
+            sage: S = i.domain()
+            sage: S.get_degs();S.get_rels()
             (0,)
             ((Sq(3),),)
 

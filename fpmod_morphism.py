@@ -1,8 +1,3 @@
-"""
-
-AUTHORS:
-
-"""
 from __future__ import absolute_import
 
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
@@ -157,7 +152,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             for relation in parent.domain().get_rels():
                 r = sum ([c*v for c, v in zip(relation, _values)], parent.codomain().zero())
                 if not r.is_zero():
-                    raise ValueError, "Relation %s is not sent to zero" % relation
+                    raise ValueError, ("Relation %s is not sent to zero" % relation)
 
         self.values = _values
 
@@ -247,7 +242,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         INPUT:
 
-        -  ``x``  - An element of the domain of self.
+        -  ``x``  - An element of the domain of the morphism.
 
         OUTPUT: The FP_Hom evaluated at `x`.
 
@@ -266,7 +261,8 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
     def _repr_(self):
         r"""
-        Return string representation of this morphism of free modules.
+        Return string representation of this morphism.
+
         """
         if self.is_zero():
             r = "The trivial module homomorphism:\n  Domain: {}\n  Codomain: {}"
@@ -280,7 +276,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
 
     def _full_pres_(self,n,profile=None):
-        """
+        r"""
         Returns the  linear transformation from domain in degree n
         to codomain in degree n+degree(self). 3 items returned: the
         linear transformation, the domain and codomain generator sets.
