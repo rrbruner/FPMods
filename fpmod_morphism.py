@@ -765,3 +765,32 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         # XXX todo: reduce profile functions.
         return mono, epi
 
+    def solve(self,x):
+        """
+        Find an element mapping to ``x`` under this morphism.
+
+        INPUT:
+
+        - ``x`` -- The element we want to lift.
+
+        OUTPUT: An element which maps to ``x`` under this morphism, or
+        ``None`` if ``x`` was not in the image of this morphism.
+
+        EXAMPLES::
+
+        """
+        if self.is_zero():
+            return False, self.domain().zero()
+
+        pn, dbas, cbas =\
+            self._full_pres_(x.get_degree() - self.get_degree(), profile=self.profile())
+        v = x.vec()[0]
+
+        if x not in self.codomain():
+            raise TypeError, "Element not in codomain."
+        if v not in pn.image():
+            return None
+        else:
+            w = pn.matrix().solve_left(v)
+            return self.domain()._lc_(pn.domain().lift(w), dbas)
+
