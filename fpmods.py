@@ -6,6 +6,8 @@ over the Steenrod Algebra, elements of them, and morphisms. With
 these objects, the user can perform more complex computations, using
 the secondary functions defined.
 
+TODO: The category of f.p. modules over the Steenrod algebra.
+
 Creating an instance of the module class using the create method::
 
     sage: from sage.modules.fpmods.fpmods import create_fp_module
