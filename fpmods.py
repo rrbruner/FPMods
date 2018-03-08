@@ -146,6 +146,7 @@ Lifts::
 
 Computing resolutions::
 
+    sage: # From Mike's thesis:
     sage: Hko = create_fp_module([0], [[Sq(1)], [Sq(2)]])
     sage: R = Hko.resolution(5, verbose=True)
     Step  5
@@ -157,7 +158,8 @@ Computing resolutions::
     sage: import sage.modules.fpmods.resolutions as Resolutions
     sage: Resolutions.is_complex(R)
     True
-    sage: #Resolutions.is_exact(R)
+    sage: Resolutions.is_exact(R)
+    True
     sage: for i, C in enumerate(R):
     ....:     print ('Stage %d\nDegrees: %s\nValues of R[i]: %s' % (i, C.domain().get_degs(), C.get_values()))
     Stage 0
@@ -264,11 +266,8 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
 
     EXAMPLES::
 
-        sage: # Mike's thesis:
-        sage: #
+        sage: # From Mike's thesis:
         sage: from sage.modules.fpmods.fpmods import create_fp_module
-        sage: K = create_fp_module(degs = [1,3], relations = [[Sq(3), Sq(1)]]);K
-        Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
         sage: M = create_fp_module([0,1],[[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]]); M
         Finitely presented module on 2 generators and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
         sage: x = M([1,0])
@@ -341,7 +340,6 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
         (1,)
         sage: image_inj.domain().get_rels()
         ((Sq(1),), (Sq(2,1),))
-        Degrees: (4, 8, 12)
         sage: A2 = SteenrodAlgebra(p=2,profile=(3,2,1))
         sage: P7 = create_fp_module([0,0], [[Sq(1),Sq(1)],[Sq(0,1),0],[Sq(0,2),0],[0,Sq(2)]], algebra=A2)
         sage: ko_a2 = create_fp_module([0], [[Sq(1)],[Sq(2)]], algebra=A2)
@@ -513,11 +511,11 @@ class FP_Module(UniqueRepresentation, Module):
 
     def profile(self):
         """
-        The profile of the smallest sub-Hopf algebra of theSteenrod algebra
+        The profile of the smallest sub-Hopf algebra of the Steenrod algebra
         over which the module can be defined.  I.e. the smallest one that
         contains all the generators and relations.
 
-        OUTPUT: A tuple of integers describing the profile.
+        OUTPUT: A profile as a tuple of integers.
 
         EXAMPLES::
 
@@ -728,7 +726,7 @@ class FP_Module(UniqueRepresentation, Module):
         Return a quotient vector space isomorphic to the ``n``-th part of the
         module, together with a chosen isomorphism.
 
-        Let `M` denote this module, and `F\to M` be the free part of the 
+        Let `M` denote this module, and `F\to M` be the free part of the
         finite presentation of `M`.  This function returns a quotient vector
         space ``quotient``, isomorphic to the vector space of elements of `M`
         of degree `n`.  The isomorphism is given by the second return value,
@@ -736,11 +734,11 @@ class FP_Module(UniqueRepresentation, Module):
         a module generator by its index, and `a` is a homogeneous element of
         the Steenrod algebra.  This list represents a chosen correspondance
         between the standard basis vectors of ``quotient``, and `F_n`.
-        
+
         INPUT:
 
         - ``n`` -- The degree of the presentation.
-        
+
         - ``profile`` -- The profile function to use.  When the default
           value ``None`` is used, the profile is taken from the module.
 
@@ -804,7 +802,7 @@ class FP_Module(UniqueRepresentation, Module):
         INPUT:
 
         - ``coefficients`` -- An iterable of algebra elements `[c_i]_i`.
-        
+
         - ``basis_elements`` -- A iterable of tuples `[(k_i, a_i)]_i` where
           each `k_i` identifies a module generator by its index, and each `a_i`
           is an algebra element.
@@ -841,7 +839,7 @@ class FP_Module(UniqueRepresentation, Module):
         Return a list of elements which form a basis for the vector space of
         all degree `n` elements.
 
-        NOTE: The name "basis" refers to the vector space basis and not basis 
+        NOTE: The name "basis" refers to the vector space basis and not basis
         for the full module (modules with bases are free).
 
         INPUT:
@@ -849,7 +847,7 @@ class FP_Module(UniqueRepresentation, Module):
         - ``n`` -- The degree in which the basis will be taken.
 
         - ``profile`` -- The profile function which is used in the calculation.
-        
+
         OUTPUT: A list of elements forming a vector space basis for the degree
         `n` part of the module.
 
@@ -921,7 +919,7 @@ class FP_Module(UniqueRepresentation, Module):
         r"""
         Return the relations of the finite presentation of this module.
 
-        Each relation is represented by tuple of elements in the profile 
+        Each relation is represented by tuple of elements in the profile
         algebra corresponding to the module generators.  I.e.
         if `(g_0, g_1, \ldots, g_k)` are the generators of this module, the
         tuple `r = (c_0, c_1, \ldots, c_k)` represents the relation
@@ -1070,36 +1068,36 @@ class FP_Module(UniqueRepresentation, Module):
         generator_degrees = [g + t for g in self.get_degs()]
         return FP_Module(degs=tuple(generator_degrees), relations=self.get_rels(), algebra=self.profile_algebra())
 
-    def submodule(self, L):
+    def submodule(self, spanning_elements):
         r"""
-        Construct the submodule ``N`` of this module spanned by the give
+        Construct the submodule ``S`` of this module spanned by the give
         elements.
 
         INPUT:
 
-        -  ``L``  - A list of elements of this module.
+        -  ``spanning_elements``  - A list of elements of this module.
 
         OUTPUT:
 
-        - ``i`` -- The inclusion of ``N`` into ``self``.
+        - ``i`` -- The inclusion of ``S`` into this module.
 
         - ``p`` -- The quotient homomorphism from the free module on the
-          elements of ``L`` to ``N``.
+          elements of ``spanning_elements`` to ``S``.
 
         EXAMPLES::
 
             sage: from sage.modules.fpmods.fpmods import FP_Module
-            sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),))
-            sage: i,p = N.submodule([N.gen(0)])
+            sage: M = FP_Module((0,1), ((Sq(2),Sq(1)),))
+            sage: i,p = M.submodule([M.gen(0)])
             sage: S = i.domain()
             sage: S.get_degs();S.get_rels()
             (0,)
             ((Sq(3),),)
 
         """
-        degs = [x.get_degree() for x in L]
+        degs = [x.get_degree() for x in spanning_elements]
         F = FP_Module(tuple(degs), algebra=self.profile_algebra())
-        pr = Hom(F,self)(L)
+        pr = Hom(F,self)(spanning_elements)
         return pr.image()
 
     def resolution(self, k, kernels=False, verbose=False):
@@ -1123,9 +1121,9 @@ class FP_Module(UniqueRepresentation, Module):
           such that `\text{codomain}(f_i) = \text{domain}(f_{i-1})` and
           `\text{codomain}(f_0)` is this module.
 
-        - ``kers`` -- A list of tuples `[(K_i, \text{inj}_i) \mid i = 0 ... k-1]` where
-          `K_i` is an FP_Module, and `\text{inj}_i` is an inclusion into
-          `F_i=\text{domain}(f_i)` such that
+        - If ``kernels`` == True: ``kers`` -- A list of injections `[\text{inj}_i \mid i = 0 ... k-1]` where
+          `\text{inj}_i` is an injective homomorphism `K_i \rightarrow F_i=\text{domain}(f_i)`
+          such that
           `\text{im} (\text{inj}_i: K_i \to F_i) = \text{ker} (f_i)` for `i = 0 ... k-1`.
 
         EXAMPLES::
