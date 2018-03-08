@@ -532,7 +532,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             return e*p
 
 
-    def kernel(self):
+    def kernel(self, verbose=False):
         """
         Computes the kernel of an FP_Hom, as an FP_Module.
         The kernel is non-zero in degrees starting from connectivity of domain
@@ -621,6 +621,9 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             if n > limit:
                 break
 
+            if verbose:
+                print ('Step %d/%d' % (n, limit))
+
             # Find new relations that, when introduced, will make j(n+1)
             # injective.
             j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(n, profile=self.profile())
@@ -686,7 +689,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         return j
 
-    def image(self):
+    def image(self, verbose=False):
         """
         Computes the Image of an FP_Hom, as an FP_Module. Returns the factorization of
         self into epi, Image, mono.
@@ -714,8 +717,15 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         # Values as elements in self.codomain().
         image_module_values = []
 
+        num_iterations = len(self.values)
+        iteration_count = 1
+
         # Loop to find a minimal set of generators for the image.
         for n, v in zip(self.domain().get_degs(), self.values):
+
+            if verbose:
+                print ('Step %d/%d' % (iteration_count, num_iterations))
+                iteration_count += 1
 
             image_module = FP_Module(tuple(image_module_degs), algebra = self.alg())
             mono = Hom(image_module, self.codomain())(image_module_values)
@@ -747,7 +757,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         # Recreate the module again, this time including the relations.
         image_module = FP_Module( \
             degs=tuple(image_module_degs), \
-            relations=tuple([tuple(x._get_coefficients()) for x in mono.kernel().get_values()]), \
+            relations=tuple([tuple(x._get_coefficients()) for x in mono.kernel(verbose=verbose).get_values()]), \
             algebra = self.alg())
 
         # Create the monomorphism.
