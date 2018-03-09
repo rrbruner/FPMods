@@ -493,7 +493,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
 
     def cokernel(self,min=False):
-        """
+        r"""
         Compute the cokernel of an FP Hom.
 
         Cheap way of computing cokernel. Cokernel is on same degs as codomain,
@@ -534,21 +534,18 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
     def kernel(self, verbose=False):
         """
-        Computes the kernel of an FP_Hom, as an FP_Module.
-        The kernel is non-zero in degrees starting from connectivity of domain
-        through the top degree of the algebra the function is defined over plus
-        the top degree of the domain.
+        Computes the kernel of this homomorphism.
 
         OUTPUT:
 
-        -  ``j``  -  An injective homomorphism K -> self such that 
-                     im(j) = ker(self).
+        - ``j`` -- An injective homomorphism which is onto the kernel of this
+          homomorphism.
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
-            sage: F = FP_Module(degs = tuple([1,3]));
-            sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));
+            sage: from sage.modules.fpmods.fpmods import create_fp_module as create
+            sage: F = create([1,3]);
+            sage: L = create([2,3],[[Sq(2),Sq(1)], [0,Sq(2)]]);
             sage: homset = Hom(F, L);
             sage: homset([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
             Module homomorphism of degree 0:
@@ -583,22 +580,23 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         kernel_n = self_n.kernel()
         # assert : kernel_n.dimension() > 0:
 
-        #
-        # Assume by induction that we have created a homomorphism j
+        # The loop below starts each iteration assuming 
+        # that `j` and `n` is a homomorphism and an integer such that
         #
         #       j      self
         #    K ---> D ------> C
         #
-        # with im(j) contained in ker(self) such that j is an isomorphism in
-        # degrees < n.
-        #
-        # The following code creates a j for the first n such that ker(self)_n != 0
-        #
+        # with `\im(j) \subset \ker(self)` and that `j` is an isomorphism in
+        # degrees below `n`.
+        # 
+        # The induction starts with creating a `j` for the first `n` such that
+        # `ker(self)_n \neq 0`:
         D_n, bas_gen = self.domain()._pres_(n, profile=self.profile())
         K = FP_Module(tuple(kernel_n.dimension()*[n]), relations=(), algebra=self.alg())
         j = Hom(K, self.domain()) (
                [self.domain()._lc_(D_n.lift(v), bas_gen) for v in kernel_n.basis()])
 
+        # The induction step is conducted as follows:
         #
         # Consider the F_p-linear part of the above diagram by restricting to
         # degree n in the domain.
@@ -606,15 +604,18 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         #         j_n        self_n
         #    K_n -----> D_n --------> C_n'   ( n' - n = self.degree() )
         #
-        # By construction, im(self_n) \subset ker(f_n), but not necessarily
-        # onto the kernel.  The loop below improves j in two steps:
-        # 1. Introduces new relations in degree n such that j_n becomes 
-        #    injective.
-        # 2. Adds new generators to K in degree n, and extend j on these
-        #    generators to take values in ker(j)_n such that j becomes onto the
-        #    kernel.
+        # By construction, `\im(self_n) \subset \ker(f_n)`, but not necessarily
+        # onto the kernel.  The loop below improves `j` in two steps:
         #
-        # Both steps leave everything in degrees below n as they were.
+        # 1. Introduces new relations in degree `n` such that `j_n` becomes 
+        #    injective.
+        #
+        # 2. Adds new generators to `K` in degree `n`, and extend `j` on these
+        #    generators to take values in `\ker(j)_n` such that `j_n` becomes 
+        #    onto the kernel.
+        #
+        # Both steps leave everything in degrees below n as they were, and the
+        # induction hypothesis is now true for `n+1`.
         #
         while True:
             n += 1
@@ -636,16 +637,15 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             cokernel_values = []
             if kernel_self_n.dimension() > 0:
 
-                # The matrix giving the lift of j_n into kernel_self_n.
+                # Construct the lift of j_n into kernel_self_n.
                 #
-                #            j_n        f_n
-                #       K_n -----> D_n -----> C_n
-                #
-                #         \       /\
-                #          \      /
-                #          \/    /
-                #
-                #        kernel_self_n
+                #             j_n        f_n
+                #        K_n -----> D_n -----> C_n
+                # 
+                #          \       /\
+                # lift_j_n  \      /
+                #           \/    /
+                #         kernel_self_n
                 #
                 lift_j_n = kernel_self_n.basis_matrix().solve_left(j_n.matrix())
 
@@ -669,6 +669,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             ttv = list(j.get_values()) + cokernel_values
             j = Hom(K, self.domain())(ttv)
 
+        # Finally, add any missing relations.
         while n <= Utility.max_deg(self.alg()) + max(K.get_degs()):
 
             j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(n, profile=self.profile())
@@ -682,15 +683,15 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
             n += 1
 
-            # XXX todo: reduce profile functions.
-            # K._profile_algebra = SteenrodAlgebra(p=K.char, profile = K.min_profile())
-            # F._profile_algebra = SteenrodAlgebra(p=K.char, profile = F.min_profile())
-            # print ('K.profile():\n%s\n\nK.min_profile(): %s\nj.min_profile(): %s' % (K.profile(), K.min_profile(), j.min_profile()))
+        # XXX todo: reduce profile functions.
+        # K._profile_algebra = SteenrodAlgebra(p=K.char, profile = K.min_profile())
+        # F._profile_algebra = SteenrodAlgebra(p=K.char, profile = F.min_profile())
+        # print ('K.profile():\n%s\n\nK.min_profile(): %s\nj.min_profile(): %s' % (K.profile(), K.min_profile(), j.min_profile()))
 
         return j
 
     def image(self, verbose=False):
-        """
+        r"""
         Computes the Image of an FP_Hom, as an FP_Module. Returns the factorization of
         self into epi, Image, mono.
 
