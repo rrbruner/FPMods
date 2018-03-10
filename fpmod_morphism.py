@@ -4,7 +4,6 @@ from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 
 import sage.modules.fpmods.utility as Utility
 import sage.modules.fpmods.profile as Profile
-
 from sage.modules.fpmods.fpmods import FP_Module
 
 from sage.categories.homset import Hom
@@ -22,26 +21,26 @@ from copy import copy
 
 
 def is_FP_ModuleMorphism(x):
-    """
+    r"""
     EXAMPLES::
 
-        sage: V = ZZ^2; f = V.hom([V.1,-2*V.0])
-        sage: sage.modules.free_module_morphism.is_FreeModuleMorphism(f)
-        True
-        sage: sage.modules.free_module_morphism.is_FreeModuleMorphism(0)
-        False
     """
     return isinstance(x, FP_ModuleMorphism)
 
 
 class FP_ModuleMorphism(sage.categories.morphism.Morphism):
     def __init__(self, parent, values):
-        """
+        r"""
         INPUT:
 
-            -  ``parent`` - a homspace in a (sub) category of fp modules
+        - ``parent`` -- A homspace in a (sub) category of fp modules.
 
-            -  ``values`` - ...
+        - ``values`` -- A list of elements in the codomain.  Each element
+          corresponds to a module generator in the domain.
+
+        OUTPUT: A module homomorphism defined by sending generator with index
+        `i` to the element in the comdomain which has index `i` in the given
+        input list.
 
         EXAMPLES::
 
@@ -166,7 +165,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
     def alg(self):
         return self.algebra
 
-
     def _richcmp_(self, other, op):
         try:
             same = (self - other).is_zero()
@@ -183,14 +181,13 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         return False
 
-
     def get_degree(self):
-        """
+        r"""
         """
         return self.degree
 
     def __add__(self, g):
-        """
+        r"""
         Sum the homomorphisms, so (f+g)(x) == f(x)+g(x)
         """
 
@@ -261,7 +258,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
     def _repr_(self):
         r"""
-        Return string representation of this morphism.
+        Return a string representation of this morphism.
 
         """
         if self.is_zero():
@@ -274,34 +271,29 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             r = "Module homomorphism of degree {}:\n  Domain: {}\n  Codomain: {}\ndefined by sending the generators\n  {}\nto\n  {}"
             return r.format(self.degree, self.domain(), self.codomain(), self.domain().gens(), self.values)
 
-
     def _full_pres_(self,n,profile=None):
         r"""
-        Returns the  linear transformation from domain in degree n
-        to codomain in degree n+degree(self). 3 items returned: the
-        linear transformation, the domain and codomain generator sets.
-        The last two items correspond to isomorphisms between the degree n
-        parts of the module and the domain and codomain vector spaces of the
-        first return value.
+        Return the linear transformation from the vector space of elements in
+        the domain of degree n, to the vector space of degree `n'` in the
+        codomain. Here, `n' = n +` the degree of this homomorphism.
 
         INPUT:
 
-        -  ``n``  - The degree in which all computations are made.
+        - ``n`` -- The degree for this homomorphism to present.
 
-        -  ``profile``  - A profile function corresponding to the sub-Hopf algebra
+        - ``profile`` -- A profile function corresponding to the sub-Hopf algebra
              of the Steenrod Algebra for which this computation will be computed over.
-             The default, `profile=None`, uses the profile of self.
+             The default, `profile=None`, uses the profile of this homomorphism.
 
         OUTPUT:
 
-        -  The linear transformation corresponding to the degree `n` piece of this
-           mapping (see the documentation for _pres_ below).
+        - The linear presentation of the degree `n` piece of this homomorphism.
 
-        -  ``dbas_gen``  - A list of pairs (gen_number, algebra element)
-           corresponding to the standard basis for the free module.
+        - ``dbas_gen`` -- A list of pairs [(gen_number, algebra element)]
+          corresponding to the standard basis for the free module in the domain.
 
-        -  ``cbas_gen``  - A list of pairs (gen_number, algebra element) corresponding
-           to the standard basis for the free module.
+        - ``cbas_gen`` -- A list of pairs [(gen_number, algebra element)]
+          corresponding to the standard basis for the free module in the codomain.
 
         EXAMPLES::
 
@@ -359,21 +351,23 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             dbas_gen, cbas_gen
 
     def _pres_(self,n,profile=None):
-        """
-        Computes the linear transformation from domain in degree n to
-        codomain in degree n + degree(self). Intended for internal use only.
+        r"""
+        Compute the linear transformation from domain in degree n to
+        codomain in degree n + degree(self).
+
+        NOTE: Intended for internal use only.
 
         INPUT:
 
-        -    ``n``  - The degree in which all computations are made.
+        - ``n`` -- The degree for this homomorphism to present.
 
-        -    ``profile``  - A profile function corresponding to the sub-Hopf algebra
+        - ``profile`` -- A profile function corresponding to the sub-Hopf algebra
              of the Steenrod Algebra for which this computation will be computed over.
 
         OUTPUT: The linear transformation from the degree `n` part of self.domain
-                to the degree `n` + self.degree part of self.codomain. The basis for
-                the vector space corresponding to the deg `n` piece of self.domain
-                is mapped to the basis for the deg `n` + self.degree piece of self.codomain.
+        to the degree `n` + self.degree part of self.codomain.  The basis for
+        the vector space corresponding to the deg `n` piece of self.domain
+        is mapped to the basis for the deg `n` + self.degree piece of self.codomain.
 
         EXAMPLES::
 
@@ -410,8 +404,8 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         OUTPUT:
 
-        -  ``profile``  - The profile function corresponding to the smallest
-                          sub-Hopf algebra containing self.
+        - ``profile`` -- The profile function corresponding to the smallest
+          sub-Hopf algebra containing self.
 
         EXAMPLES::
 
@@ -440,19 +434,17 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             value of the generator elements of the domain.
 
             This defines the morphism.
-            
+
         """
         return self.values
 
     def suspension(self,t):
         """
-        Suspends an FP_Hom, which requires suspending the domain and codomain as well.
+        Suspend this homomorphism by the given degree.
 
-        INPUT:
+        INPUT: The degree by which the homomorphism is suspended.
 
-        -  ``t``  - The degree by which the homomorphism is suspended.
-
-        OUTPUT: The FP_Hom suspended by degree `t`.
+        OUTPUT: The suspension of this homomorphism.
 
         EXAMPLES::
 
@@ -492,21 +484,17 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             return homset([D(x._get_coefficients()) for x in self.values])
 
 
-    def cokernel(self,min=False):
+    def cokernel(self, min=False):
         r"""
-        Compute the cokernel of an FP Hom.
+        Compute the cokernel of this homomorphism.
 
-        Cheap way of computing cokernel. Cokernel is on same degs as codomain,
+        ALGORITHM: The Cokernel is on same degs as codomain,
         with rels = codomain.rels + self.values. Returns cokernel and the
         projection map to it.
 
-        OUTPUT:
-
-        -  The FP_Hom corresponding to the natural projection from self.codomain
-           to `coker`.
+        OUTPUT: The natural projection from self.codomain to `coker`.
 
         EXAMPLES::
-
 
         """
         newRelations = list(self.codomain().get_rels())
@@ -534,12 +522,10 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
     def kernel(self, verbose=False):
         """
-        Computes the kernel of this homomorphism.
+        Compute the kernel of this homomorphism.
 
-        OUTPUT:
-
-        - ``j`` -- An injective homomorphism which is onto the kernel of this
-          homomorphism.
+        OUTPUT: An injective homomorphism which is onto the kernel of this
+        homomorphism.
 
         EXAMPLES::
 
@@ -580,7 +566,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         kernel_n = self_n.kernel()
         # assert : kernel_n.dimension() > 0:
 
-        # The loop below starts each iteration assuming 
+        # The loop below starts each iteration assuming
         # that `j` and `n` is a homomorphism and an integer such that
         #
         #       j      self
@@ -588,7 +574,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         #
         # with `\im(j) \subset \ker(self)` and that `j` is an isomorphism in
         # degrees below `n`.
-        # 
+        #
         # The induction starts with creating a `j` for the first `n` such that
         # `ker(self)_n \neq 0`:
         D_n, bas_gen = self.domain()._pres_(n, profile=self.profile())
@@ -607,11 +593,11 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         # By construction, `\im(self_n) \subset \ker(f_n)`, but not necessarily
         # onto the kernel.  The loop below improves `j` in two steps:
         #
-        # 1. Introduces new relations in degree `n` such that `j_n` becomes 
+        # 1. Introduces new relations in degree `n` such that `j_n` becomes
         #    injective.
         #
         # 2. Adds new generators to `K` in degree `n`, and extend `j` on these
-        #    generators to take values in `\ker(j)_n` such that `j_n` becomes 
+        #    generators to take values in `\ker(j)_n` such that `j_n` becomes
         #    onto the kernel.
         #
         # Both steps leave everything in degrees below n as they were, and the
@@ -641,7 +627,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
                 #
                 #             j_n        f_n
                 #        K_n -----> D_n -----> C_n
-                # 
+                #
                 #          \       /\
                 # lift_j_n  \      /
                 #           \/    /
@@ -654,7 +640,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
                 cokernel_j_n = kernel_self_n.quotient(image_j_n)
                 cokernel_values = [
                     self.domain()._lc_(cokernel_j_n.lift(e) , j_n_codomain_basis)\
-                        for e in cokernel_j_n.basis()] 
+                        for e in cokernel_j_n.basis()]
 
             # Add any new generators found in the loop above.
             num_new_gens = len(cokernel_values)
@@ -692,18 +678,23 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
     def image(self, verbose=False):
         r"""
-        Computes the Image of an FP_Hom, as an FP_Module. Returns the factorization of
-        self into epi, Image, mono.
+        Compute the image of this homomorphism.
 
-        Assumes generators of FP_Modules are in order of increasing degree.
+        NOTE: It is assmumed that the generators of FP_Modules are in order of
+        increasing degree.
+
+        INPUT:
+
+        - ``verbose`` -- Flag used to turn on progress reporting (optional,
+          default=``False``)
 
         OUTPUT:
 
-        -  ``mono``  - The FP_Hom corresponding to the natural inclusion of `F` into
-                    the codomain of self.
+        - ``mono`` -- An inclusion of into the codomain of this homomorphism
+          which is onto the image.
 
-        -  ``epi``  - The FP_Hom corresponding to the natural projection of the
-                    domain of self onto `F`, such that mono*epi = self.
+        - ``epi`` -- A projection which together with ``mono`` gives the
+          factorization ``mono`` ``epi`` = ``self``.
 
         EXAMPLES::
 
@@ -773,7 +764,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         return mono, epi
 
     def solve(self,x):
-        """
+        r"""
         Find an element mapping to ``x`` under this morphism.
 
         INPUT:

@@ -1,6 +1,6 @@
 #----------------------------Profile-Functions-----------------------------------
 
-## Palmieri pads all his profiles by adding a [0] to the beginning.
+# Palmieri pads all his profiles by adding a [0] to the beginning.
 # Furthermore, when scanning over elements defined over an odd
 # primary Steenrod Algebra, the Q part comes first, and then the P part.
 # When defining a sub-algebra over an odd Steenrod algebra, the P part
@@ -8,7 +8,6 @@
 
 # These functions return the P part first, and then the Q part.
 
-# XXX Sverre -- Let this be commencted out until we find out where it is used:
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 import sage.modules.fpmods.utility as Utility
 from copy import copy

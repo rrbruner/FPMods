@@ -79,7 +79,7 @@ class FP_ModuleHomspace(Homset):
         - An iterable of FP_Element's of the codomain which equals the values
           of the module generators of the domain.
 
-        OUTPUT: An FP_ModuleMorphism between fp modules.
+        OUTPUT: A module homomorphism in the homspace.
 
         EXAMPLES::
 
@@ -109,5 +109,5 @@ class FP_ModuleHomspace(Homset):
         if self.is_endomorphism_set():
             return self.element_class(self, self.codomain().gens())
         else:
-            raise TypeError("Identity map only defined for endomorphisms. Try natural_map() instead.")
+            raise TypeError("This homspace does not consist of endomorphisms. Try natural_map() instead.")
 
