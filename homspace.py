@@ -8,7 +8,7 @@ from sage.misc.cachefunc import cached_method
 r"""
 TESTS::
 
-    sage: from sage.modules.fpmods.fpmods import FP_Module
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
     sage: from sage.misc.sage_unittest import TestSuite
     sage: F = FP_Module(degs = tuple([1,3]));
     sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));
@@ -62,7 +62,7 @@ def is_FP_ModuleHomspace(x):
     """
     return isinstance(x, FP_ModuleHomspace)
 
-from sage.modules.fpmods.fpmod_morphism import FP_ModuleMorphism
+from sage.modules.finitely_presented_over_the_steenrod_algebra.morphism import FP_ModuleMorphism
 
 from sage.categories.homset import Homset
 

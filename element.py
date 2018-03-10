@@ -2,8 +2,8 @@
 #  http://doc.sagemath.org/html/en/developer/coding_basics.html#files-and-directory-structure
 
 import sage.modules.fpmods.utility as Utility
-import sage.modules.fpmods.profile as Profile
-import sage.modules.fpmods.resolutions as Resolutions
+import sage.modules.finitely_presented_over_the_steenrod_algebra.profile as Profile
+import sage.modules.finitely_presented_over_the_steenrod_algebra.resolutions as Resolutions
 
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 from sage.modules.free_module import VectorSpace
@@ -34,7 +34,7 @@ class FP_Element(ModuleElement):
 
         EXAMPLES::
 
-        sage: from sage.modules.fpmods.fpmods import FP_Module, FP_Element
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module, FP_Element
         sage: M = FP_Module((2,3,5))
         sage: generators = (0,Sq(3),Sq(1))
         sage: m = M(generators);m
@@ -42,13 +42,13 @@ class FP_Element(ModuleElement):
         sage: n = FP_Element(M, generators);n
         <0, Sq(3), Sq(1)>
         sage: type(m)
-        <class 'sage.modules.fpmods.fpmods.FP_Module_with_category.element_class'>
+        <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.module.FP_Module_with_category.element_class'>
         sage: type(n)
-        <class 'sage.modules.fpmods.fpmod_element.FP_Element'>
+        <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.element.FP_Element'>
 
         EXAMPLES::
 
-        sage: from sage.modules.fpmods.fpmods import FP_Module, FP_Element
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module, FP_Element
         sage: M = FP_Module((2,3,5));M
         Finitely presented module on 3 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
         sage: m = FP_Element(M, (0,Sq(3),Sq(1)));m
@@ -82,7 +82,7 @@ class FP_Element(ModuleElement):
     def _get_coefficients(self):
         """
         TESTS::
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module((2,3,5), ((0, Sq(2), 1),))
             sage: m = M((0,Sq(3),Sq(1)));m
             <0, Sq(3), Sq(1)>
@@ -98,7 +98,7 @@ class FP_Element(ModuleElement):
         """
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module((2,3,5))
             sage: m = M((0,Sq(3),Sq(1)));m
             <0, Sq(3), Sq(1)>
@@ -122,7 +122,7 @@ class FP_Element(ModuleElement):
         EXAMPLES:
 
         ::
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: x = M((Sq(6), Sq(4), Sq(2))); x
             <Sq(6), Sq(4), Sq(2)>
@@ -139,7 +139,7 @@ class FP_Element(ModuleElement):
         EXAMPLES:
 
         ::
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: x = M((Sq(6), Sq(4), Sq(2))); x
             <Sq(6), Sq(4), Sq(2)>
@@ -161,7 +161,7 @@ class FP_Element(ModuleElement):
         EXAMPLES:
 
         ::
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: a = M(0)
             sage: b = M((Sq(6), 0, Sq(2)))
@@ -195,7 +195,7 @@ class FP_Element(ModuleElement):
 
         ::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: M((Sq(3)*Sq(4), 0, 0))._cmp_(M((0, Sq(3)*Sq(2), 0)))
             0
@@ -282,7 +282,7 @@ class FP_Element(ModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: M(0)._nonzero_()
             False
@@ -309,7 +309,7 @@ class FP_Element(ModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module(degs=(0,2,4), relations=((Sq(4),Sq(2),0),))
             sage: m = M((Sq(6), 0, Sq(2)))
             sage: m; m.normalize()

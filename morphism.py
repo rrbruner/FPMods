@@ -4,7 +4,7 @@ from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 
 import sage.modules.fpmods.utility as Utility
 import sage.modules.fpmods.profile as Profile
-from sage.modules.fpmods.fpmods import FP_Module
+from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
 
 from sage.categories.homset import Hom
 from sage.modules.free_module import VectorSpace
@@ -44,7 +44,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: F1 = FP_Module(degs = (4,5));
             sage: F2 = FP_Module(degs = (3,4));
             sage: F3 = FP_Module(degs = (2,3));
@@ -104,7 +104,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             True
 
         """
-        from .fpmod_homspace import is_FP_ModuleHomspace
+        from .homspace import is_FP_ModuleHomspace
         if not is_FP_ModuleHomspace(parent):
             raise TypeError("parent (=%s) must be a fp module hom space" % parent)
 
@@ -297,7 +297,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module((2,3),((Sq(2),Sq(1)),))
             sage: N = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))))
             sage: f = Hom(M,N) ( [N((1,0)), N((0,1))] );
@@ -371,7 +371,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module((2,3),((Sq(2),Sq(1)),))
             sage: N = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))))
             sage: f = Hom(M,N) ( [N((1,0)), N((0,1))] )
@@ -409,7 +409,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module((2,3),((Sq(2),Sq(1)),))
             sage: N = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))))
             sage: f = Hom(M,N).an_element();
@@ -448,7 +448,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: F1 = FP_Module(degs = (4,5));
             sage: F2 = FP_Module(degs = (3,4));
             sage: H1 = Hom(F1, F2);
@@ -529,7 +529,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fpmods.fpmods import create_fp_module as create
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import create_fp_module as create
             sage: F = create([1,3]);
             sage: L = create([2,3],[[Sq(2),Sq(1)], [0,Sq(2)]]);
             sage: homset = Hom(F, L);
