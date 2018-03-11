@@ -102,8 +102,8 @@ def extend_resolution(R,n,verbose=False):
 
     EXAMPLES::
 
-        sage: from sage.modules.fpmods.fpmods import create_fp_module
-        sage: from sage.modules.fpmods.resolutions import *
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import create_fp_module
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.resolutions import *
         sage: M = create_fp_module([0, 5], [(Sq(2)*Sq(2)*Sq(2), Sq(1))])
         sage: r1 = M.resolution(4)
         sage: r12 = extend_resolution(r1, 8)

@@ -9,7 +9,7 @@
 # These functions return the P part first, and then the Q part.
 
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
-import sage.modules.fpmods.utility as Utility
+import sage.modules.finitely_presented_over_the_steenrod_algebra.utility as Utility
 from copy import copy
 
 def profile_ele(alist,char=2):

@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 
-import sage.modules.fpmods.utility as Utility
-import sage.modules.fpmods.profile as Profile
+import sage.modules.finitely_presented_over_the_steenrod_algebra.utility as Utility
+import sage.modules.finitely_presented_over_the_steenrod_algebra.profile as Profile
 from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
 
 from sage.categories.homset import Hom

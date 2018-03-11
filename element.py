@@ -1,7 +1,7 @@
 
 #  http://doc.sagemath.org/html/en/developer/coding_basics.html#files-and-directory-structure
 
-import sage.modules.fpmods.utility as Utility
+import sage.modules.finitely_presented_over_the_steenrod_algebra.utility as Utility
 import sage.modules.finitely_presented_over_the_steenrod_algebra.profile as Profile
 import sage.modules.finitely_presented_over_the_steenrod_algebra.resolutions as Resolutions
 
