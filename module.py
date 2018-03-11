@@ -6,83 +6,41 @@ over the Steenrod Algebra, elements of them, and morphisms. With
 these objects, the user can perform more complex computations, using
 the secondary functions defined.
 
-TODO: The category of f.p. modules over the Steenrod algebra.
+TODO: Some background on category of f.p. modules over the Steenrod algebra.
 
 Creating an instance of the module class using the create method::
 
     sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import create_fp_module
-    sage: M = create_fp_module([0,1],[[Sq(2),Sq(1)],[0,Sq(2)]]);M
+    sage: M = create_fp_module([0,1], [[Sq(2),Sq(1)], [0,Sq(2)]]); M
     Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
-
-The category framework::
-
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
-    sage: degs = [1,3]
-    sage: K = FP_Module(degs = tuple(degs));K
-    Finitely presented module on 2 generators and 0 relations ...
-    sage: K.category()
-    Category of modules over mod 2 Steenrod algebra, milnor basis
-    sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));L
-    Finitely presented module on 2 generators and 2 relations ...
-    sage: M = FP_Module((2,3),((Sq(2),Sq(1)),));M
-    Finitely presented module on 2 generators and 1 relation ...
-    sage: K.element_class
-    <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.module.FP_Module_with_category.element_class'>
-    sage: m = M((0,1)); m
-    <0, 1>
-    sage: K.is_parent_of(m)
-    False
-    sage: L.is_parent_of(m)
-    False
-    sage: M.is_parent_of(m)
-    True
 
 Creating module elements::
 
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
-    sage: K = FP_Module(degs = tuple([1,3]));K
-    Finitely presented module on 2 generators and 0 relations ...
-    sage: K.category()
-    Category of modules over mod 2 Steenrod algebra, milnor basis
-    sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));L
-    Finitely presented module on 2 generators and 2 relations ...
-    sage: M = FP_Module((2,3),((Sq(2),Sq(1)),));M
-    Finitely presented module on 2 generators and 1 relation ...
-    sage: m = M((0,1)); m
+    sage: m = M([0, 1]); m
     <0, 1>
-    sage: M(m)
-    <0, 1>
+    sage: n = M([Sq(2), Sq(1)]); n
+    <Sq(2), Sq(1)>
 
 Creating homomorphisms::
 
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
-    sage: F = FP_Module(degs = tuple([1,3]));
-    sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));
+    sage: F = create_fp_module([1,3]);
+    sage: L = create_fp_module([2,3], [(Sq(2),Sq(1)), (0,Sq(2))]);
     sage: homset = Hom(F, L); homset
     Set of Morphisms from Finitely presented module on 2 generators ...
+
+The ``an_element()`` member function produces a homomorphism.  (Todo: this always
+results in the trivial homomorphism at the moment.)::
+
     sage: homset.an_element()
     The trivial module homomorphism:
       Domain: Finitely presented module on 2 generators and 0 relations ...
       Codomain: Finitely presented module on 2 generators and 2 relations ...
-    sage: homset([L((Sq(1), 1)), L((0, Sq(2)))])
-    Module homomorphism of degree 2:
-      Domain: Finitely presented module on 2 generators and 0 relations ...
-      Codomain: Finitely presented module on 2 generators and 2 relations ...
-    sage: Hom(F, L) ([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
-    Module homomorphism of degree 0:
-      Domain: Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
-      Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
-    defined by sending the generators
-      [<1, 0>, <0, 1>]
-    to
-      [<0, 1>, <Sq(0,1), 0>]
-    sage: H = Hom(F, L); H
-    Set of Morphisms from Finitely presented module on 2 generators and 0 relations ...
-    sage: H(0)
-    The trivial module homomorphism:
-      Domain: Finitely presented module on 2 generators and 0 relations ...
-      Codomain: Finitely presented module on 2 generators and 2 relations ...
-    sage: f = H( [L((Sq(1), 1)), L((0, Sq(2)))] ); f
+
+A module homomorphism sending the two generators of the free
+module `F` to the elements `v_1` and `v_2`, respectively::
+
+    sage: v_1 = L((Sq(1), 1)); v_2 = L((0, Sq(2)))
+    sage: f = homset([v_1, v_2]); f
     Module homomorphism of degree 2:
       Domain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
       Codomain: Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
@@ -90,22 +48,56 @@ Creating homomorphisms::
       [<1, 0>, <0, 1>]
     to
       [<Sq(1), 1>, <0, Sq(2)>]
-    sage: Hom(F, L) ([L((0, 0)), L((0, 1))]).kernel()
+
+The kernel of `f` can be computed using the member function ``kernel``.  Note
+that this function returns an injective homomorphism `i: K \rightarrow M` where
+the codomain is this module, and `f` is onto `\ker (f)`::
+
+    sage: f.kernel() # returns an injective homomorphism onto the kernel.
     Module homomorphism of degree 0:
       Domain: Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
       Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
     defined by sending the generators
       [<1, 0>, <0, 1>]
     to
-      [<1, 0>, <0, Sq(2)>]
-    sage: f - H.zero() == f
+      [<0, 1>, <Sq(0,1), 0>]
+
+The ``image`` member function behaves similarly but returns a pair of homomorphisms
+which factors `f` into an surjection and an injection::
+
+    sage: i, p = f.image()
+    sage: p.domain() == f.domain()
     True
-    sage: Hom(L, F).zero()
+    sage: p.codomain() == i.domain()
+    True
+    sage: i.codomain() == f.codomain()
+    True
+
+all of this is implied by the single statement::
+
+    sage: i*p == f
+    True
+
+The image module::
+
+    sage: i.domain()
+    Finitely presented module on 1 generator and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+
+The trivial homomorphism::
+
+    sage: t_1 = homset(0); t_1
     The trivial module homomorphism:
-      Domain: Finitely presented module on 2 generators and 2 relations ...
-      Codomain: Finitely presented module on 2 generators and 0 relations ...
-    sage: Hom(L, F).zero() == Hom(L, F)(0)
+      Domain: Finitely presented module on 2 generators and 0 relations ...
+      Codomain: Finitely presented module on 2 generators and 2 relations ...
+    sage: t_2 = homset.zero()
+    sage: t_1 == t_2
     True
+    sage: f = homset( [L((Sq(1), 1)), L((0, Sq(2)))] )
+    sage: f - homset.zero() == f
+    True
+
+The identity homomorphism::
+
     sage: id = End(L).identity()
     sage: id + id
     The trivial module homomorphism:
@@ -133,6 +125,29 @@ Creating homomorphisms::
     <Sq(5), Sq(4)>
     sage: g(el)
     <Sq(5), Sq(4)>
+
+The category framework::
+
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
+    sage: degs = [1,3]
+    sage: K = FP_Module(degs = tuple(degs));K
+    Finitely presented module on 2 generators and 0 relations ...
+    sage: K.category()
+    Category of modules over mod 2 Steenrod algebra, milnor basis
+    sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));L
+    Finitely presented module on 2 generators and 2 relations ...
+    sage: M = FP_Module((2,3),((Sq(2),Sq(1)),));M
+    Finitely presented module on 2 generators and 1 relation ...
+    sage: K.element_class
+    <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.module.FP_Module_with_category.element_class'>
+    sage: m = M((0,1)); m
+    <0, 1>
+    sage: K.is_parent_of(m)
+    False
+    sage: L.is_parent_of(m)
+    False
+    sage: M.is_parent_of(m)
+    True
 
 Lifts::
 
