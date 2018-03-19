@@ -18,6 +18,7 @@ def maxim(L):
 
     EXAMPLES::
 
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.utility import *
     sage: maxim([[1,2,3,4],[5,4]])
     [5, 4, 3, 4]
     sage: maxim([[1,2,3,4],[1,1,1,5],[9]])
@@ -50,6 +51,7 @@ def _deg_(degs,co):
 
     EXAMPLES::
 
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.utility import _deg_
     sage: A = SteenrodAlgebra(2)
     sage: _deg_((0,2,4),(Sq(4),Sq(2),Sq(0)))
     4
@@ -82,6 +84,7 @@ def max_deg(alg):
 
     EXAMPLES::
 
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.utility import *
     sage: A2 = SteenrodAlgebra(p=2, profile = (3,2,1))
     sage: max_deg(A2)
     23
@@ -131,6 +134,7 @@ def pmax_deg(prof,p=2):
 
     EXAMPLES::
 
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.utility import *
     sage: pmax_deg((2,1))
     6
     sage: pmax_deg(((3,2,1),(1,1,1)),p=3)
@@ -173,6 +177,7 @@ def _del_(i,n):
 
     EXAMPLES::
 
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.utility import _del_
     sage: _del_(2,4)
     [0, 0, 1, 0]
     sage: _del_(0,3)
@@ -196,6 +201,7 @@ def mod_p_log(n,p):
 
     EXAMPLES::
 
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.utility import *
     sage: mod_p_log(1,4)
     1
     sage: mod_p_log(8,3)

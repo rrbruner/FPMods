@@ -28,6 +28,7 @@ def profile_ele(alist,char=2):
 
     EXAMPLES::
 
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
         sage: A2 = SteenrodAlgebra(2)
         sage: profile_ele(A2.Sq(2))
         (2, 1)
@@ -82,6 +83,7 @@ def enveloping_profile_elements(alist,char=2):
 
     EXAMPLES::
 
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
         sage: enveloping_profile_elements([Sq(2),Sq(4)])
         (3, 2, 1)
         sage: enveloping_profile_elements([Sq(2,1,2),Sq(7)])
@@ -128,6 +130,7 @@ def enveloping_profile_profiles(alist,char=2):
 
     EXAMPLES::
 
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
         sage: enveloping_profile_profiles([[1,2,3],[2,4,1,1]])
         (2, 4, 3, 2, 1)
         sage: enveloping_profile_profiles([[4],[1,2,1],[3,2,3]])
@@ -169,6 +172,7 @@ def valid(LL,char=2):
 
     EXAMPLES::
 
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
         sage: valid([3,2,1])
         True
         sage: valid([1,2,3])
@@ -216,6 +220,7 @@ def nextprof(p,n,char=2):
 
     EXAMPLES::
 
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
         sage: nextprof([1,2],[1,2])
         [2, 2]
         sage: nextprof([2,2],[1,2])
@@ -269,6 +274,7 @@ def find_min_profile(prof,char=2):
 
     EXAMPLES::
 
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
         sage: find_min_profile([1,2])
         (1, 2, 1)
         sage: find_min_profile([2,1])
