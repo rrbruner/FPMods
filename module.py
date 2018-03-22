@@ -1,12 +1,43 @@
 r"""
-Finitely presented modules over the mod `p` Steenrod algebra.
+Finitely presented modules over the Steenrod algebra.
+
+.. rubric:: Introduction
 
 This package allows the user to define finitely presented modules
 over the Steenrod Algebra, elements of them, and morphisms. With
 these objects, the user can perform more complex computations, using
 the secondary functions defined.
 
-TODO: Some background on category of f.p. modules over the Steenrod algebra.
+.. rubric:: Theoretical background
+
+The Steenrod algebra is the union of finite sub-Hopf algebras
+[Margolis, Spectra and the Steenrod Algebra, Ch. 15, Sect. 1, Prop 7].
+Therefore, any finitely presented module over the Steenrod algebra is
+defined over a finite sub-Hopf algebra.  Similarly, any homomorphism
+between finitely presented modules over the Steenrod algebra is
+defined over a finite sub-Hopf algebra of the Steenrod algebra.
+Further, tensoring up from the category of modules over a sub-Hopf
+algebra is an exact functor, since the Steenrod algebra is free over
+any sub-Hopf algebra.
+
+It follows that kernels, cokernels, images, and, more generally, any finite
+limits or colimits can be computed in the category of modules over the
+Steenrod algebra, by working in the category of modules over an appropriate
+finite sub-Hopf algebra.
+
+It is also the case that presentations of modules and the images of the
+generators of the domain of a homomorphism are the same over the sub-Hopf 
+algebra and over the whole Steenrod algebra, so that the tensoring up is
+entirely implicit and requires no computation.
+
+The definitions and computations carried out by this package are thus done
+as follows.   First, find a small finite sub-Hopf algebra over which the
+computation can be done.   Then, carry out the calculation there, where it
+is a finite problem, and can be reduced to linear algebra over a finite
+prime field.
+
+
+.. rubric:: User's guide
 
 Creating an instance of the module class using the create method::
 
