@@ -25,15 +25,11 @@ def maxim(L):
     [9, 2, 3, 5]
 
     """
-    if len(L) == 1:
-        return [L[0][i] for i in range(len(L[0]))]
-    else:
-        t1 = maxim([L[i] for i in range(1,len(L))])
-        t2 = [L[0][i] for i in range(len(L[0]))]
-        mm = max(len(t1),len(t2))
-        t1 = t1 + (mm - len(t1))*[0]
-        t2 = t2 + (mm - len(t2))*[0]
-        return map(max,zip(t1,t2))
+    max_length = max(len(l) for l in L)
+    # Pad the elements of L with 0's so that they all have the same lengths
+    L_padded = [l + (max_length - len(l))*[0] for l in L]
+    # Compute and return the component-wise maximum of the entries
+    return [max(component) for component in zip(*L_padded)]
 
 def _deg_(degs,co):
     """
