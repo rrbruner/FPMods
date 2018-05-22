@@ -490,6 +490,23 @@ class FP_Module(UniqueRepresentation, Module):
         OUTPUT: The finitely presented module with presentation given by
         ``degs`` and ``relations``.
 
+        TESTS::
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
+            sage: M = FP_Module((0,1), ((Sq(2),Sq(1)),(0,Sq(2)),(Sq(3),0))); M
+            Finitely presented module on 2 generators and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+            sage: x = M([1,0])
+            sage: x == M.gen(0)
+            True
+            sage: y=M.gen(1)
+            sage: z=Sq(2)*Sq(1)*Sq(2)*x; z
+            <Sq(2,1), 0>
+            sage: z.normalize()
+            <0, 0>
+            sage: Sq(1)*Sq(2)*y
+            <0, Sq(3)>
+            sage: (Sq(1)*Sq(2)*y).normalize()
+            <0, 0>
+
         """
 
         if (char is None) and (algebra is None):
@@ -1009,13 +1026,13 @@ class FP_Module(UniqueRepresentation, Module):
         sage.categories.homset.hom.Hom() to create homsets involving this
         parent.
 
-        INPUT:
-
-        OUTPUT:
-
-        EXAMPLES::
-
         TESTS::
+
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import create_fp_module
+            sage: F = create_fp_module([1,3]);
+            sage: L = create_fp_module([2,3], [(Sq(2),Sq(1)), (0,Sq(2))]);
+            sage: homset = Hom(F, L); homset
+            Set of Morphisms from Finitely presented module on 2 generators ...
 
         """
         from .homspace import FP_ModuleHomspace
@@ -1240,7 +1257,47 @@ class FP_Module(UniqueRepresentation, Module):
 
     def _resolution(self,k,kers,verbose=False):
         """
-            The private implementation of resolution()
+            The private implementation of resolution().
+
+        INPUT:
+
+        - ``k`` -- An non-negative integer.
+
+        - ``kers`` -- A list or None.  If a list is given, the kernel modules
+          is appended to it.
+
+        - ``verbose`` -- A boolean to control if log messages should be emitted.
+          (optional, default: ``False``)
+
+        OUTPUT:
+        
+        The same as the output of resolution().
+
+        TESTS::
+
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
+            sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),))
+            sage: kers=[]
+            sage: res = N._resolution(2, kers, verbose=True)
+            Step  2
+            Step  1
+            Step  0
+            sage: print(res[2])
+            Module homomorphism of degree 0:
+              Domain: Finitely presented module on 1 generator and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+              Codomain: Finitely presented module on 1 generator and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+            defined by sending the generators
+              [<1>]
+            to
+              [<Sq(3,1)>]
+            sage: print(kers[1])
+            Module homomorphism of degree 0:
+              Domain: Finitely presented module on 1 generator and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+              Codomain: Finitely presented module on 1 generator and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
+            defined by sending the generators
+              [<1>]
+            to
+              [<Sq(3,1)>]
         """
 
         C0 = FP_Module(tuple(self.degs), algebra=self.profile_algebra())
