@@ -86,27 +86,13 @@ class FP_Element(ModuleElement):
             sage: M = FP_Module((2,3,5), ((0, Sq(2), 1),))
             sage: m = M((0,Sq(3),Sq(1)));m
             <0, Sq(3), Sq(1)>
-            sage: m.get_degree()
+            sage: m.degree
             6
             sage: m._get_coefficients()
             [0, Sq(3), Sq(1)]
 
         """
         return self.coefficients
-
-    def get_degree(self):
-        """
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
-            sage: M = FP_Module((2,3,5))
-            sage: m = M((0,Sq(3),Sq(1)));m
-            <0, Sq(3), Sq(1)>
-            sage: m.get_degree()
-            6
-
-        """
-        return self.degree
 
     def _repr_(self):
         ## TO DO: Add parents when coeffs are sums:

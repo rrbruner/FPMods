@@ -127,23 +127,22 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             # The zero homomorphism does not get a degree.
             self.degree = None
         else:
-            # Check the homomorphism is well defined.
-
-            # Find the first non-zero value.
+            # Find the first non-zero value, and and record the shift
+            # of degrees imposed by this homomorphism.
             for i, value in enumerate(_values):
                 if not value.is_zero():
-                    self.degree = value.get_degree() - D.degs[i]
+                    self.degree = value.degree - D.degs[i]
                     break
 
-            # check all the remaining ones.
-            if not all(not v.get_degree() or self.degree == (v.get_degree() - g) \
+            # Check that all generators are shifted by the same degree.
+            if not all(not v.degree or self.degree == (v.degree - g) \
                        for g, v in zip(D.degs, _values)):
                 errorMessage = "Ill defined homomorphism (degrees do not match)\n"
                 gen_index = 0
                 for g, v in zip(D.degs, _values):
                     errorMessage += "  Generator #%d (degree %d) -> %s (degree %d)"\
                         " shifts degrees by %d\n" % (
-                        gen_index, g, v, v.get_degree(), v.get_degree() - g)
+                        gen_index, g, v, v.degree, v.degree - g)
                     gen_index += 1
                 raise ValueError, errorMessage
 
@@ -181,11 +180,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         return False
 
-    def get_degree(self):
-        r"""
-        """
-        return self.degree
-
     def __add__(self, g):
         r"""
         Sum the homomorphisms, so (f+g)(x) == f(x)+g(x)
@@ -197,7 +191,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         elif self.codomain() != g.codomain():
             raise ValueError,\
             "Morphisms do not have the same codomain."
-        elif self.get_degree() and g.get_degree() and self.get_degree() != g.get_degree():
+        elif self.degree and g.degree and self.degree != g.degree:
             raise ValueError,\
             "Morphisms do not have the same degree."
 
@@ -781,7 +775,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             return False, self.domain().zero()
 
         pn, dbas, cbas =\
-            self._full_pres_(x.get_degree() - self.get_degree(), profile=self.profile())
+            self._full_pres_(x.degree - self.degree, profile=self.profile())
         v = x.vec()[0]
 
         if x not in self.codomain():

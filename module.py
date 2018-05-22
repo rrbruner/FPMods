@@ -142,7 +142,7 @@ The identity homomorphism::
     True
     sage: id*id != id
     False
-    sage: id.get_degree()
+    sage: id.degree
     0
     sage: g = id + id + id; g
     The identity module homomorphism:
@@ -1118,7 +1118,7 @@ class FP_Module(UniqueRepresentation, Module):
             ((Sq(3),),)
 
         """
-        degs = [x.get_degree() for x in spanning_elements]
+        degs = [x.degree for x in spanning_elements]
         F = FP_Module(tuple(degs), algebra=self.profile_algebra())
         pr = Hom(F,self)(spanning_elements)
         return pr.image()
