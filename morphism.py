@@ -23,7 +23,6 @@ from copy import copy
 def is_FP_ModuleMorphism(x):
     r"""
     EXAMPLES::
-
     """
     return isinstance(x, FP_ModuleMorphism)
 
@@ -103,6 +102,27 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: p(x + x2) == mono(epi(x + x2))
             True
 
+        TESTS:
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
+            sage: # Trying to map the generators of a non-free module into a
+            sage: # free module:
+            sage: F = FP_Module(degs = (2,3))
+            sage: Q = FP_Module(degs = (2,3), relations = ((Sq(6), Sq(5)),))
+            sage: m = Hom(F, Q)( (F((Sq(1), 0)), F((0, 1))) )
+            Traceback (most recent call last):
+             ...
+            ValueError: Ill defined homomorphism (degrees do not match)
+                  Generator #0 (degree 2) -> <Sq(1), 0> (degree 3) shifts degrees by 1
+                  Generator #1 (degree 3) -> <0, 1> (degree 3) shifts degrees by 0
+
+            sage: # Trying to map the generators of a non-free module into a
+            sage: # free module:
+            sage: w = Hom(Q, F)( (F((1, 0)), F((0, 1))) )
+            Traceback (most recent call last):
+             ...
+            ValueError: Relation #0 is not sent to zero.
+
+
         """
         from .homspace import is_FP_ModuleHomspace
         if not is_FP_ModuleHomspace(parent):
@@ -146,17 +166,20 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
                     gen_index += 1
                 raise ValueError, errorMessage
 
-            # Check the homomorphism is well defined.
-            for relation in parent.domain().rels:
-                r = sum ([c*v for c, v in zip(relation, _values)], parent.codomain().zero())
+            # Check that the homomorphism is well defined.
+            for i, relation in enumerate(parent.domain().rels):
+                r = sum(
+                    [c*v for c, v in zip(relation, _values)],
+                    parent.codomain().zero())
                 if not r.is_zero():
-                    raise ValueError, ("Relation %s is not sent to zero" % relation)
+                    raise ValueError, ("Relation #%d is not sent to zero." % i)
 
         self.values = _values
 
         sage.categories.morphism.Morphism.__init__(self, parent)
 
-        self.algebra = SteenrodAlgebra(p = D.profile_algebra().prime(), profile = self.min_profile())
+        self.algebra = SteenrodAlgebra(
+            p = D.profile_algebra().prime(), profile = self.min_profile())
 
     def profile(self):
         return self.algebra._profile
