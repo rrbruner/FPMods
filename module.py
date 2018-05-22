@@ -1231,8 +1231,8 @@ class FP_Module(UniqueRepresentation, Module):
               [<Sq(1)>, <Sq(2)>]
         """
 
-        kers = [] if kernels else None
-        res, kers = self._resolution(k, kers, verbose)
+        kers =[]
+        res = self._resolution(k, kers, verbose)
         if kernels == True:
             return res, kers
         else:
@@ -1249,12 +1249,12 @@ class FP_Module(UniqueRepresentation, Module):
         if verbose:
               print "Step ",k
         if k <= 0:
-            return [eps], kers
+            return [eps]
         else:
             i0 = eps.kernel()
             if not kers is None:
                 kers.append(i0)
-            r, kz = i0.domain()._resolution(k-1, kers, verbose)
+            r = i0.domain()._resolution(k-1, kers, verbose)
             r[0] = i0*r[0]
-            return [eps] + r, kers
+            return [eps] + r
 
