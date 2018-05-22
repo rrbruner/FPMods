@@ -73,7 +73,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: p = w.cokernel()
             sage: Q2 = p.codomain(); Q2
             Finitely presented module on 2 generators and 1 relation ...
-            sage: Q2.get_rels()
+            sage: Q2.rels
             ((Sq(6), Sq(5)),)
             sage: x = F1((Sq(7)*Sq(6), Sq(7)*Sq(5))); x
             <Sq(7,2), Sq(3,3)>
@@ -132,15 +132,15 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             # Find the first non-zero value.
             for i, value in enumerate(_values):
                 if not value.is_zero():
-                    self.degree = value.get_degree() - D.get_degs()[i]
+                    self.degree = value.get_degree() - D.degs[i]
                     break
 
             # check all the remaining ones.
             if not all(not v.get_degree() or self.degree == (v.get_degree() - g) \
-                       for g, v in zip(D.get_degs(), _values)):
+                       for g, v in zip(D.degs, _values)):
                 errorMessage = "Ill defined homomorphism (degrees do not match)\n"
                 gen_index = 0
-                for g, v in zip(D.get_degs(), _values):
+                for g, v in zip(D.degs, _values):
                     errorMessage += "  Generator #%d (degree %d) -> %s (degree %d)"\
                         " shifts degrees by %d\n" % (
                         gen_index, g, v, v.get_degree(), v.get_degree() - g)
@@ -148,7 +148,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
                 raise ValueError, errorMessage
 
             # Check the homomorphism is well defined.
-            for relation in parent.domain().get_rels():
+            for relation in parent.domain().rels:
                 r = sum ([c*v for c, v in zip(relation, _values)], parent.codomain().zero())
                 if not r.is_zero():
                     raise ValueError, ("Relation %s is not sent to zero" % relation)
@@ -419,7 +419,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         """
         C = self.parent().codomain()
         D = self.parent().domain()
-        initialval = D([0]*len(D.get_degs()))
+        initialval = D([0]*len(D.degs))
         profile = Profile.enveloping_profile_profiles([D.profile(), C.profile(),\
                       Profile.enveloping_profile_elements(reduce(lambda x,y: x+y,\
                            [x._get_coefficients() for x in self.values], initialval._get_coefficients()),\
@@ -497,18 +497,18 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         EXAMPLES::
 
         """
-        newRelations = list(self.codomain().get_rels())
+        newRelations = list(self.codomain().rels)
         for value in self.get_values():
             newRelations.append(tuple(value._get_coefficients()))
 
-        coker = FP_Module(degs = tuple(self.codomain().get_degs()),\
+        coker = FP_Module(degs = tuple(self.codomain().degs),\
                 relations = tuple(newRelations),\
                 algebra = self.algebra)
 
         homset = Hom(self.codomain(), coker)
 
         # Create the quotient of the identity morhpism.
-        n = len(self.codomain().get_degs())
+        n = len(self.codomain().degs)
         values = [coker( tuple(Utility._del_(i, n)) ) for i in range(n)]
 
         p = homset(values)
@@ -552,7 +552,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         if n == PlusInfinity():
             return j
 
-        limit = Utility.max_deg(self.alg()) + max(self.domain().get_degs())
+        limit = Utility.max_deg(self.alg()) + max(self.domain().degs)
 
         self_n = self._pres_(n)
         while n <= limit and self_n.kernel().dimension() == 0:
@@ -644,27 +644,27 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
             # Add any new generators found in the loop above.
             num_new_gens = len(cokernel_values)
-            new_degs = list(j.domain().get_degs()) + num_new_gens*[n]
+            new_degs = list(j.domain().degs) + num_new_gens*[n]
 
 
             # Pad the existing relations-tuples with zeros.
             relations = [ (r + num_new_gens*(0,)) for r in \
-                (list(j.domain().get_rels()) + new_relations) ]
+                (list(j.domain().rels) + new_relations) ]
 
             K = FP_Module(tuple(new_degs), tuple(relations), algebra=self.alg())
             ttv = list(j.get_values()) + cokernel_values
             j = Hom(K, self.domain())(ttv)
 
         # Finally, add any missing relations.
-        while n <= Utility.max_deg(self.alg()) + max(K.get_degs()):
+        while n <= Utility.max_deg(self.alg()) + max(K.degs):
 
             j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(n, profile=self.profile())
             new_relations = [tuple(j.domain()._lc_(j_n.domain().lift(v), j_n_domain_basis)._get_coefficients()) \
                              for v in j_n.kernel().basis()]
 
-            rels = list(j.domain().get_rels()) + new_relations
+            rels = list(j.domain().rels) + new_relations
 
-            K = FP_Module(degs=tuple(K.get_degs()), relations=tuple(rels), algebra=self.alg())
+            K = FP_Module(degs=tuple(K.degs), relations=tuple(rels), algebra=self.alg())
             j = Hom(K, self.domain())(j.get_values())
 
             n += 1
@@ -713,7 +713,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         iteration_count = 1
 
         # Loop to find a minimal set of generators for the image.
-        for n, v in zip(self.domain().get_degs(), self.values):
+        for n, v in zip(self.domain().degs, self.values):
 
             if verbose:
                 print ('Step %d/%d' % (iteration_count, num_iterations))
@@ -756,7 +756,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         mono = Hom(image_module, self.codomain())(image_module_values)
 
         # Create the epimorphism.
-        l = len(image_module.get_degs())
+        l = len(image_module.degs)
         epi_values = [ image_module(x + [0]*(l - len(x))) for x in epi_values ]
         epi = Hom(self.domain(), image_module)(epi_values)
 

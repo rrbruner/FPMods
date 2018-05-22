@@ -209,7 +209,7 @@ Computing resolutions::
     sage: Resolutions.is_exact(R)
     True
     sage: for i, C in enumerate(R):
-    ....:     print ('Stage %d\nDegrees: %s\nValues of R[i]: %s' % (i, C.domain().get_degs(), C.get_values()))
+    ....:     print ('Stage %d\nDegrees: %s\nValues of R[i]: %s' % (i, C.domain().degs, C.get_values()))
     Stage 0
     Degrees: (0,)
     Values of R[i]: [<1>]
@@ -286,11 +286,9 @@ from sage.modules.module import Module
 
 from sage.modules.finitely_presented_over_the_steenrod_algebra.element import FP_Element
 
-import sage.modules.finitely_presented_over_the_steenrod_algebra.utility as Utility
+import sage.modules.finitely_presented_over_the_steenrod_algebra.utility as Utility
 
 import sage.modules.finitely_presented_over_the_steenrod_algebra.profile as Profile
-
-from copy import copy
 
 
 def create_fp_module(degs, relations=None, char=None, algebra=None):
@@ -335,19 +333,19 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
         <Sq(2), 1, 0>
         sage: g,h = T.min_pres()
         sage: TT = g.domain()
-        sage: TT.get_degs()
+        sage: TT.degs
         (0, 2)
-        sage: TT.get_rels()
+        sage: TT.rels
         ((Sq(1,1) + Sq(4), Sq(2)),)
         sage: g,h = M.min_pres()
         sage: MM = g.domain()
-        sage: MM.get_rels()
+        sage: MM.rels
         ((Sq(2), Sq(1)), (0, Sq(2)))
         sage: incl,proj = MM.submodule([MM.gen(1)])
         sage: S = incl.domain()
-        sage: S.get_degs()
+        sage: S.degs
         (1,)
-        sage: S.get_rels()
+        sage: S.rels
         ((Sq(2),),)
         sage: for i in range(7):
         ....:    print ('basis for MM in dimension %d: %s' % (i, MM.basis(i)))
@@ -364,7 +362,7 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
         sage: J.profile_algebra()
         sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
         sage: N = create_fp_module([1], [[Sq(1)]])
-        sage: Z = N.suspension(4); Z.get_degs()
+        sage: Z = N.suspension(4); Z.degs
         (5,)
         sage: h = Hom(N, M)([Sq(1)*x])
         sage: g = Hom(M, N)([0, N.gen(0)])
@@ -372,30 +370,30 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
          ...
         TypeError: not all arguments converted during string formatting
         sage: i = h.kernel(); K = i.domain()
-        sage: K.get_degs()
+        sage: K.degs
         (6,)
         sage: i.get_values()
         [<Sq(2,1)>]
         sage: p = h.cokernel(); C = p.codomain()
-        sage: C.get_degs()
+        sage: C.degs
         (0, 1)
-        sage: C.get_rels()
+        sage: C.rels
         ((Sq(2), Sq(1)), (0, Sq(2)), (Sq(3), 0), (Sq(1), 0))
-        sage: h.cokernel('minimal').codomain().get_rels()
+        sage: h.cokernel('minimal').codomain().rels
         ((Sq(1), 0), (Sq(2), Sq(1)), (0, Sq(2)))
         sage: image_inj, image_epi = h.image()
-        sage: image_inj.domain().get_degs()
+        sage: image_inj.domain().degs
         (1,)
-        sage: image_inj.domain().get_rels()
+        sage: image_inj.domain().rels
         ((Sq(1),), (Sq(2,1),))
         sage: A2 = SteenrodAlgebra(p=2,profile=(3,2,1))
         sage: P7 = create_fp_module([0,0], [[Sq(1),Sq(1)],[Sq(0,1),0],[Sq(0,2),0],[0,Sq(2)]], algebra=A2)
         sage: ko_a2 = create_fp_module([0], [[Sq(1)],[Sq(2)]], algebra=A2)
         sage: p = Hom(P7, ko_a2)( [[0],[1]] )
         sage: j = p.kernel()
-        sage: j.domain().get_degs()
+        sage: j.domain().degs
         (0,)
-        sage: j.domain().get_rels()
+        sage: j.domain().rels
         ((Sq(0,1),), (Sq(0,2),))
 
     TESTS::
@@ -778,8 +776,6 @@ class FP_Module(UniqueRepresentation, Module):
             sage: N = FP_Module((0,1),((Sq(2),Sq(1)),(Sq(2)*Sq(1),Sq(2)))); N
             Finitely presented module on 2 generators and 2 relations over sub-Hopf
             algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
-
-
         """
         return "Finitely presented module on %s generator%s and %s relation%s over %s"\
             %(len(self.degs), "" if len(self.degs) == 1 else "s",
@@ -963,44 +959,6 @@ class FP_Module(UniqueRepresentation, Module):
         return [self.element_class(self, Utility._del_(i, len(self.degs)))
            for i in range(len(self.degs))]
 
-    def get_degs(self):
-        r"""
-        Return the tuple of degrees for the generators for this module.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
-            sage: M = FP_Module((0, 2, 3));
-            sage: M.get_degs()
-            (0, 2, 3)
-            sage: N = FP_Module((0,1),((Sq(2),Sq(1)),));
-            sage: N.get_degs()
-            (0, 1)
-
-        """
-        return self.degs
-
-    def get_rels(self):
-        r"""
-        Return the relations of the finite presentation of this module.
-
-        Each relation is represented by tuple of elements in the profile
-        algebra corresponding to the module generators.  I.e.
-        if `(g_0, g_1, \ldots, g_k)` are the generators of this module, the
-        tuple `r = (c_0, c_1, \ldots, c_k)` represents the relation
-        `\sum_{i=0}^k c_i\cdot g_i = 0`.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
-            sage: FP_Module((0, 2, 3)).get_rels()
-            ()
-            sage: N = FP_Module((0,1),((Sq(2),Sq(1)),)).get_rels(); N
-            ((Sq(2), Sq(1)),)
-
-        """
-        return self.rels
-
     def gen(self, index=0):
         r"""
         Return the module generator (as an module element) with the given
@@ -1053,9 +1011,9 @@ class FP_Module(UniqueRepresentation, Module):
             sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import create_fp_module
             sage: K = create_fp_module([0,1], [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: i, e = K.min_pres()
-            sage: i.domain().get_rels()
+            sage: i.domain().rels
             ((Sq(2), Sq(1)), (0, Sq(2)))
-            sage: i.codomain().get_rels()
+            sage: i.codomain().rels
             ((Sq(2), Sq(1)), (0, Sq(2)), (Sq(3), 0))
             sage: e.codomain() is i.domain()
             True
@@ -1119,19 +1077,19 @@ class FP_Module(UniqueRepresentation, Module):
             ((Sq(1),),)
             sage: M = FP_Module( (2,3), ( (Sq(2), Sq(1)), (0, Sq(2)) ) )
             sage: Q = M.suspension(1)
-            sage: Q.get_degs();Q.get_rels()
+            sage: Q.degs;Q.rels
             (3, 4)
             ((Sq(2), Sq(1)), (0, Sq(2)))
             sage: Q = M.suspension(-3)
-            sage: Q.get_degs()
+            sage: Q.degs
             (-1, 0)
             sage: Q = M.suspension(0)
-            sage: Q.get_degs()
+            sage: Q.degs
             (2, 3)
 
         """
-        generator_degrees = [g + t for g in self.get_degs()]
-        return FP_Module(degs=tuple(generator_degrees), relations=self.get_rels(), algebra=self.profile_algebra())
+        generator_degrees = [g + t for g in self.degs]
+        return FP_Module(degs=tuple(generator_degrees), relations=self.rels, algebra=self.profile_algebra())
 
     def submodule(self, spanning_elements):
         r"""
@@ -1155,7 +1113,7 @@ class FP_Module(UniqueRepresentation, Module):
             sage: M = FP_Module((0,1), ((Sq(2),Sq(1)),))
             sage: i,p = M.submodule([M.gen(0)])
             sage: S = i.domain()
-            sage: S.get_degs();S.get_rels()
+            sage: S.degs;S.rels
             (0,)
             ((Sq(3),),)
 
