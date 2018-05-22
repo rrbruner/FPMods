@@ -368,7 +368,7 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
         sage: g = Hom(M, N)([0, N.gen(0)])
         Traceback (most recent call last):
          ...
-        TypeError: not all arguments converted during string formatting
+        ValueError: Relation #1 is not sent to zero.
         sage: i = h.kernel(); K = i.domain()
         sage: K.degs
         (6,)
@@ -413,13 +413,6 @@ class FP_Module(UniqueRepresentation, Module):
         sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
         sage: F = FP_Module(degs = tuple([1,3]));
         sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));
-        sage: H = Hom(F, L);
-        sage: H( [L((Sq(1), 1)), L((0, Sq(3)))] )
-        Traceback (most recent call last):
-         ...
-        ValueError: Ill defined homomorphism (degrees do not match)
-          Generator #0 (degree 1) -> <Sq(1), 1> (degree 3) shifts degrees by 2
-          Generator #1 (degree 3) -> <0, Sq(3)> (degree 6) shifts degrees by 3
         sage: K = FP_Module(degs=(1,3));K
         Finitely presented module on 2 generators and 0 relations ...
         sage: K.category()
@@ -464,7 +457,6 @@ class FP_Module(UniqueRepresentation, Module):
         running ._test_some_elements() . . . pass
         running ._test_zero() . . . pass
 
-
     """
 
     # In the category framework, Elements of the class FP_Module are of the
@@ -504,7 +496,21 @@ class FP_Module(UniqueRepresentation, Module):
             <0, Sq(3)>
             sage: (Sq(1)*Sq(2)*y).normalize()
             <0, 0>
-
+            sage: # Inhomogeneous relation.
+            sage: FP_Module((0,1), ((Sq(2),Sq(2)),))
+            Traceback (most recent call last):
+            ...
+            ValueError: Inhomogeneous relation #0 
+            sage: # Generators not in order.
+            sage: FP_Module((0,2,1), ((Sq(4),Sq(2), 0),))
+            Traceback (most recent call last):
+            ...
+            ValueError: Degrees of generators must be in non-decreasing order.
+            sage: # Incompatible algebra and chosen characteristics.
+            sage: FP_Module((0,2,1), ((Sq(4),Sq(2), 0),), char=3, algebra=SteenrodAlgebra(p=2,profile=(3,2,1)))
+            Traceback (most recent call last):
+            ...
+            TypeError: Characteristic and algebra are incompatible.
         """
 
         if (char is None) and (algebra is None):
@@ -528,7 +534,7 @@ class FP_Module(UniqueRepresentation, Module):
 
         for i in range(len(degs) - 1):
             if degs[i] > degs[i+1]:
-                raise TypeError, "Degrees of generators must be in non-decreasing order."
+                raise ValueError, "Degrees of generators must be in non-decreasing order."
 
         if relations is None:
             prof = _algebra._profile
@@ -556,11 +562,11 @@ class FP_Module(UniqueRepresentation, Module):
                         x = Utility._deg_(self.degs, relation)
                         reldegs.append(x)
                     except ValueError:
-                        for r in rels:
+                        for i, r in enumerate(rels):
                             try:
                                Utility._deg_(degs,r)
                             except ValueError:
-                               raise ValueError, "Inhomogeneous relation %s" % r
+                               raise ValueError, "Inhomogeneous relation #%d" % i
                     except NotImplementedError:
                         print (r)
 
