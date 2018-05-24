@@ -15,18 +15,14 @@ TESTS::
     sage: homset = Hom(F, L); homset
     Set of Morphisms from Finitely presented module on 2 generators ...
     sage: homset.an_element()
-    The trivial module homomorphism:
-      Domain: Finitely presented module on 2 generators and 0 relations ...
-      Codomain: Finitely presented module on 2 generators and 2 relations ...
+    The trivial module homomorphism.
     sage: homset([L((Sq(1), 1)), L((0, Sq(2)))])
-    Module homomorphism of degree 2:
-      Domain: Finitely presented module on 2 generators and 0 relations ...
-      Codomain: Finitely presented module on 2 generators and 2 relations ...
+    Module homomorphism of degree 2 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<Sq(1), 1>, <0, Sq(2)>]
     sage: Hom(F, L) ([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
-    Module homomorphism of degree 0:
-      Domain: Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
-      Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
-    defined by sending the generators
+    Module homomorphism of degree 0 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
       [<0, 1>, <Sq(0,1), 0>]

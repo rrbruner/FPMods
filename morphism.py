@@ -48,16 +48,11 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
              ...
             ValueError: Morphisms not composable.
             sage: g*f
-            The trivial module homomorphism:
-              Domain: Finitely presented module on 2 generators and 0 relations ...
-              Codomain: Finitely presented module on 2 generators and 0 relations ...
+            The trivial module homomorphism.
             sage: Q1 = FP_Module(degs = (2,3), relations = ((Sq(6), Sq(5)),)); Q1
             Finitely presented module on 2 generators and 1 relation ...
             sage: w = Hom(F1, F1)(( F1((Sq(6), Sq(5))), F1(0) )); w
-            Module homomorphism of degree 6:
-              Domain: Finitely presented module on 2 generators and 0 relations ...
-              Codomain: Finitely presented module on 2 generators and 0 relations ...
-            defined by sending the generators
+            Module homomorphism of degree 6 defined by sending the generators
               [<1, 0>, <0, 1>]
             to
               [<Sq(6), Sq(5)>, <0, 0>]
@@ -82,10 +77,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: i = p.kernel(); i.domain()
             Finitely presented module on 1 generator and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
             sage: i
-            Module homomorphism of degree 0:
-              Domain: Finitely presented module on 1 generator and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
-            defined by sending the generators
+            Module homomorphism of degree 0 defined by sending the generators
               [<1>]
             to
               [<Sq(6), Sq(5)>]
@@ -271,14 +263,12 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         """
         if self.is_zero():
-            r = "The trivial module homomorphism:\n  Domain: {}\n  Codomain: {}"
-            return r.format(self.domain(), self.codomain())
+            return "The trivial module homomorphism."
         elif self.is_identity():
-            r = "The identity module homomorphism:\n  Domain: {}\n  Codomain: {}"
-            return r.format(self.domain(), self.codomain())
+            return "The identity module homomorphism."
         else:
-            r = "Module homomorphism of degree {}:\n  Domain: {}\n  Codomain: {}\ndefined by sending the generators\n  {}\nto\n  {}"
-            return r.format(self.degree, self.domain(), self.codomain(), self.domain().gens(), self.values)
+            r = "Module homomorphism of degree {} defined by sending the generators\n  {}\nto\n  {}"
+            return r.format(self.degree, self.domain().gens(), self.values)
 
     def _full_pres_(self, n, profile=None):
         r"""
@@ -462,10 +452,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: F2 = FP_Module(degs = (3,4));
             sage: H1 = Hom(F1, F2);
             sage: f = H1( ( F2((Sq(1), 0)), F2((0, Sq(1))) ) ); f
-            Module homomorphism of degree 0:
-              Domain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
-              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
-            defined by sending the generators
+            Module homomorphism of degree 0 defined by sending the generators
               [<1, 0>, <0, 1>]
             to
               [<Sq(1), 0>, <0, Sq(1)>]
@@ -476,10 +463,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: f(e2)
             <0, Sq(1)>
             sage: sf = f.suspension(4); sf
-            Module homomorphism of degree 1:
-              Domain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
-              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
-            defined by sending the generators
+            Module homomorphism of degree 1 defined by sending the generators
               [<1, 0>, <0, 1>]
             to
               [<Sq(1), 0>, <0, Sq(1)>]
@@ -543,10 +527,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: L = create([2,3],[[Sq(2),Sq(1)], [0,Sq(2)]]);
             sage: homset = Hom(F, L);
             sage: homset([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
-            Module homomorphism of degree 0:
-              Domain: Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
-              Codomain: Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function []
-            defined by sending the generators
+            Module homomorphism of degree 0 defined by sending the generators
               [<1, 0>, <0, 1>]
             to
               [<0, 1>, <Sq(0,1), 0>]
