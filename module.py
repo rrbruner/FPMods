@@ -1153,7 +1153,7 @@ class FP_Module(UniqueRepresentation, Module):
 
         OUTPUT:
 
-        - ``res`` -- A list of surjective homomorphisms `[f_0, f_1, \ldots, f_k]`
+        - ``res`` -- A list of homomorphisms `[f_0, f_1, \ldots, f_k]`
           constituting a free resolution of length `k`.  The indexing is set up
           such that `\text{codomain}(f_i) = \text{domain}(f_{i-1})` and
           `\text{codomain}(f_0)` is this module.
