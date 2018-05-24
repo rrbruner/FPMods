@@ -17,14 +17,6 @@ from sage.structure.sequence import Sequence
 from sage.rings.infinity import PlusInfinity
 
 from inspect import isfunction
-from copy import copy
-
-
-def is_FP_ModuleMorphism(x):
-    r"""
-    EXAMPLES::
-    """
-    return isinstance(x, FP_ModuleMorphism)
 
 
 class FP_ModuleMorphism(sage.categories.morphism.Morphism):
@@ -288,7 +280,7 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             r = "Module homomorphism of degree {}:\n  Domain: {}\n  Codomain: {}\ndefined by sending the generators\n  {}\nto\n  {}"
             return r.format(self.degree, self.domain(), self.codomain(), self.domain().gens(), self.values)
 
-    def _full_pres_(self,n,profile=None):
+    def _full_pres_(self, n, profile=None):
         r"""
         Return the linear transformation from the vector space of elements in
         the domain of degree n, to the vector space of degree `n'` in the
@@ -662,7 +654,6 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             # Add any new generators found in the loop above.
             num_new_gens = len(cokernel_values)
             new_degs = list(j.domain().degs) + num_new_gens*[n]
-
 
             # Pad the existing relations-tuples with zeros.
             relations = [ (r + num_new_gens*(0,)) for r in \
