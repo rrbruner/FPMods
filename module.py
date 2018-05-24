@@ -198,10 +198,50 @@ Computing resolutions::
     sage: Hko = create_fp_module([0], [[Sq(1)], [Sq(2)]])
     sage: R = Hko.resolution(5, verbose=True)
     Step  5
+    Computing kernel degree 2/6
+    Computing kernel degree 3/6
+    Computing kernel degree 4/6
+    Computing kernel degree 5/6
+    Computing kernel degree 6/6
     Step  4
+    Computing kernel degree 3/8
+    Computing kernel degree 4/8
+    Computing kernel degree 5/8
+    Computing kernel degree 6/8
+    Computing kernel degree 7/8
+    Computing kernel degree 8/8
     Step  3
+    Computing kernel degree 4/10
+    Computing kernel degree 5/10
+    Computing kernel degree 6/10
+    Computing kernel degree 7/10
+    Computing kernel degree 8/10
+    Computing kernel degree 9/10
+    Computing kernel degree 10/10
     Step  2
+    Computing kernel degree 5/13
+    Computing kernel degree 6/13
+    Computing kernel degree 7/13
+    Computing kernel degree 8/13
+    Computing kernel degree 9/13
+    Computing kernel degree 10/13
+    Computing kernel degree 11/13
+    Computing kernel degree 12/13
+    Computing kernel degree 13/13
     Step  1
+    Computing kernel degree 6/18
+    Computing kernel degree 7/18
+    Computing kernel degree 8/18
+    Computing kernel degree 9/18
+    Computing kernel degree 10/18
+    Computing kernel degree 11/18
+    Computing kernel degree 12/18
+    Computing kernel degree 13/18
+    Computing kernel degree 14/18
+    Computing kernel degree 15/18
+    Computing kernel degree 16/18
+    Computing kernel degree 17/18
+    Computing kernel degree 18/18
     Step  0
     sage: import sage.modules.finitely_presented_over_the_steenrod_algebra.resolutions as Resolutions
     sage: Resolutions.is_complex(R)
@@ -1169,8 +1209,18 @@ class FP_Module(UniqueRepresentation, Module):
             sage: N = FP_Module((0,1), ((Sq(2),Sq(1)),))
             sage: res, kers = N.resolution(3, kernels=True, verbose=True)
             Step  3
+            Computing kernel degree 3/7
+            Computing kernel degree 4/7
+            Computing kernel degree 5/7
+            Computing kernel degree 6/7
+            Computing kernel degree 7/7
             Step  2
             Step  1
+            Computing kernel degree 10/14
+            Computing kernel degree 11/14
+            Computing kernel degree 12/14
+            Computing kernel degree 13/14
+            Computing kernel degree 14/14
             Step  0
             sage: len(res)
             4
@@ -1186,8 +1236,18 @@ class FP_Module(UniqueRepresentation, Module):
             sage: M = FP_Module((0,1), ((Sq(2),Sq(1)),))
             sage: resolution = M.resolution(3, verbose=True)
             Step  3
+            Computing kernel degree 3/7
+            Computing kernel degree 4/7
+            Computing kernel degree 5/7
+            Computing kernel degree 6/7
+            Computing kernel degree 7/7
             Step  2
             Step  1
+            Computing kernel degree 10/14
+            Computing kernel degree 11/14
+            Computing kernel degree 12/14
+            Computing kernel degree 13/14
+            Computing kernel degree 14/14
             Step  0
             sage: for i, r in enumerate(resolution): print ('f_%d: %s' % (i, r))
             f_0: Module homomorphism of degree 0:
@@ -1252,6 +1312,11 @@ class FP_Module(UniqueRepresentation, Module):
             sage: kers=[]
             sage: res = N._resolution(2, kers, verbose=True)
             Step  2
+            Computing kernel degree 3/7
+            Computing kernel degree 4/7
+            Computing kernel degree 5/7
+            Computing kernel degree 6/7
+            Computing kernel degree 7/7
             Step  1
             Step  0
             sage: print(res[2])

@@ -618,11 +618,12 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
                 break
 
             if verbose:
-                print ('Step %d/%d' % (n, limit))
+                print ('Computing kernel degree %d/%d' % (n, limit))
 
             # Find new relations that, when introduced, will make j(n+1)
             # injective.
             j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(n, profile=self.profile())
+
             new_relations = [tuple(j.domain()._lc_(j_n.domain().lift(v), j_n_domain_basis)._get_coefficients()) \
                              for v in j_n.kernel().basis()]
 
