@@ -1280,7 +1280,7 @@ class FP_Module(UniqueRepresentation, Module):
         if k <= 0:
             return [eps]
         else:
-            i0 = eps.kernel()
+            i0 = eps.kernel(verbose=verbose)
             if not kers is None:
                 kers.append(i0)
             r = i0.domain()._resolution(k-1, kers, verbose)
