@@ -396,7 +396,15 @@ def create_fp_module(degs, relations=None, char=None, algebra=None):
         sage: j.domain().rels
         ((Sq(0,1),), (Sq(0,2),))
 
-    TESTS::
+    TESTS:
+
+    Testing unique parents::
+
+        sage: A2 = SteenrodAlgebra(p=2,profile=(3,2,1))
+        sage: P7 = create_fp_module([0,0], [[Sq(1),Sq(1)],[Sq(0,1),0],[Sq(0,2),0],[0,Sq(2)]], algebra=A2)
+        sage: P7_ = create_fp_module([0,0], [[Sq(1),Sq(1)],[Sq(0,1),0],[Sq(0,2),0],[0,Sq(2)]], algebra=SteenrodAlgebra(p=2,profile=(3,2,1)))
+        sage: P7 is P7_
+        True
 
     """
     rels = None if relations is None else tuple(tuple(rel) for rel in relations)
