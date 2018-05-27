@@ -48,23 +48,49 @@ def _deg_(degs,co):
     EXAMPLES::
 
     sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.utility import _deg_
-    sage: A = SteenrodAlgebra(2)
     sage: _deg_((0,2,4),(Sq(4),Sq(2),Sq(0)))
     4
     sage: _deg_((3,3),(Sq(2)*Sq(1),Sq(1)*Sq(2)))
     6
 
+    TESTS::
+
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.utility import _deg_
+    sage: _deg_([2,1], [Sq(4),Sq(2),Sq(0)])
+    Traceback (most recent call last):
+    ...
+    ValueError: Wrong number of coefficients given: 3.  Expected 2.
+    sage: _deg_([2,1,2], [Sq(2),Sq(3),Sq(0)])
+    Traceback (most recent call last):
+    ...
+    ValueError: Inhomogeneous arguments given.  The first mismatch occured here:
+    Index #1: The operation Sq(3) applied to an element in degree 1 will have degree 4,
+    Index #2: The operation 1 applied to an element in degree 2 will have degree 2.
     """
     if len(degs) != len(co):
         raise ValueError,\
-        "Wrong number (%s) of coefficients. Should be %s.\n" % (len(co),len(degs))
-    nz = filter(lambda i: co[i] != 0, range(len(degs)))  # figure out which are
-    d = [degs[i]+co[i].degree() for i in nz]            # non-zero
-    if len(d) == 0:
+        "Wrong number of coefficients given: %d.  Expected %d." % (len(co), len(degs))
+
+    # Pair the operations and the degrees.
+    elements = zip(co, degs)
+    degrees = [d + c.degree() for (c, d) in elements if c != 0]
+
+    # Check for emptiness first.
+    if len(degrees) == 0:
         return None
-    if min(d) != max(d):
-        raise ValueError, "Inhomogeneous element"
-    return min(d)
+
+    for i in range(1, len(degrees)):
+        if degrees[i-1] == degrees[i]:
+            continue
+        raise ValueError,\
+        ("Inhomogeneous arguments given.  The first mismatch occured here:\n"
+         "Index #%d: The operation %s applied to an element in degree %d will have degree %d,\n"
+         "Index #%d: The operation %s applied to an element in degree %d will have degree %d." % (
+             i-1, str(elements[i-1][0]), elements[i-1][1], degrees[i-1],
+             i, str(elements[i][0]), elements[i][1], degrees[i]))
+
+    # All values in the list are equal.
+    return degrees[0]
 
 def max_deg(alg):
     """

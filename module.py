@@ -532,12 +532,14 @@ class FP_Module(UniqueRepresentation, Module):
             sage: FP_Module((0,1), ((Sq(2),Sq(2)),))
             Traceback (most recent call last):
             ...
-            ValueError: Inhomogeneous relation #0 
+            ValueError: Inhomogeneous arguments given.  The first mismatch occured here:
+            Index #0: The operation Sq(2) applied to an element in degree 0 will have degree 2,
+            Index #1: The operation Sq(2) applied to an element in degree 1 will have degree 3.
             sage: # Generators not in order.
             sage: FP_Module((0,2,1), ((Sq(4),Sq(2), 0),))
             Traceback (most recent call last):
             ...
-            ValueError: Degrees of generators must be in non-decreasing order.
+            ValueError: Degrees of generators must be given in non-decreasing order.
             sage: # Incompatible algebra and chosen characteristics.
             sage: FP_Module((0,2,1), ((Sq(4),Sq(2), 0),), char=3, algebra=SteenrodAlgebra(p=2,profile=(3,2,1)))
             Traceback (most recent call last):
@@ -566,7 +568,7 @@ class FP_Module(UniqueRepresentation, Module):
 
         for i in range(len(degs) - 1):
             if degs[i] > degs[i+1]:
-                raise ValueError, "Degrees of generators must be in non-decreasing order."
+                raise ValueError, "Degrees of generators must be given in non-decreasing order."
 
         if relations is None:
             prof = _algebra._profile
@@ -590,17 +592,8 @@ class FP_Module(UniqueRepresentation, Module):
                 if not all(v == 0 for v in r):
                     relation = tuple([(self._profile_algebra)(c) for c in r])
                     rels.append(relation)
-                    try:
-                        x = Utility._deg_(self.degs, relation)
-                        reldegs.append(x)
-                    except ValueError:
-                        for i, r in enumerate(rels):
-                            try:
-                               Utility._deg_(degs,r)
-                            except ValueError:
-                               raise ValueError, "Inhomogeneous relation #%d" % i
-                    except NotImplementedError:
-                        print (r)
+                    # May throw.
+                    reldegs.append(Utility._deg_(self.degs, relation))
 
         self.rels = tuple(rels)
         self.reldegs = tuple(reldegs)
@@ -931,7 +924,6 @@ class FP_Module(UniqueRepresentation, Module):
         return reduce(lambda x,y : x+y, \
               [(coefficients[i]*basis_elements[i][1])*self.gen(basis_elements[i][0]) for i in range(len(coefficients))],
               self(0))
-
 
     def basis(self, n, profile=None):
         r"""
