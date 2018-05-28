@@ -1310,3 +1310,109 @@ class FP_Module(UniqueRepresentation, Module):
             r[0] = i0*r[0]
             return [eps] + r
 
+    def export_module_definition(self, powers_of_two_only=True, profile=None):
+        """
+        Export the module to Bruner's Ext program format:
+        http://www.math.wayne.edu/~rrb/cohom/modfmt.html
+
+        INPUT:
+
+        - ``powers_of_two_only`` -- A boolean to control if the output should
+          contain the action of all Steenrod squaring operations (restricted
+          by the profile), or only the action of the operations of degree equal
+          to a power of two. (optional, default: ``True``)
+
+        - ``profile`` -- The profile to use when computing the action of the
+          Steenrod operations.  If this argument is ``None'', this function
+          will use the module's profile.  (optional, default: ``None``)
+
+        EXAMPLES::
+
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import create_fp_module
+            sage: M = create_fp_module([0], algebra=SteenrodAlgebra(p=2, profile=[2,1]))
+            sage: M.export_module_definition()
+            8 0 1 2 3 3 4 5 6
+            0 2 1 2
+            1 2 2 3 4
+            2 2 1 5
+            3 2 1 6
+            4 2 1 6
+            5 2 1 7
+            0 1 1 1
+            2 1 1 4
+            3 1 1 5
+            6 1 1 7
+            sage: N = create_fp_module([0], [[Sq(1)]])
+            sage: N.export_module_definition()
+            1 0
+            sage: N.export_module_definition(profile=[2,1])
+            4 0 2 3 5
+            0 2 1 1
+            2 2 1 3
+            1 1 1 2
+        """
+        if self.char != 2:
+            raise RuntimeError, "This function is not implemented for odd primes."
+            return
+
+        # Change algebra if the user wants his own profile.
+        alg = self._profile_algebra if profile is None else\
+            SteenrodAlgebra(p=2, profile=profile)
+
+        n = self.conn()
+        if n == PlusInfinity():
+            print('Connectivity is infinite, nothing to export?')
+            return
+
+        limit = Utility.pmax_deg(alg._profile) + max(self.degs)
+
+        vector_space_basis = [self.basis(i, alg._profile) for i in range(n, limit+1)]
+
+        additive_generator_degrees = []
+        additive_generator_global_indices = [0]
+        for dim, basis_vectors in enumerate(vector_space_basis):
+            additive_generator_global_indices.append(
+                len(basis_vectors) + additive_generator_global_indices[-1])
+            additive_generator_degrees += len(basis_vectors)*[dim + n]
+
+        # Print the degrees of the additive generators.
+        print "%d %s" % (
+            len(additive_generator_degrees),
+            " ".join(["%d" % x for x in additive_generator_degrees]))
+
+        num_basis_vectors = additive_generator_global_indices[-1]
+
+        # A private function which transforms a vector in a given dimension
+        # to a vector of global indices for the basis elements corresponding
+        # to the non-zero entries in the vector.  E.g.
+        # _GetIndices(dim=2, vec=(1,0,1)) will return a vector of length two,
+        # (a, b), where a is the index of the first vector in the basis for
+        # the 2-dimensional part of the module, and b is the index of the
+        # last vector in the same part.
+        def _GetIndices(dim, vec):
+            if len(vector_space_basis[dim]) != len(vec):
+                raise ValueError, "The given vector\n%s\nhas the wrong size, it should be %d" % (str(vec), len(vector_space_basis[dim]))
+            base_index = additive_generator_global_indices[dim]
+            return [base_index + a for a,c in enumerate(vec) if c != 0]
+
+        powers = [2**(i-1) for i in alg._profile] if powers_of_two_only else\
+            range(1, 2**alg._profile[0])
+
+        for k in powers:
+            images = [[(alg.Sq(k)*x).vec()[0] for x in D] for D in vector_space_basis]
+
+            element_index = 0
+
+            # Note that the dim variable is relative to the bottom dimension, n.
+            for dim, image in enumerate(images):
+                for im in image:
+                    if im != 0:
+                        values = _GetIndices(dim + k, im)
+
+                        print "%d %d %d %s" % (
+                            element_index,
+                            k,
+                            len(values),
+                            " ".join(["%d" % x for x in values]))
+                    element_index += 1
+
