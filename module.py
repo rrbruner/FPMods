@@ -26,7 +26,7 @@ Steenrod algebra, by working in the category of modules over an appropriate
 finite sub-Hopf algebra.
 
 It is also the case that presentations of modules and the images of the
-generators of the domain of a homomorphism are the same over the sub-Hopf 
+generators of the domain of a homomorphism are the same over the sub-Hopf
 algebra and over the whole Steenrod algebra, so that the tensoring up is
 entirely implicit and requires no computation.
 
@@ -1266,7 +1266,7 @@ class FP_Module(UniqueRepresentation, Module):
           (optional, default: ``False``)
 
         OUTPUT:
-        
+
         The same as the output of resolution().
 
         TESTS::
