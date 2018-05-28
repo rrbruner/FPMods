@@ -248,7 +248,7 @@ class FP_Element(ModuleElement):
 
         -    ``x``    - The unique vector form of self in `M_n`.
 
-        -    ``quo``    - The quotient vector space isomorphic to M_n
+        -    ``quo``  - The quotient vector space isomorphic to M_n
 
         -    ``bas``  - A list of pairs (gen_number,algebra element)
                         corresponding to self in the std basis of the free module.
