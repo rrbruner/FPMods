@@ -513,9 +513,17 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             return e*p
 
 
-    def kernel(self, verbose=False):
+    def kernel(self, verbose=False, top_dim=None):
         """
         Compute the kernel of this homomorphism.
+
+        INPUT:
+
+        - ``verbose`` -- Boolean to enable progress updates.
+
+        - ``top_dim`` -- Optional stop condition.  The computation of the kernel will
+          stop when reaching this dimension.  The returned module will match the kernel
+          in degrees up to dimension `top_dim` only.
 
         OUTPUT: An injective homomorphism which is onto the kernel of this
         homomorphism.
@@ -525,12 +533,36 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
             sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import create_fp_module as create
             sage: F = create([1,3]);
             sage: L = create([2,3],[[Sq(2),Sq(1)], [0,Sq(2)]]);
-            sage: homset = Hom(F, L);
-            sage: homset([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
+            sage: H = Hom(F, L);
+            sage: H([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
             Module homomorphism of degree 0 defined by sending the generators
               [<1, 0>, <0, 1>]
             to
               [<0, 1>, <Sq(0,1), 0>]
+            sage: M = create([0,7], [[Sq(1), 0], [Sq(2), 0], [Sq(4), 0], [Sq(8), Sq(1)], [0, Sq(7)], [0, Sq(0,1,1)+Sq(4,2)]])
+            sage: F2 = create([0], [[Sq(1)], [Sq(2)], [Sq(4)], [Sq(8)], [Sq(16)]])
+            sage: H = Hom(M, F2)
+            sage: f = H([F2([1]), F2([0])])
+            sage: K = f.kernel(verbose=True, top_dim=16)
+            Computing kernel degree 8/208
+            Computing kernel degree 9/208
+            Computing kernel degree 10/208
+            Computing kernel degree 11/208
+            Computing kernel degree 12/208
+            Computing kernel degree 13/208
+            Computing kernel degree 14/208
+            Computing kernel degree 15/208
+            Computing kernel degree 16/208
+            Stopping computation of the kernel module at dimension: 16
+            sage: K.domain().gens()
+            [<1, 0>, <0, 1>]
+            sage: K.domain().rels
+            ((Sq(0,1) + Sq(3), 0), (Sq(0,0,1) + Sq(1,2) + Sq(4,1), 0), (Sq(9), 0))
+            sage: K
+            Module homomorphism of degree 0 defined by sending the generators
+            [<1, 0>, <0, 1>]
+            to
+            [<0, 1>, <Sq(16), 0>]
 
         """
 
@@ -544,20 +576,12 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
 
         limit = Utility.max_deg(self.alg()) + max(self.domain().degs)
 
-        self_n = self._pres_(n)
-        while n <= limit and self_n.kernel().dimension() == 0:
-            n += 1; self_n = self._pres_(n)
+        # Apply the user defined dimension clamp.
+        if top_dim != None and top_dim < limit:
+            limit = top_dim
 
-        if n > limit:
-            return j
-
-        prime = self.alg().prime()
-
-        kernel_n = self_n.kernel()
-        # assert : kernel_n.dimension() > 0:
-
-        # The loop below starts each iteration assuming
-        # that `j` and `n` is a homomorphism and an integer such that
+        # The main loop starts each iteration assuming
+        # that `j` a homomorphism, and 'n' is an integer such that
         #
         #       j      self
         #    K ---> D ------> C
@@ -567,6 +591,17 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         #
         # The induction starts with creating a `j` for the first `n` such that
         # `ker(self)_n \neq 0`:
+
+        self_n = self._pres_(n)
+
+        while n <= limit and self_n.kernel().dimension() == 0:
+            n += 1; self_n = self._pres_(n)
+
+        if n > limit:
+            return j
+
+        kernel_n = self_n.kernel()
+ 
         D_n, bas_gen = self.domain()._pres_(n, profile=self.profile())
         K = FP_Module(tuple(kernel_n.dimension()*[n]), relations=(), algebra=self.alg())
         j = Hom(K, self.domain()) (
@@ -575,89 +610,82 @@ class FP_ModuleMorphism(sage.categories.morphism.Morphism):
         # The induction step is conducted as follows:
         #
         # Consider the F_p-linear part of the above diagram by restricting to
-        # degree n in the domain.
+        # degree n in the domain.  (f_n` is `self` in degree `n`.)
         #
-        #         j_n        self_n
+        #         j_n          f_n
         #    K_n -----> D_n --------> C_n'   ( n' - n = self.degree() )
         #
-        # By construction, `\im(self_n) \subset \ker(f_n)`, but not necessarily
+        # By construction, `\im(j_n) \subset \ker(self_n)`, but 'j_n' is not necessarily
         # onto the kernel.  The loop below improves `j` in two steps:
         #
-        # 1. Introduces new relations in degree `n` such that `j_n` becomes
+        # 1. Introduce new relations in degree `n` such that `j_n` becomes
         #    injective.
         #
-        # 2. Adds new generators to `K` in degree `n`, and extend `j` on these
-        #    generators to take values in `\ker(j)_n` such that `j_n` becomes
-        #    onto the kernel.
+        # 2. Add a minimal set of generators to `K` in degree `n`, and extend `j`
+        #    on these generators to take values in `\ker(j)_n`, such that `j_n`
+        #    becomes onto the kernel.
         #
-        # Both steps leave everything in degrees below n as they were, and the
+        # Both steps leave everything in degrees below `n` as they were, and the
         # induction hypothesis is now true for `n+1`.
         #
+
+        self_top_dim = Utility.max_deg(self.alg()) + max(self.domain().degs)
+
         while True:
             n += 1
+
+            # Break early.
+            if top_dim != None and n > top_dim:
+                if verbose:
+                    print ('Stopping computation of the kernel module at dimension: %d' % top_dim)
+                break
+
+            # Notice that the stop criterium depends on K which is recomputed every
+            # iteration of this loop.  The loop always terminates because max(K.degs)
+            # stabilizes when n reaches `self_top_dim`.
+            limit = max(
+                self_top_dim,
+                Utility.max_deg(self.alg()) + max(K.degs))
+
             if n > limit:
                 break
 
             if verbose:
                 print ('Computing kernel degree %d/%d' % (n, limit))
 
-            # Find new relations that, when introduced, will make j(n+1)
-            # injective.
-            j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(n, profile=self.profile())
+            # Compute the vector space presentation of what's going on in dimension `n`.
+            j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(
+                n, profile=self.algebra._profile)
 
-            new_relations = [tuple(j.domain()._lc_(j_n.domain().lift(v), j_n_domain_basis)._get_coefficients()) \
-                             for v in j_n.kernel().basis()]
+            # Step 1.
+            K_n = j_n.kernel()
 
-            # Find the missing values that will make j(n+1) onto the kernel.
-            kernel_self_n = self._pres_(n).kernel()
+            new_relations = [j.domain()._lc_(
+                j_n.domain().lift(v),
+                j_n_domain_basis) for v in K_n.basis()]
 
-            cokernel_values = []
-            if kernel_self_n.dimension() > 0:
+            # Step 2.
+            H_n = self._pres_(n).kernel().quotient(j_n.image())
 
-                # Construct the lift of j_n into kernel_self_n.
-                #
-                #             j_n        f_n
-                #        K_n -----> D_n -----> C_n
-                #
-                #          \       /\
-                # lift_j_n  \      /
-                #           \/    /
-                #         kernel_self_n
-                #
-                lift_j_n = kernel_self_n.basis_matrix().solve_left(j_n.matrix())
-
-                jn = Hom(j_n.domain(), kernel_self_n)(lift_j_n)
-                image_j_n = jn.image()
-                cokernel_j_n = kernel_self_n.quotient(image_j_n)
-                cokernel_values = [
-                    self.domain()._lc_(cokernel_j_n.lift(e) , j_n_codomain_basis)\
-                        for e in cokernel_j_n.basis()]
-
-            # Add any new generators found in the loop above.
+            cokernel_values = [
+                    self.domain()._lc_(
+                        j_n.codomain().lift(H_n.lift(v)),
+                        j_n_codomain_basis) for v in H_n.basis()]
+            
             num_new_gens = len(cokernel_values)
+
             new_degs = list(j.domain().degs) + num_new_gens*[n]
 
-            # Pad the existing relations-tuples with zeros.
+            # The tuples of coefficients must be padded with zeros to get the correct
+            # length (since we added more generators during Step 1).
             relations = [ (r + num_new_gens*(0,)) for r in \
-                (list(j.domain().rels) + new_relations) ]
+                (list(j.domain().rels) + [tuple(x._get_coefficients()) for x in new_relations]) ]
 
+            # Create the improved module homomorphism `j` with the added generators and relations.
             K = FP_Module(tuple(new_degs), tuple(relations), algebra=self.alg())
-            ttv = list(j.get_values()) + cokernel_values
-            j = Hom(K, self.domain())(ttv)
 
-        # Finally, add any missing relations.
-        while n <= Utility.max_deg(self.alg()) + max(K.degs):
-
-            j_n, j_n_domain_basis, j_n_codomain_basis = j._full_pres_(n, profile=self.profile())
-            new_relations = [tuple(j.domain()._lc_(j_n.domain().lift(v), j_n_domain_basis)._get_coefficients()) \
-                             for v in j_n.kernel().basis()]
-
-            rels = list(j.domain().rels) + new_relations
-
-            K = FP_Module(degs=tuple(K.degs), relations=tuple(rels), algebra=self.alg())
-            j = Hom(K, self.domain())(j.get_values())
-
-            n += 1
+            new_values = list(j.get_values()) + cokernel_values
+            j = Hom(K, self.domain())(new_values)
 
         # XXX todo: reduce profile functions.
         # K._profile_algebra = SteenrodAlgebra(p=K.char, profile = K.min_profile())
