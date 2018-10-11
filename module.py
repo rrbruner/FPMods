@@ -598,6 +598,12 @@ class FP_Module(UniqueRepresentation, Module):
 
         self.degs = degs
 
+        # A memoization buffer for the _pres_ function.  This function is
+        # called several times from different places in the code base, with
+        # the same arguments.  The computation is costly, so this is a clear
+        # candidate for memoization.    
+        self.pres_cache = {}
+
         rels = []
         reldegs = []
         # Append all the non-zero relations.
@@ -827,7 +833,23 @@ class FP_Module(UniqueRepresentation, Module):
               len(self.rels), "" if len(self.rels) == 1 else "s",
               self._profile_algebra)
 
+    # XXX todo -- Use memoization from functools instead of this homebrew.
     def _pres_(self, n, profile=None):
+        """
+        A caching wrapper for the __pres__ function.
+        """
+        args = (n, tuple(profile))
+        
+        if args in self.pres_cache:
+            return self.pres_cache[args]
+
+        result = self.__pres__(n, profile)
+        
+        self.pres_cache[args] = result
+
+        return result
+
+    def __pres__(self, n, profile=None):
         """
         Return a quotient vector space isomorphic to the ``n``-th part of the
         module, together with a chosen isomorphism.
@@ -861,7 +883,7 @@ class FP_Module(UniqueRepresentation, Module):
             sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
             sage: M = FP_Module((0,2,4),((Sq(4),Sq(2),0),)); M((Sq(2),0,0))
             <Sq(2), 0, 0>
-            sage: M_n, bas = M._pres_(4)
+            sage: M_n, bas = M.__pres__(4)
             sage: dim(M_n)
             3
             sage: bas
