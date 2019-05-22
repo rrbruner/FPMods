@@ -1,31 +1,28 @@
 from __future__ import absolute_import
 
-import sage.categories.homset
 from inspect import isfunction
+
+import sage.categories.homset
 from sage.misc.cachefunc import cached_method
+from sage.categories.homset import Homset
+
 
 
 r"""
 TESTS::
 
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.module import FP_Module
+    sage: from sage.modules.fp_modules.free_module import FreeModule
     sage: from sage.misc.sage_unittest import TestSuite
-    sage: F = FP_Module(degs = tuple([1,3]));
-    sage: L = FP_Module((2,3),((Sq(2),Sq(1)),(0,Sq(2))));
-    sage: homset = Hom(F, L); homset
-    Set of Morphisms from Finitely presented module on 2 generators ...
-    sage: homset.an_element()
-    The trivial module homomorphism.
-    sage: homset([L((Sq(1), 1)), L((0, Sq(2)))])
+    sage: A = SteenrodAlgebra(2)
+    sage: F1 = FreeModule((1,3), A);
+    sage: F2 = FreeModule((2,3), A);
+    sage: homset = Hom(F1, F2); homset
+    Set of Morphisms from Finitely presented free module on 2 generators ...
+    sage: homset([F2((Sq(1), 1)), F2((0, Sq(2)))])
     Module homomorphism of degree 2 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
       [<Sq(1), 1>, <0, Sq(2)>]
-    sage: Hom(F, L) ([L((Sq(1), 1)), L((0, Sq(2)))]).kernel()
-    Module homomorphism of degree 0 defined by sending the generators
-      [<1, 0>, <0, 1>]
-    to
-      [<0, 1>, <Sq(0,1), 0>]
     sage: TestSuite(homset).run(verbose=True)
     running ._test_additive_associativity() . . . pass
     running ._test_an_element() . . . pass
@@ -53,26 +50,25 @@ TESTS::
 
 """
 
-def is_FP_ModuleHomspace(x):
+def is_FreeModuleHomspace(x):
     r"""
     """
-    return isinstance(x, FP_ModuleHomspace)
+    return isinstance(x, FreeModuleHomspace)
 
-from sage.modules.finitely_presented_over_the_steenrod_algebra.morphism import FP_ModuleMorphism
+from .free_morphism import FreeModuleMorphism
 
-from sage.categories.homset import Homset
 
-class FP_ModuleHomspace(Homset):
+class FreeModuleHomspace(Homset):
     # In the category framework, Elements of the class FP_Module are of the
     # class FP_Element, see
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
-    Element = FP_ModuleMorphism
+    Element = FreeModuleMorphism
 
     def _element_constructor_(self, values):
         """
         INPUT:
 
-        - An iterable of FP_Element's of the codomain which equals the values
+        - An iterable of FP_FreeElement's of the codomain which equals the values
           of the module generators of the domain.
 
         OUTPUT: A module homomorphism in the homspace.
@@ -80,7 +76,7 @@ class FP_ModuleHomspace(Homset):
         EXAMPLES::
 
         """
-        if isinstance(values, FP_ModuleMorphism):
+        if isinstance(values, FreeModuleMorphism):
             return values
         elif values == 0:
             return self.zero()
@@ -103,7 +99,7 @@ class FP_ModuleHomspace(Homset):
         Return identity morphism in an endomorphism ring.
         """
         if self.is_endomorphism_set():
-            return self.element_class(self, self.codomain().gens())
+            return self.element_class(self, self.codomain().generators())
         else:
             raise TypeError("This homspace does not consist of endomorphisms. Try natural_map() instead.")
 

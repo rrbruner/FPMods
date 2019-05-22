@@ -9,8 +9,33 @@
 # These functions return the P part first, and then the Q part.
 
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
-import sage.modules.finitely_presented_over_the_steenrod_algebra.utility as Utility
 from copy import copy
+
+
+#import sage.modules.finitely_presented_over_the_steenrod_algebra.utility as Utility
+def mod_p_log(n,p):
+    r"""
+    Input an integer $n$ and a prime $p$
+    Output the $k$ so that $p^{k-1} < n <= p^k$
+
+    EXAMPLES::
+
+        sage: from sage.modules.fp_modules.profile import *
+        sage: mod_p_log(1,4)
+        1
+        sage: mod_p_log(8,3)
+        2
+        sage: mod_p_log(9,3)
+        3
+
+    """
+    k=0
+    pow=1
+    while n >= pow:
+        k += 1
+        pow *= p
+    return k
+
 
 def profile_ele(alist,char=2):
     """
@@ -28,13 +53,12 @@ def profile_ele(alist,char=2):
 
     EXAMPLES::
 
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
+        sage: from sage.modules.fp_modules.profile import *
         sage: A2 = SteenrodAlgebra(2)
         sage: profile_ele(A2.Sq(2))
         (2, 1)
         sage: profile_ele(A2.Sq(4,8))
         (3, 4, 3, 2, 1)
-
 
     """
     alist = SteenrodAlgebra(char)(alist)       # Coerce scalars if necessary
@@ -44,7 +68,7 @@ def profile_ele(alist,char=2):
         alist2 = [list(e) + (maxlength-len(e))*[0] for e in alist2]
         minprofile = [max([alist2[i][j] for i in range(len(alist2))]) \
                                                 for j in range(maxlength)]
-        minprofile = tuple(map(lambda xx: Utility.mod_p_log(xx,char),minprofile))
+        minprofile = tuple(map(lambda xx: mod_p_log(xx,char),minprofile))
         return find_min_profile(minprofile,char)
     if char != 2:
         alistQ = [e[0][0] for e in alist]
@@ -57,7 +81,7 @@ def profile_ele(alist,char=2):
                                             for j in range(maxlengthQ)]
         minprofileP = [max([alistP[i][j] for i in range(len(alistP))]) \
                                             for j in range(maxlengthP)]
-        minprofileP = tuple(map(lambda xx: Utility.mod_p_log(xx,char),minprofileP))
+        minprofileP = tuple(map(lambda xx: mod_p_log(xx,char),minprofileP))
         if not minprofileQ:
             minpQ=[]
         else:
@@ -83,7 +107,7 @@ def enveloping_profile_elements(alist,char=2):
 
     EXAMPLES::
 
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
+        sage: from sage.modules.fp_modules.profile import *
         sage: enveloping_profile_elements([Sq(2),Sq(4)])
         (3, 2, 1)
         sage: enveloping_profile_elements([Sq(2,1,2),Sq(7)])
@@ -130,7 +154,7 @@ def enveloping_profile_profiles(alist,char=2):
 
     EXAMPLES::
 
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
+        sage: from sage.modules.fp_modules.profile import *
         sage: enveloping_profile_profiles([[1,2,3],[2,4,1,1]])
         (2, 4, 3, 2, 1)
         sage: enveloping_profile_profiles([[4],[1,2,1],[3,2,3]])
@@ -172,7 +196,7 @@ def valid(LL,char=2):
 
     EXAMPLES::
 
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
+        sage: from sage.modules.fp_modules.profile import *
         sage: valid([3,2,1])
         True
         sage: valid([1,2,3])
@@ -220,7 +244,7 @@ def nextprof(p,n,char=2):
 
     EXAMPLES::
 
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
+        sage: from sage.modules.fp_modules.profile import *
         sage: nextprof([1,2],[1,2])
         [2, 2]
         sage: nextprof([2,2],[1,2])
@@ -274,7 +298,7 @@ def find_min_profile(prof,char=2):
 
     EXAMPLES::
 
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import *
+        sage: from sage.modules.fp_modules.profile import *
         sage: find_min_profile([1,2])
         (1, 2, 1)
         sage: find_min_profile([2,1])
