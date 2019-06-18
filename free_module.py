@@ -184,7 +184,22 @@ class FreeModule(UniqueRepresentation, SageModule):
             raise ValueError, 'Incorrect coordinate vector size: %s. | Should have length %d.'\
                 % (len(coordinates), len(basis_elements))
 
-        return sum([c*element for c, element in zip(coordinates, basis_elements)])
+        # Adding the condition `if c != 0` improved performance dramatically in this
+        # real life example:
+        #
+        # sage: rels = [ [Sq(1),0,0,0], [Sq(2),0,0,0], [Sq(4),0,0,0], [Sq(8),0,0,0], [0,Sq(1),0,
+        # ....: 0], [0,Sq(2),0,0], [0,Sq(4),0,0], [Sq(31),Sq(14),0,0], [0,Sq(20),0,0], [0,0,Sq(1
+        # ....: ),0], [0,0,Sq(2),0], [0,Sq(31),Sq(6),0], [0,0,Sq(8),0], [0,0,0,Sq(1)], [0,0,Sq(3
+        # ....: 1),Sq(2)], [0,0,0,Sq(4)], [0,0,0,Sq(8)] ]
+        # ....:
+        # ....: M = FPA_Module([0, 17, 42, 71], A, relations=rels)
+        # sage: res = M.resolution(2, top_dim=30, verbose=True)
+        #  
+        # This function was called a total of 2897 times during the computation,
+        # and the total running time of the entire computation dropped from
+        # 57 to 21 seconds by adding the optimization.
+        #
+        return sum([c*element for c, element in zip(coordinates, basis_elements) if c != 0])
 
     @cached_method
     def vector_presentation(self, n):
