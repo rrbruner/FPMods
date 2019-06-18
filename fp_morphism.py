@@ -446,11 +446,11 @@ class FP_ModuleMorphism(SageMorphism):
             sage: F2 = FP_Module([0], A3, [[Sq(1)], [Sq(2)], [Sq(4)], [Sq(8)], [Sq(15)]])
             sage: H = Hom(M, F2)
             sage: f = H([F2([1]), F2([0])])
-            sage: K = f.kernel(verbose=True, top_dim=16)
-            Step 1/2:
-            Resolving kernel dimensions up to #17: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17.
-            Step 2/2:
-            Resolving kernel dimensions up to #17: 7 8 9 10 11 12 13 14 15 16 17.
+            sage: K = f.kernel(verbose=True, top_dim=17)
+            1. Computing the generators of the kernel presentation:
+            Resolving the kernel in the range of dimensions [0, 17]: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17.
+            2. Computing the relations of the kernel presentation:
+            Resolving the kernel in the range of dimensions [7, 17]: 7 8 9 10 11 12 13 14 15 16 17.
             sage: K.domain().generators()
             [<1>]
             sage: K.domain().relations()
@@ -465,10 +465,10 @@ class FP_ModuleMorphism(SageMorphism):
               (<0, 1>,)
         """
         if verbose:
-            print('Step 1/2:')
+            print('1. Computing the generators of the kernel presentation:')
         j0 = self.resolve_kernel(top_dim, verbose)
         if verbose:
-            print('Step 2/2:')
+            print('2. Computing the relations of the kernel presentation:')
         j1 = j0.resolve_kernel(top_dim, verbose)
 
         # Create a module isomorphic to the ker(self).
@@ -485,12 +485,41 @@ class FP_ModuleMorphism(SageMorphism):
         OUTPUT: An injective homomorphism into the codomain of `self` which is
                 onto the image of this homomorphism.
 
+        EXAMPLES:
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A3 = SteenrodAlgebra(2, profile=(4,3,2,1))
+            sage: F = FP_Module([1,3], A3);
+            sage: L = FP_Module([2,3], A3, [[Sq(2),Sq(1)], [0,Sq(2)]]);
+            sage: H = Hom(F, L);
+            sage: H([L((Sq(1), 1)), L((0, Sq(2)))]).image()
+            Module homomorphism of degree 0 defined by sending the generators
+              [<1>]
+            to
+              (<Sq(1), 1>,)
+            sage: M = FP_Module([0,7], A3, [[Sq(1), 0], [Sq(2), 0], [Sq(4), 0], [Sq(8), Sq(1)], [0, Sq(7)], [0, Sq(0,1,1)+Sq(4,2)]])
+            sage: F2 = FP_Module([0], A3, [[Sq(1)], [Sq(2)], [Sq(4)], [Sq(8)], [Sq(15)]])
+            sage: H = Hom(M, F2)
+            sage: f = H([F2([1]), F2([0])])
+            sage: K = f.image(verbose=True, top_dim=17)
+            1. Computing the generators of the image presentation:
+            Resolving the image in the range of dimensions [0, 17]: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17.
+            2. Computing the relations of the image presentation:
+            Resolving the kernel in the range of dimensions [0, 17]: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17.
+            sage: K.is_injective()
+            True
+            sage: K.domain().generator_degrees()
+            (0,)
+            sage: K.domain().relations()
+            [<Sq(1)>, <Sq(2)>, <Sq(4)>, <Sq(8)>]
+            sage: K.domain().is_trivial()
+            False
+
         """
         if verbose:
-            print('Step 1/2:')
+            print('1. Computing the generators of the image presentation:')
         j0 = self.resolve_image(top_dim, verbose)
         if verbose:
-            print('Step 2/2:')
+            print('2. Computing the relations of the image presentation:')
         j1 = j0.resolve_kernel(top_dim, verbose)
 
         # Create a module isomorphic to the im(self).
@@ -513,95 +542,35 @@ class FP_ModuleMorphism(SageMorphism):
         """
         return self.cokernel().is_zero()
 
-    def resolve_image(self, top_dim=None, verbose=False):
-        r"""
-            Resolve the image of this homomorphism.
 
-        INPUT::
-            self
-            top_dim
-
-        OUTPUT::
-            j: F -> self.codomain()  such that F is free, and im(j) = im(self).
-
-        """
-
-        # The main loop starts each iteration assuming
-        # that `j` a homomorphism into `self.domain()`, and 'n' is an integer
-        # such that
-        #
-        #       j      self
-        #   F_ ---> D ------> C
-        #
-        # with `\im(j) \subset \ker(self)` and that `j` is an onto the kernel 
-        # in degrees below `n`.  Each iteration of the loop then extends the
-        # map `j` minimally so that `j_n` becomes onto the kernel.
-
-
-        # Create the trivial module F_ to start with.
-        # from .fp_module import FP_Module
-        F_ = self.domain().__class__((), algebra=self.base_ring())
-        j = Hom(F_, self.domain())(())
-
-        if self.degree() == None:
-            return j
-
-        ### --- ### --- ###
-        n = self.codomain().connectivity()
-        if n == PlusInfinity():
-            return j
-
-        n -= 1
-
-        limit = (self.base_ring().top_class().degree() + max(self.domain().generator_degrees()))\
-            if top_dim is None else top_dim
-
-        if top_dim == PlusInfinity():
-            raise ValueError('The user must specify a top dimension for this calculation to terminate.')
-
-        if verbose:
-            print('Resolving image dimensions up to #%d:' % (limit+1), end='')
-
-        #print('Self degree: %d' % self.degree())
-        #print ('Top dim: %d' % limit)
-        while n <= limit:
-            n += 1
-
-            if verbose:
-                print(' %d' % n, end='')
-                sys.stdout.flush()
-
-            ### --- ### --- ###
-            self_n = self.vector_presentation(n - self.degree())
-
-            ### --- ### --- ###
-            sub_module_n = self_n.image()
-
-            if sub_module_n.dimension() == 0:
-                continue
-
-            j_n = j.vector_presentation(n)
-            Q_n = sub_module_n.quotient(j_n.image())
-
-            if Q_n.dimension() == 0:
-                continue
-
-            # The map j does not cover everything in degree `n` of the sub_module_n.
-            # Extend it.
-            generator_degrees = tuple((x.degree() for x in F_.generators()))
-            new_generator_degrees = tuple(Q_n.dimension()*(n,))
-            F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
-
-            ### --- ### --- ###
-            new_values = tuple([
-                self.codomain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
-
-            ### --- ### --- ###
-            j = Hom(F_, self.codomain()) (j.values() + new_values)
-
-        if verbose:
-            print('.')
-        return j
+#    def resolve_image(self, top_dim=None, verbose=False):
+#        r"""
+#            Resolve the image of this homomorphism.
+#
+#        INPUT::
+#            self
+#            top_dim
+#
+#        OUTPUT::
+#            j: F -> self.codomain()  such that F is free, and im(j) = im(self).
+#
+#        """
+#
+#
+#        # Select those generators which has values in degrees <= limit.
+#        limit = top_dim if top_dim != None else PlusInfinity()
+#        deg = self.degree()
+#        # By shifting the dimensions of each generator by `deg`, we make sure
+#        # that the resulting homomorphism has degree zero.
+#        gens = [g + deg for g in self.domain().generator_degrees() if g + deg <= limit]
+#        vals = [v for v in self.values() if v.degree() <= limit]
+#
+#        # Create the free module on the selected generators.
+#        F_0 = self.codomain().ModuleClass(tuple(gens), self.base_ring())
+#
+#        epsilon = Hom(F_0, self.codomain())(tuple(vals))
+#
+#        return epsilon
 
 
     def resolve_kernel(self, top_dim=None, verbose=False):
@@ -636,21 +605,28 @@ class FP_ModuleMorphism(SageMorphism):
         F_ = self.domain().__class__((), algebra=self.base_ring())
         j = Hom(F_, self.domain())(())
 
-        n = self.domain().connectivity()
-        if n == PlusInfinity():
+        dim = self.domain().connectivity()
+        if dim == PlusInfinity():
+            if verbose:
+                print ('The domain of the morphism is trivial, so there is nothing to resolve.')
             return j
 
-        n -= 1
-        limit = (self.base_ring().top_class().degree() + max(self.domain().generator_degrees()))\
-            if top_dim is None else top_dim
+        limit = PlusInfinity() if not self.base_ring().is_finite() else\
+            (self.base_ring().top_class().degree() + max(self.domain().generator_degrees()))
+
+        if not top_dim is None:
+            limit = min(top_dim, limit)
 
         if top_dim == PlusInfinity():
             raise ValueError('The user must specify a top dimension for this calculation to terminate.')
 
         if verbose:
-            print('Resolving kernel dimensions up to #%d:' % (limit+1), end='')
-        while n <= limit:
-            n += 1
+            if dim > limit:
+                print('The dimension range is empty: [%d, %d]' % (n, limit))
+            else:
+                print('Resolving the kernel in the range of dimensions [%d, %d]:' % (dim, limit), end='')
+
+        for n in range(dim, limit+1):
 
             if verbose:
                 print(' %d' % n, end='')
@@ -678,6 +654,108 @@ class FP_ModuleMorphism(SageMorphism):
                 self.domain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
 
             j = Hom(F_, self.domain()) (j.values() + new_values)
+
+        if verbose:
+            print('.')
+        return j
+
+
+    def resolve_image(self, top_dim=None, verbose=False):
+        r"""
+            Resolve the image of this homomorphism.
+
+        INPUT::
+          
+        OUTPUT::
+            j: F_ -> C = self.codomain() such that im(j) = im(self).
+
+
+        TESTS::
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A3 = SteenrodAlgebra(2, profile=(4,3,2,1))
+            sage: F = FP_Module([0,0], A3)
+            sage: L = FP_Module([0,0], A3, [[Sq(3),Sq(0,1)], [0,Sq(2)]])
+            sage: f = Hom(F, L)([L([Sq(2),0]), L([0, Sq(2)])])
+            sage: f.resolve_image() # Test degree-shifting and getting rid of the uneccessary generator.
+            Module homomorphism of degree 0 defined by sending the generators
+              [<1>]
+            to
+              (<Sq(2), 0>,)
+
+        """
+
+        # The main loop starts each iteration assuming
+        # that `j` a homomorphism into `self.codomain()`, and 'n' is an integer
+        # such that
+        #
+        #       j         self
+        #   F_ ---> C <---------- D
+        #
+        # with `\im(j) \subset \im(self)` and that `j` is an onto the image 
+        # in degrees below `n`.  Each iteration of the loop then extends the
+        # map `j` minimally so that `j_n` becomes onto the image.
+
+        # Create the trivial module F_ to start with.
+        #from .fp_module import FP_Module
+        F_ = self.domain().__class__((), algebra=self.base_ring())
+        j = Hom(F_, self.codomain())(())
+
+        dim = self.codomain().connectivity()
+        if dim == PlusInfinity():
+            if verbose:
+                print ('The codomain of the morphism is trivial, so there is nothing to resolve.')
+            return j
+
+        self_degree = self.degree()
+        if self_degree is None:
+            if verbose:
+                print ('The homomorphism is trivial, so there is nothing to resolve.')
+            return j
+
+        degree_values = [0] + [v.degree() for v in self.values() if v.degree() != None]
+        limit = PlusInfinity() if not self.base_ring().is_finite() else\
+            (self.base_ring().top_class().degree() + max(degree_values))
+
+        if not top_dim is None:
+            limit = min(top_dim, limit)
+
+        if top_dim == PlusInfinity():
+            raise ValueError('The user must specify a top dimension for this calculation to terminate.')
+
+        if verbose:
+            if dim > limit:
+                print('The dimension range is empty: [%d, %d]' % (n, limit))
+            else:
+                print('Resolving the image in the range of dimensions [%d, %d]:' % (dim, limit), end='')
+
+        for n in range(dim, limit+1):
+
+            if verbose:
+                print(' %d' % n, end='')
+                sys.stdout.flush()
+
+            self_n = self.vector_presentation(n - self_degree)
+            image_n = self_n.image()
+
+            if image_n.dimension() == 0:
+                continue
+
+            j_n = j.vector_presentation(n)
+            Q_n = image_n.quotient(j_n.image())
+
+            if Q_n.dimension() == 0:
+                continue
+
+            # The map j does not cover everything in degree `n` of the kernel.
+            # Extend it.
+            generator_degrees = tuple((x.degree() for x in F_.generators()))
+            new_generator_degrees = tuple(Q_n.dimension()*(n,))
+            F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
+
+            new_values = tuple([
+                self.codomain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
+
+            j = Hom(F_, self.codomain()) (j.values() + new_values)
 
         if verbose:
             print('.')

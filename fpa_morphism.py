@@ -125,7 +125,9 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         """
         algebra = self.base_ring()
+
         finite_algebra = algebra.__class__(algebra.prime(), profile=self.profile())
+
         return FP_ModuleMorphism.is_injective(
             self.change_ring(finite_algebra),
             verbose=verbose)
@@ -173,13 +175,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         """
 
-        small_profile = self.profile()
-
-        if verbose:
-            print('Computing the kernel using the profile:')
-            print(small_profile)
-
-        return self._action(FP_ModuleMorphism.kernel, small_profile, verbose)
+        return self._action(FP_ModuleMorphism.kernel, verbose)
 
 
     def image(self, verbose=False):
@@ -228,13 +224,41 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         """
 
-        small_profile = self.profile()
+        return self._action(FP_ModuleMorphism.image, verbose)
 
-        if verbose:
-            print('Computing the image using the profile:')
-            print(small_profile)
+    def resolve_kernel(self, top_dim=None, verbose=False):
+        r"""
+            Resolve the kernel of this homomorphism.
 
-        return self._action(FP_ModuleMorphism.image, small_profile, verbose)
+        INPUT::
+
+        OUTPUT::
+            j: F_ -> D = self.domain() such that the sequence
+
+                   j        self
+              F_ -----> D --------> C
+
+            is exact.
+
+        """
+        return self._action(FP_ModuleMorphism.resolve_kernel, verbose)
+
+    def resolve_image(self, top_dim=None, verbose=False):
+        r"""
+            Resolve the image of this homomorphism.
+
+        INPUT::
+
+        OUTPUT::
+            j: F_ -> D = self.domain() such that the sequence
+
+                   j        self
+              F_ -----> D --------> C
+
+            is exact.
+
+        """
+        return self._action(FP_ModuleMorphism.resolve_image, verbose)
 
 
     def _action(self, method, profile, verbose=False):
@@ -242,12 +266,20 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         Changes the ground ring to a finite algebra, acts by the given method
         and changes back into the original ground ring before returning.
         """
+        small_profile = self.profile()
+
+        if verbose:
+            print('Computing the kernel using the profile:')
+            print(small_profile)
+
         algebra = self.base_ring()
-        finite_algebra = algebra.__class__(algebra.prime(), profile=profile)
+        finite_algebra = algebra.__class__(algebra.prime(), profile=small_profile)
 
         fp_result = method(
             self.change_ring(finite_algebra),
             verbose=verbose)
 
         return fp_result.change_ring(self.base_ring())
+
+
 

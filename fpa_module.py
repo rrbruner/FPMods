@@ -186,24 +186,24 @@ Computing resolutions::
     sage: # From Mike's thesis:
     sage: Hko = FPA_Module([0], A, [[Sq(1)], [Sq(2)]])
     sage: res = Hko.resolution(6, verbose=True)
-    Step 1/6
-    Resolving kernel dimensions up to #7: 0 1 2 3 4 5 6 7.
-    Step 2/6
-    Resolving kernel dimensions up to #7: 0 1 2 3 4 5 6 7.
-    Step 3/6
-    Resolving kernel dimensions up to #9: 1 2 3 4 5 6 7 8 9.
-    Step 4/6
-    Resolving kernel dimensions up to #11: 2 3 4 5 6 7 8 9 10 11.
-    Step 5/6
-    Resolving kernel dimensions up to #14: 3 4 5 6 7 8 9 10 11 12 13 14.
-    Step 6/6
-    Resolving kernel dimensions up to #19: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19.
+    Computing f_1 (1/6)
+    Computing f_2 (2/6)
+    Resolving the kernel in the range of dimensions [1, 8]: 1 2 3 4 5 6 7 8.
+    Computing f_3 (3/6)
+    Resolving the kernel in the range of dimensions [2, 10]: 2 3 4 5 6 7 8 9 10.
+    Computing f_4 (4/6)
+    Resolving the kernel in the range of dimensions [3, 13]: 3 4 5 6 7 8 9 10 11 12 13.
+    Computing f_5 (5/6)
+    Resolving the kernel in the range of dimensions [4, 18]: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18.
+    Computing f_6 (6/6)
+    Resolving the kernel in the range of dimensions [5, 20]: 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20.
     sage: [x.domain() for x in res]
     [Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis,
      Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
      Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
      Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
      Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
+     Finitely presented module on 4 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
      Finitely presented module on 4 generators and 0 relations over mod 2 Steenrod algebra, milnor basis]
     sage: def is_complex(res):
     ....:     for i in range(len(res)-1):
@@ -223,14 +223,18 @@ Computing resolutions::
     sage: is_exact(res)
     True
     sage: [r.codomain().generator_degrees() for r in res]
-    [(0,), (0,), (1, 2), (2, 4), (3, 7), (4, 8, 12)]
+    [(0,), (0,), (1, 2), (2, 4), (3, 7), (4, 8, 12), (5, 9, 13, 14)]
     sage: [r.values() for r in res]
     [[<1>],
      [<Sq(1)>, <Sq(2)>],
      [<Sq(1), 0>, <Sq(0,1), Sq(2)>],
      [<Sq(1), 0>, <Sq(2,1), Sq(3)>],
      [<Sq(1), 0>, <Sq(2,1), Sq(1)>, <0, Sq(2,1)>],
-     [<Sq(1), 0, 0>, <Sq(2,1), Sq(1), 0>, <0, Sq(2,1), Sq(1)>, <0, 0, Sq(2)>]]
+     [<Sq(1), 0, 0>, <Sq(2,1), Sq(1), 0>, <0, Sq(2,1), Sq(1)>, <0, 0, Sq(2)>],
+     [<Sq(1), 0, 0, 0>,
+      <Sq(2,1), Sq(1), 0, 0>,
+      <0, Sq(2,1), Sq(1), 0>,
+      <0, 0, Sq(0,1), Sq(2)>]]
 
 AUTHORS:
 
@@ -386,9 +390,9 @@ class FPA_Module_class(FP_Module_class):
         return Hom(self, self).identity().image(verbose=verbose)
 
 
-    def resolution(self, k, verbose=False):
+    def resolution(self, k, top_dim=None, verbose=False):
         r"""
-        Return a resolution of this module of length ``k``.
+        A resolution of this module of length ``k``.
 
         INPUT:
 
@@ -399,10 +403,19 @@ class FPA_Module_class(FP_Module_class):
 
         OUTPUT:
 
-        - ``res`` -- A list of homomorphisms `[f_0, f_1, \ldots, f_k]`
-          constituting a free resolution of length `k`.  The indexing is set up
-          such that `\text{codomain}(f_i) = \text{domain}(f_{i-1})` and
-          `\text{codomain}(f_0)` is this module.
+        - ``res`` -- A list of homomorphisms `[\epsilon, f_1, \ldots, f_k]`
+          which are part of a free resolution this module M.  I.e.
+
+            `f_i: F_i \to F_{i-1}`
+
+            `\epsilon: F_0\to M`,
+
+          where each `F_i` is a finitely generated free module, and the
+          sequence
+
+            F_k --> F_k-1 --> .. --> F_1 --> F_0 --> M --> 0
+
+          is exact.
 
         EXAMPLES::
 
@@ -410,25 +423,26 @@ class FPA_Module_class(FP_Module_class):
             sage: A = SteenrodAlgebra(2)
             sage: Hko = FPA_Module([0], A, [[Sq(1)], [Sq(2)]])
             sage: res = Hko.resolution(5, verbose=True)
-            Step 1/5
-            Resolving kernel dimensions up to #7: 0 1 2 3 4 5 6 7.
-            Step 2/5
-            Resolving kernel dimensions up to #7: 0 1 2 3 4 5 6 7.
-            Step 3/5
-            Resolving kernel dimensions up to #9: 1 2 3 4 5 6 7 8 9.
-            Step 4/5
-            Resolving kernel dimensions up to #11: 2 3 4 5 6 7 8 9 10 11.
-            Step 5/5
-            Resolving kernel dimensions up to #14: 3 4 5 6 7 8 9 10 11 12 13 14.
+            Computing f_1 (1/5)
+            Computing f_2 (2/5)
+            Resolving the kernel in the range of dimensions [1, 8]: 1 2 3 4 5 6 7 8.
+            Computing f_3 (3/5)
+            Resolving the kernel in the range of dimensions [2, 10]: 2 3 4 5 6 7 8 9 10.
+            Computing f_4 (4/5)
+            Resolving the kernel in the range of dimensions [3, 13]: 3 4 5 6 7 8 9 10 11 12 13.
+            Computing f_5 (5/5)
+            Resolving the kernel in the range of dimensions [4, 18]: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18.
             sage: [x.domain() for x in res]
             [Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis,
              Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
              Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
              Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
-             Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis]
+             Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
+             Finitely presented module on 4 generators and 0 relations over mod 2 Steenrod algebra, milnor basis]
             sage: M = FPA_Module([0], A)
             sage: M.resolution(4)
             [The identity module homomorphism.,
+             The trivial module homomorphism.,
              The trivial module homomorphism.,
              The trivial module homomorphism.,
              The trivial module homomorphism.]
@@ -438,11 +452,13 @@ class FPA_Module_class(FP_Module_class):
         algebra = self.base_ring()
         finite_algebra = algebra.__class__(algebra.prime(), profile=self.profile())
 
-        # Change rings to the fininte algebra, and call the base class
+        # Change rings to the finite algebra, and call the base class
         # implementation of this function.
-        res = FP_Module_class.resolution(\
-            self.change_ring(finite_algebra),\
-            k, verbose)
+        res = FP_Module_class.resolution(
+            self.change_ring(finite_algebra),
+            k,
+            top_dim=top_dim, 
+            verbose=verbose)
 
         # Change rings back to the original Steenrod algebra.
         return [j.change_ring(self.base_ring()) for j in res]

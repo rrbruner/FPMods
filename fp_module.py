@@ -227,7 +227,6 @@ class FP_Module_class(UniqueRepresentation, SageModule):
         else:
             return self.element_class(self, x)
 
-
     def _repr_(self):
         r"""
         Construct a string representation of the module.
@@ -670,6 +669,9 @@ class FP_Module_class(UniqueRepresentation, SageModule):
             [<Sq(2), Sq(1)>, <0, Sq(2)>]
             sage: i.codomain().relations()
             [<Sq(2), Sq(1)>, <0, Sq(2)>, <Sq(3), 0>]
+            sage: T = FP_Module([0], A3, [[1]])
+            sage: T.min_pres().domain()
+            Finitely presented module on 0 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
 
         """
         return Hom(self, self).identity().image(top_dim, verbose)
@@ -756,7 +758,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
         return Hom(F, self)(spanning_elements).image()
 
 
-    def resolution(self, k, verbose=False):
+    def resolution(self, k, top_dim=None, verbose=False):
         r"""
         A resolution of this module of length ``k``.
 
@@ -769,29 +771,35 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         OUTPUT:
 
-        - ``res`` -- A list of homomorphisms `[f_0, f_1, \ldots, f_k]`
-          constituting a free resolution of length `k`.  The indexing is set up
-          such that `\text{codomain}(f_i) = \text{domain}(f_{i-1})` and
-          `\text{codomain}(f_0)` is this module.
+        - ``res`` -- A list of homomorphisms `[\epsilon, f_1, \ldots, f_k]`
+          which are the first `k` homomorphisms in a free resolution this
+          module M.  I.e. $f_i: F_i \to F_{i-1}$, $\epsilon: F_0\to M$, where
+          each $F_i$ is a finitely generated free module, and the sequence
+
+            F_k --> F_k-1 --> .. --> F_1 --> F_0 --> M --> 0
+
+          is exact.
 
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
-            sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FP_Module([0,1], A3, [[Sq(2), Sq(1)]])
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: M = FP_Module([0,1], A2, [[Sq(2), Sq(1)]])
             sage: M.resolution(0)
-            []
+            [Module homomorphism of degree 0 defined by sending the generators
+               [<1, 0>, <0, 1>]
+             to
+               (<1, 0>, <0, 1>)]
             sage: res = M.resolution(4, verbose=True)
-            Step 1/4
-            Resolving kernel dimensions up to #25: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25.
-            Step 2/4
-            Resolving kernel dimensions up to #25: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25.
-            Step 3/4
-            Resolving kernel dimensions up to #26: 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26.
-            Step 4/4
-            Resolving kernel dimensions up to #32: 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32.
+            Computing f_1 (1/4)
+            Computing f_2 (2/4)
+            Resolving the kernel in the range of dimensions [2, 25]: 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25.
+            Computing f_3 (3/4)
+            Resolving the kernel in the range of dimensions [8, 31]: 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31.
+            Computing f_4 (4/4)
+            Resolving the kernel in the range of dimensions [9, 33]: 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33.
             sage: len(res)
-            4
+            5
             sage: res
             [Module homomorphism of degree 0 defined by sending the generators
                [<1, 0>, <0, 1>]
@@ -808,39 +816,52 @@ class FP_Module_class(UniqueRepresentation, SageModule):
              Module homomorphism of degree 0 defined by sending the generators
                [<1, 0>, <0, 1>]
              to
-               (<Sq(1)>, <Sq(2)>)]
+               (<Sq(1)>, <Sq(2)>),
+             Module homomorphism of degree 0 defined by sending the generators
+               [<1, 0>, <0, 1>]
+             to
+               (<Sq(1), 0>, <Sq(0,1), Sq(2)>)]
             sage: for i in range(len(res)-1):
             ....:     if not (res[i]*res[i+1]).is_zero():
             ....:          print('The result is not a complex.')
         """
+
+        def _print_progress(i, k):
+            if verbose:
+                print ('Computing f_%d (%d/%d)' % (i, i, k))
 
         if k < 0:
             raise ValueError, "The length of the resolution must be non-negative."
 
         complex = []
 
+        # Epsilon: F_0 -> M
+        F_0 = self.ModuleClass.from_free_module(self.j.codomain())
+        epsilon = Hom(F_0, self)(tuple(self.generators()))
+        complex.append(epsilon)
+
         if k == 0:
             return complex
 
-        # Optimization:
-        #        # The first map of the resolution is just the quotient map from
-        #        # the free module on the generators of the `self` module down to
-        #        # `self`.
-        #        free_module = self.j.codomain()
-        #        F = self.ModuleClass.from_free_module(free_module)
-        #
-        #        # Promote the elements of the generators of the free module to
-        #        # elements of the self module.
-        #        values = [self(x._coefficients) for x in free_module.generators()]
-        #
-        #        j0 = Hom(F, self)(values)
-        #        complex.append(j0)
+        # f_1: F_1 -> F_0
+        _print_progress(1, k)
+        F_1 = self.ModuleClass.from_free_module(self.j.domain())
+        pres = Hom(F_1, F_0)(tuple([ F_0(x.coefficients()) for x in self.j.values() ]))
 
-        for i in range(k):
-            if verbose:
-                print ('Step %d/%d' % (i+1, k))
-            j = Hom(self, self).zero() if i == 0 else complex[i-1]
-            complex.append(j.resolve_kernel(verbose=verbose))
+        complex.append(pres)
+
+        from .fp_morphism import FP_ModuleMorphism
+
+        # f_i: F_i -> F_i-1, for i > 1
+        for i in range(2, k+1):
+            _print_progress(i, k)
+
+            f = complex[i-1]
+            complex.append(
+                FP_ModuleMorphism.resolve_kernel(
+                    f,
+                    top_dim=top_dim,
+                    verbose=verbose))
 
         return complex
 
