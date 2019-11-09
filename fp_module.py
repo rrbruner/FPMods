@@ -468,6 +468,33 @@ class FP_Module_class(UniqueRepresentation, SageModule):
         return self._element_constructor_(free_element.coefficients())
 
 
+    def __getitem__(self, n):
+        r"""
+        A vectorspace isomorphic to the vectorspace of module elements of
+        degree ``n``.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FP_Module([0,2,4], A, [[Sq(4),Sq(2),0]])
+            sage: V = M[4]; V
+            Vector space quotient V/W of dimension 3 over Finite Field of size 2 where
+            V: Vector space of dimension 4 over Finite Field of size 2
+            W: Vector space of degree 4 and dimension 1 over Finite Field of size 2
+            Basis matrix:
+            [0 1 1 0]
+            sage: V.dimension()
+            3
+
+        .. SEEALSO::
+
+            :meth:`sage.modules.fp_modules.fp_module.vector_presentation`
+
+        """
+        return self.vector_presentation(n)
+
+
     @cached_method
     def vector_presentation(self, n):
         r"""
