@@ -160,7 +160,7 @@ The category framework::
     sage: M = FPA_Module([2,3], A, [[Sq(2),Sq(1)]]);M
     Finitely presented module on 2 generators and 1 relation ...
     sage: K.element_class
-    <class 'sage.modules.fp_modules.fpa_module.FPA_Module_class_with_category.element_class'>
+    <class 'sage.modules.fp_modules.fpa_module.FPA_Module_with_category.element_class'>
     sage: m = M((0,1)); m
     <0, 1>
     sage: K.is_parent_of(m)
@@ -263,31 +263,23 @@ from sage.categories.homset import Hom
 from sage.modules.free_module import VectorSpace
 from sage.rings.infinity import PlusInfinity
 
-from .fp_module import FP_Module_class
+from .fp_module import FP_Module
 from .profile import enveloping_profile_elements
 
 
-def FPA_Module(generator_degrees, algebra, relations=()):
-    r"""
-    Create a finitely presented module over a Steenrod algebra.
-
-    INPUT:
-
-    - ``generators`` -- An iterable of non-decreasing integers.
-    - ``algebra`` -- The Steenrod algebra over which the module is defined.
-    - ``relations`` -- An iterable of relations in the module.  A relation is
-        given as an iterable of coefficients corresponding to the module generators.
-
-    """
-    return FPA_Module_class(tuple(generator_degrees), algebra, tuple([tuple(r) for r in relations]))
-
-
-class FPA_Module_class(FP_Module_class):
+class FPA_Module(FP_Module):
     # In the category framework, Elements of the class FP_Module are of the
     # class FP_Element, see
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
     from .fpa_element import FPA_Element
     Element = FPA_Element
+
+    @staticmethod
+    def __classcall_private__(cls, generator_degrees, algebra, relations=()):
+        r"""
+        Normalize input to ensure a unique representation.
+        """
+        return super(FPA_Module, cls).__classcall__(cls, tuple(generator_degrees), algebra, tuple([tuple([algebra(x) for x in r]) for r in relations]))
 
     def __init__(self, generator_degrees, algebra, relations=()):
         r"""
@@ -307,7 +299,7 @@ class FPA_Module_class(FP_Module_class):
 
         """
         # Call the base class constructor.
-        FP_Module_class.__init__(self, generator_degrees, algebra, relations)
+        FP_Module.__init__(self, generator_degrees, algebra, relations)
 
         # Store the Homspace class and the module class as member variables so
         # that member functions can use them to create instances.  This enables
@@ -315,7 +307,7 @@ class FPA_Module_class(FP_Module_class):
         # of this derived class type.
         from .fpa_homspace import FPA_ModuleHomspace
         self.HomSpaceClass = FPA_ModuleHomspace
-        self.ModuleClass = FPA_Module_class
+        self.ModuleClass = FPA_Module
 
     @classmethod
     def from_fp_module(cls, fp_module):
@@ -353,7 +345,7 @@ class FPA_Module_class(FP_Module_class):
         profile = enveloping_profile_elements(elements)
 
         # Avoid returning the zero profile because it triggers a corner case
-        # in FP_Module_class.resolution().
+        # in FP_Module.resolution().
         #
         # XXX: Fix FP_Module_class.resolution().
         #
@@ -454,7 +446,7 @@ class FPA_Module_class(FP_Module_class):
 
         # Change rings to the finite algebra, and call the base class
         # implementation of this function.
-        res = FP_Module_class.resolution(
+        res = FP_Module.resolution(
             self.change_ring(finite_algebra),
             k,
             top_dim=top_dim, 

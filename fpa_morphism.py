@@ -95,9 +95,9 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         profile = enveloping_profile_elements(elements)
 
         # Avoid returning the zero profile because it triggers a corner case
-        # in FP_Module_class.resolution().
+        # in FP_Module.resolution().
         # 
-        # XXX: Fix FP_Module_class.resolution().
+        # XXX: Fix FP_Module.resolution().
         #
         return (1,) if profile == (0,) else profile
 

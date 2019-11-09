@@ -61,37 +61,11 @@ from .free_module import FreeModule
 from .free_element import FreeModuleElement
 
 
-def FP_Module(generator_degrees, algebra, relations=()):
+
+
+class FP_Module(UniqueRepresentation, SageModule):
     r"""
-    INPUT::
 
-    - ``generator_degrees`` -- A finite iterable of non-decreasing integers.
-    - ``algebra`` -- The algebra over which the module is defined.
-    - ``relations`` -- A finite iterable of iterables of homogeneous algebra
-        elements.
-
-    OUTPUT: The finitely presented module over the given algebra with
-    presentation given by ``generators`` and ``relations``.
-
-    EXAMPLES::
-        sage: from sage.modules.fp_modules.fp_module import FP_Module
-        sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
-        sage: M = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
-        sage: M.generators()
-        [<1, 0>, <0, 1>]
-        sage: M.relations()
-        [<Sq(2), Sq(1)>]
-        sage: Z = FP_Module([], A4)
-        sage: Z.generators()
-        []
-        sage: Z.relations()
-        []
-
-    """
-    return FP_Module_class(tuple(generator_degrees), algebra, tuple([tuple([algebra(x) for x in r]) for r in relations]))
-
-class FP_Module_class(UniqueRepresentation, SageModule):
-    r"""
     """
 
     # In the category framework, Elements of the class FP_Module are of the
@@ -99,6 +73,13 @@ class FP_Module_class(UniqueRepresentation, SageModule):
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
     from .fp_element import FP_Element
     Element = FP_Element
+
+    @staticmethod
+    def __classcall_private__(cls, generator_degrees, algebra, relations=()):
+        r"""
+        Normalize input to ensure a unique representation.
+        """
+        return super(FP_Module, cls).__classcall__(cls, tuple(generator_degrees), algebra, tuple([tuple([algebra(x) for x in r]) for r in relations]))
 
     def __init__(self, generator_degrees, algebra, relations=()):
         r"""
@@ -110,6 +91,20 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         OUTPUT: The finitely presented module over the given algebra with
         presentation given by ``generators`` and ``relations``.
+
+        EXAMPLES::
+            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
+            sage: M = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
+            sage: M.generators()
+            [<1, 0>, <0, 1>]
+            sage: M.relations()
+            [<Sq(2), Sq(1)>]
+            sage: Z = FP_Module([], A4)
+            sage: Z.generators()
+            []
+            sage: Z.relations()
+            []
 
         """
 
@@ -148,7 +143,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
         # Sage changes the class dynamically as part of its Category framework.
         from .fp_homspace import FP_ModuleHomspace
         self.HomSpaceClass = FP_ModuleHomspace
-        self.ModuleClass = FP_Module_class
+        self.ModuleClass = FP_Module
 
 
     @classmethod
@@ -204,17 +199,17 @@ class FP_Module_class(UniqueRepresentation, SageModule):
             sage: e = M(0); e
             <0, 0, 0>
             sage: type(e)
-            <class 'sage.modules.fp_modules.fp_module.FP_Module_class_with_category.element_class'>
+            <class 'sage.modules.fp_modules.fp_module.FP_Module_with_category.element_class'>
             sage: f = M((Sq(6), 0, Sq(2))); f
             <Sq(6), 0, Sq(2)>
             sage: type(f)
-            <class 'sage.modules.fp_modules.fp_module.FP_Module_class_with_category.element_class'>
+            <class 'sage.modules.fp_modules.fp_module.FP_Module_with_category.element_class'>
             sage: g = M((Sq(6), 0, Sq(2))); g
             <Sq(6), 0, Sq(2)>
             sage: M(g)
             <Sq(6), 0, Sq(2)>
             sage: type(g)
-            <class 'sage.modules.fp_modules.fp_module.FP_Module_class_with_category.element_class'>
+            <class 'sage.modules.fp_modules.fp_module.FP_Module_with_category.element_class'>
 
         """
 
