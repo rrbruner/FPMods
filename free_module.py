@@ -177,6 +177,16 @@ class FreeModule(UniqueRepresentation, SageModule):
     @cached_method
     def element_from_coordinates(self, coordinates, n):
         r"""
+            EXAMPLES::
+
+            sage: from sage.modules.fp_modules.free_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FreeModule((0,1), A)
+            sage: M.element_from_coordinates((0,0,0,1), 5)
+            <0, Sq(4)>
+            sage: M.element_from_coordinates((0,0,0,0), 5)
+            <0, 0>
+
         """
         basis_elements = self.basis_elements(n)
 
@@ -199,7 +209,11 @@ class FreeModule(UniqueRepresentation, SageModule):
         # and the total running time of the entire computation dropped from
         # 57 to 21 seconds by adding the optimization.
         #
-        return sum([c*element for c, element in zip(coordinates, basis_elements) if c != 0])
+        element = sum([c*element for c, element in zip(coordinates, basis_elements) if c != 0])
+        if element == 0:
+            return self._element_constructor_(0)
+        else:
+            return element
 
     @cached_method
     def vector_presentation(self, n):
