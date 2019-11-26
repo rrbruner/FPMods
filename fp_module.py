@@ -74,7 +74,7 @@ def FP_Module(generator_degrees, algebra, relations=()):
     presentation given by ``generators`` and ``relations``.
 
     EXAMPLES::
-        sage: from sage.modules.fp_modules.fp_module import FP_Module
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
         sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
         sage: M = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
         sage: M.generators()
@@ -169,7 +169,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: A3 = SteenrodAlgebra(2,profile=(3,2,1))
             sage: M = FP_Module([0,1], A, [[Sq(2), Sq(1)]])
@@ -198,23 +198,23 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FP_Module([0,2,4], A, [[Sq(4), Sq(2), 0]])
             sage: e = M(0); e
             <0, 0, 0>
             sage: type(e)
-            <class 'sage.modules.fp_modules.fp_module.FP_Module_class_with_category.element_class'>
+            <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module_class_with_category.element_class'>
             sage: f = M((Sq(6), 0, Sq(2))); f
             <Sq(6), 0, Sq(2)>
             sage: type(f)
-            <class 'sage.modules.fp_modules.fp_module.FP_Module_class_with_category.element_class'>
+            <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module_class_with_category.element_class'>
             sage: g = M((Sq(6), 0, Sq(2))); g
             <Sq(6), 0, Sq(2)>
             sage: M(g)
             <Sq(6), 0, Sq(2)>
             sage: type(g)
-            <class 'sage.modules.fp_modules.fp_module.FP_Module_class_with_category.element_class'>
+            <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module_class_with_category.element_class'>
 
         """
 
@@ -233,7 +233,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FP_Module([0,2,4], A, [[Sq(4),Sq(2),0]]); M
             Finitely presented module on 3 generators and 1 relation over mod 2 Steenrod algebra, milnor basis
@@ -253,7 +253,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES:
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FP_Module([0,2,4], A, [[0, Sq(5), Sq(3)], [Sq(7), 0, Sq(2)*Sq(1)]])
             sage: M.connectivity()
@@ -301,7 +301,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([], A3)
@@ -344,7 +344,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FP_Module([1,2], A3)
             sage: F.has_relations()
@@ -373,7 +373,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0,2,4], A3, [[0, Sq(5), Sq(3)], [Sq(7), 0, Sq(2)*Sq(1)]])
             sage: M.zero()
@@ -402,7 +402,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0,2], A3, [[Sq(4), Sq(2)], [0, Sq(6)]])
             sage: M.basis_elements(4)
@@ -441,7 +441,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES:
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FP_Module([0], A, [[Sq(4)], [Sq(7)], [Sq(4)*Sq(9)]])
             sage: M.vector_presentation(12).dimension()
@@ -453,7 +453,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         .. SEEALSO::
 
-            :meth:`sage.modules.fp_modules.fp_module.vector_presentation`,
+            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.vector_presentation`,
 
         """
         M_n = self.vector_presentation(n)
@@ -485,7 +485,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FP_Module([0,2,4], A, [[Sq(4),Sq(2),0]])
             sage: V = M.vector_presentation(4)
@@ -534,7 +534,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         TESTS::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: F = FP_Module([1,3], A);
             sage: L = FP_Module([2,3], A, [[Sq(2),Sq(1)], [0,Sq(2)]]);
@@ -556,7 +556,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
             sage: N = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
             sage: N.generator_degrees()
@@ -573,7 +573,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
             sage: M = FP_Module([0,2,3], A4)
             sage: M.generators()
@@ -595,7 +595,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
             sage: M = FP_Module([0,2,3], A4); M.generator(0)
             <1, 0, 0>
@@ -612,7 +612,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
             sage: M = FP_Module([0,2,3], A4)
             sage: M.relations()
@@ -634,7 +634,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
             sage: N = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
             sage: N.relation(0)
@@ -655,7 +655,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0,1], A3, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: i = M.min_pres()
@@ -692,7 +692,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: Y = FP_Module([0], A3, [[Sq(1)]])
@@ -736,7 +736,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0,1], A3, [[Sq(2),Sq(1)]])
             sage: i = M.submodule([M.generator(0)])
@@ -782,7 +782,7 @@ class FP_Module_class(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0,1], A2, [[Sq(2), Sq(1)]])
             sage: M.resolution(0)

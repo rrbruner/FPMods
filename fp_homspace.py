@@ -8,7 +8,7 @@ from sage.misc.cachefunc import cached_method
 r"""
 TESTS::
 
-    sage: from sage.modules.fp_modules.fp_module import FP_Module
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
     sage: from sage.misc.sage_unittest import TestSuite
     sage: A = SteenrodAlgebra(2, profile=(3,2,1))
     sage: F = FP_Module([1,3], A)

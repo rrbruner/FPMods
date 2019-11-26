@@ -11,7 +11,7 @@ from sage.categories.homset import Homset
 r"""
 TESTS::
 
-    sage: from sage.modules.fp_modules.free_module import FreeModule
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
     sage: from sage.misc.sage_unittest import TestSuite
     sage: A = SteenrodAlgebra(2)
     sage: F1 = FreeModule((1,3), A);
