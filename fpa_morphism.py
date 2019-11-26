@@ -50,7 +50,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         A finite profile over which this homomorphism can be defined.
 
         EXAMPLES::
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: id = Hom(M,M).identity()
@@ -107,7 +107,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         Return True if and only if this homomorphism has a trivial kernel.
     
         EXAMPLES::
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])
@@ -145,7 +145,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         onto the kernel of this homomorphism.
 
         EXAMPLES::
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])
@@ -190,7 +190,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         onto the image of this homomorphism.
 
         EXAMPLES::
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])

@@ -198,8 +198,7 @@ class FreeModule(UniqueRepresentation, SageModule):
         # This function was called a total of 2897 times during the computation,
         # and the total running time of the entire computation dropped from
         # 57 to 21 seconds by adding the optimization.
-        #
-        return sum([c*element for c, element in zip(coordinates, basis_elements) if c != 0])
+        return self._element_constructor_(sum([c*element for c, element in zip(coordinates, basis_elements) if c != 0]))
 
     @cached_method
     def vector_presentation(self, n):
