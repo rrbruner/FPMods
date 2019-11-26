@@ -87,7 +87,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,2,4], SteenrodAlgebra(2), [[Sq(4),Sq(2),0]])
             sage: M(0)._nonzero_()
             False
@@ -114,7 +114,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,2,4], SteenrodAlgebra(2), [[Sq(4),Sq(2),0]])
             sage: m = M((Sq(6), 0, Sq(2)))
             sage: m; m.normalize()

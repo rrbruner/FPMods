@@ -48,7 +48,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES:
 
-            sage: from sage.modules.fp_modules.free_module import FreeModule
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
             sage: A = SteenrodAlgebra(2)
             sage: F1 = FreeModule((4,5), A)
             sage: F2 = FreeModule((3,4), A)

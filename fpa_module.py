@@ -41,7 +41,7 @@ prime field.
 
 Creating a module class instance with given generators and relations::
 
-    sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
     sage: A = SteenrodAlgebra(2)
     sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]]); M
     Finitely presented module on 2 generators and 2 relations over mod 2 Steenrod algebra, milnor basis
@@ -160,7 +160,7 @@ The category framework::
     sage: M = FPA_Module([2,3], A, [[Sq(2),Sq(1)]]);M
     Finitely presented module on 2 generators and 1 relation ...
     sage: K.element_class
-    <class 'sage.modules.fp_modules.fpa_module.FPA_Module_class_with_category.element_class'>
+    <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module.FPA_Module_class_with_category.element_class'>
     sage: m = M((0,1)); m
     <0, 1>
     sage: K.is_parent_of(m)
@@ -332,14 +332,14 @@ class FPA_Module_class(FP_Module_class):
         A finite profile over which this module can be defined.
 
         EXAMPLES::
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: M.profile()
             (2, 1)
 
         TESTS::
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: X = FPA_Module([0], A)
             sage: X.profile()
@@ -371,7 +371,7 @@ class FPA_Module_class(FP_Module_class):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: i = M.min_pres()
@@ -419,7 +419,7 @@ class FPA_Module_class(FP_Module_class):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: Hko = FPA_Module([0], A, [[Sq(1)], [Sq(2)]])
             sage: res = Hko.resolution(5, verbose=True)
@@ -478,7 +478,7 @@ class FPA_Module_class(FP_Module_class):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A1 = algebra=SteenrodAlgebra(p=2, profile=[2,1])
             sage: M = FPA_Module([0], A1)
             sage: M.export_module_definition()
