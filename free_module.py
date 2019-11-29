@@ -199,7 +199,17 @@ class FreeModule(UniqueRepresentation, SageModule):
         # and the total running time of the entire computation dropped from
         # 57 to 21 seconds by adding the optimization.
         #
-        return sum([c*element for c, element in zip(coordinates, basis_elements) if c != 0])
+        element = sum([c*element for c, element in zip(coordinates, basis_elements) if c != 0])
+        if element == 0: 
+            # The previous sum was over the empty list, yielding the integer
+            # 0 as a result, rather than a module element.
+            # Fix this by calling the constructor.
+            return self._element_constructor_(0)
+        else: 
+            # The sum defining element is of the correct type. We avoid 
+            # calling the constructor unnecessarily, which seems to
+            # save time.
+            return element
 
     @cached_method
     def vector_presentation(self, n):
