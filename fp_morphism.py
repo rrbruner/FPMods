@@ -1,7 +1,13 @@
 r"""
-<Very short 1-line summary>
+Homomorphisms of finitely presented graded modules
 
-<Paragraph description>
+This class implements construction and basic manipulation of homomorphisms
+between finitely presented graded modules, modelled by the Sage
+parent :class:`sage.modules.fp_modules.fp_module.FP_Module`.
+
+This class is intended for private use by the class
+:class:`sage.modules.fp_modules.fpa_morphism.FPA_ModuleMorphism` modelling
+homomorphisms between finitely presented modules over the Steenrod algebra.
 
 EXAMPLES::
 
@@ -19,7 +25,7 @@ EXAMPLES::
      ...
     ValueError: Morphisms not composable.
     sage: g*f
-    The trivial module homomorphism.
+    The trivial homomorphism.
     sage: Q1 = FP_Module((2,3), A, relations=[[Sq(6), Sq(5)]]); Q1
     Finitely presented module on 2 generators and 1 relation ...
     sage: w = Hom(F1, F1)(( F1((Sq(6), Sq(5))), F1(0) )); w
@@ -36,7 +42,7 @@ EXAMPLES::
     <Sq(7,2), Sq(3,3)>
     sage: x.is_zero()
     False
-    sage: y = p(x); y
+    sage: y = p(x); y.normalize()
     <0, 0>
     sage: y.is_zero()
     True
@@ -72,8 +78,7 @@ AUTHORS:
 
     - Robert R. Bruner, Michael J. Catanzaro (2012): initial version
     - Koen (date in ISO year-month-day format): Updating to Sage 8.1
-    - Sverre (date in ISO 2018-month-day format): Updating to Sage 8.1
-    - Sverre (date in ISO 2019-month-day format): Rewrite and refactor.
+    - Sverre A. Lunoee-Nielsen (2020-01-11): Rewritten and refactored, and updated to Sage 8.9.
 
 """
 
@@ -101,8 +106,8 @@ from sage.modules.free_module import VectorSpace
 from sage.rings.infinity import PlusInfinity
 from sage.misc.cachefunc import cached_method
 
-from .fp_homspace import is_FP_ModuleHomspace
-from .fp_element import FP_Element
+from sage.modules.fp_modules.fp_homspace import is_FP_ModuleHomspace
+from sage.modules.fp_modules.fp_element import FP_Element
 
 from sage.structure.unique_representation import UniqueRepresentation
 
@@ -110,10 +115,11 @@ class FP_ModuleMorphism(SageMorphism):
 
     def __init__(self, parent, values):
         r"""
+        Create a homomorphism between finitely presented graded modules.
+
         INPUT:
 
         - ``parent`` -- A homspace in a (sub) category of fp modules.
-
         - ``values`` -- A list of elements in the codomain.  Each element
           corresponds to a module generator in the domain.
 
@@ -157,23 +163,117 @@ class FP_ModuleMorphism(SageMorphism):
         for relation in parent.domain().j.values():
             # The relation is an element in the free part of the domain.
             if not FP_Element(parent.codomain(), self.free_morphism(relation)).is_zero():
-                raise ValueError, ("Relation %s is not sent to zero." % relation)
+                raise ValueError("Relation %s is not sent to zero." % relation)
 
     def change_ring(self, algebra):
         r"""
-            Return the module with a new base ring, but the `same` generators and relations.
+        Change the base ring of this module homomorphism.
+
+        INPUT:
+        - ``algebra`` -- a graded algebra.
+
+        OUTPUT: An instance of this class.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: A3 = SteenrodAlgebra(2, profile=(4,3,2,1))
+            sage: M = FP_Module([0], A2, relations=[[Sq(1)]])
+            sage: N = FP_Module([0], A2, relations=[[Sq(4)],[Sq(1)]])
+            sage: f = Hom(M,N)([A2.Sq(3)*N.generator(0)]); f
+            Module homomorphism of degree 3 defined by sending the generators
+              [<1>]
+            to
+              [<Sq(3)>]
+            sage: f.base_ring()
+            sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+            sage: g = f.change_ring(A3)
+            sage: g.base_ring()
+            sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [4, 3, 2, 1]
+
         """
         new_codomain = self.codomain().change_ring(algebra)
         new_values = [new_codomain(v.coefficients()) for v in self._values]
         return Hom(self.domain().change_ring(algebra), new_codomain)(new_values)
 
     def degree(self):
+        r"""
+        The degree of this homomorphism.
+
+        OUTPUT: the integer degree of this homomorphism, or None if this is
+        the zero homomorphism.
+
+        EXAMPLES:
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: homspace = Hom(FP_Module((0,1), A), FP_Module((2,), A))
+            sage: N = homspace.codomain()
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = homspace(values)
+            sage: f.degree()
+            5
+
+        The zero homomorphism has no degree::
+
+            sage: homspace.zero().degree() is None
+            True
+
+        """
         return self.free_morphism.degree()
 
     def values(self):
+        r"""
+        The values under this homomorphism of the module generators of the
+        domain module.
+
+        OUTPUT: A sequence of module elements of the codomain.
+
+        EXAMPLES:
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: homspace = Hom(FP_Module((0,1), A), FP_Module((2,), A))
+            sage: N = homspace.codomain()
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = homspace(values)
+            sage: f.values()
+            [<0>, <Sq(1,1)>]
+            sage: homspace.zero().values()
+            [<0>, <0>]
+
+        """
         return self._values
 
     def _richcmp_(self, other, op):
+        r"""
+        Compare this homomorphism to the given homomorphism.
+
+        INPUT:
+
+        - ``other`` -- An instance of this class.
+
+        - ``op`` -- An integer specifying the comparison operation to be
+          carried out: If ``op`` == 2, then return ``True`` if and only if the
+          homomorphisms are equal.  If ``op`` == 3, then return ``True `` if
+          and only if the homomorphisms are not equal.  Otherwise,
+          return ``False``.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: homspace = Hom(FP_Module((0,1), A), FP_Module((2,), A))
+            sage: N = homspace.codomain()
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = homspace(values)
+            sage: f._richcmp_(f, op=2)
+            True
+            sage: f._richcmp_(f, op=3)
+            False
+
+        """
         try:
             same = (self - other).is_zero()
         except ValueError:
@@ -189,50 +289,188 @@ class FP_ModuleMorphism(SageMorphism):
 
         return False
 
+
     def __add__(self, g):
         r"""
-        Sum the homomorphisms, so (f+g)(x) == f(x)+g(x)
+        The pointwise sum of this and the given homomorphism.
+
+        Pointwise addition of two homomorphisms `f` and `g` with the same domain
+        and codomain is given by the formula `(f+g)(x) = f(x) + g(x)` for
+        every `x` in the domain of `f`.
+
+        INPUT:
+
+        - ``g`` -- A homomorphism with the same domain and codomain as this
+          homomorphism.
+
+        OUTPUT: The pointwise sum homomorphism of this and the given
+        homomorphism.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: homspace = Hom(FP_Module([0,1], A), FP_Module([2], A))
+            sage: N = homspace.codomain()
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = homspace(values)
+            sage: ff = f.__add__(f)
+            sage: ff.is_zero()
+            True
+            sage: ff.__add__(f) == f
+            True
+
         """
 
         if self.domain() != g.domain():
-            raise ValueError,\
-            "Morphisms do not have the same domain."
+            raise ValueError("Morphisms do not have the same domain.")
         elif self.codomain() != g.codomain():
-            raise ValueError,\
-            "Morphisms do not have the same codomain."
+            raise ValueError("Morphisms do not have the same codomain.")
         elif self.degree() and g.degree() and self.degree() != g.degree():
-            raise ValueError,\
-            "Morphisms do not have the same degree."
+            raise ValueError("Morphisms do not have the same degree.")
 
         v = [self(x) + g(x) for x in self.domain().generators()]
 
         return self.parent()(v)
 
     def __neg__(self):
+        r"""
+        The additive inverse of this homomorphism with respect to the group
+        structure given by pointwise sum.
+
+        OUTPUT: An instance of this class.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: homspace = Hom(FP_Module((0,1), A), FP_Module((2,), A))
+            sage: N = homspace.codomain()
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = homspace(values)
+            sage: f_inverse = f.__neg__(); f_inverse
+            Module homomorphism of degree 5 defined by sending the generators
+              [<1, 0>, <0, 1>]
+            to
+              [<0>, <Sq(1,1)>]
+            sage: (f + f_inverse).is_zero()
+            True
+
+        """
         return self.parent()([-x for x in self._values])
 
     def __sub__(self, g):
+        r"""
+        The difference between this and the given homomorphism, with
+        respect to the group structure given by pointwise sum.
+
+        OUTPUT: The difference homomorphism.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: homspace = Hom(FP_Module((0,1), A), FP_Module((2,), A))
+            sage: N = homspace.codomain()
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = homspace(values)
+            sage: values2 = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: g = homspace(values2)
+            sage: f.__sub__(g)
+            The trivial homomorphism.
+
+        """
         return self.__add__(g.__neg__())
 
     def __mul__(self, g):
-        """
-        Composition of morphisms: self \circ g
+        r"""
+        The composition of the given homomorphism ``g``, followed by this
+        homomorphisms.
+
+        OUTPUT: A homomorphism from the domain of this homomorphism, into the
+        codomain of the homomorphism ``g``.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FP_Module((0,1), A)
+            sage: N = FP_Module((2,), A)
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = Hom(M, N)(values)
+            sage: values2 = [Sq(2)*M.generator(0)]
+            sage: g = Hom(N, M)(values2)
+            sage: fg = f.__mul__(g); fg
+            The trivial homomorphism.
+            sage: fg.is_endomorphism()
+            True
+
+        TESTS::
+
+            sage: from sage.modules.fp_modules.free_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FP_Module((0,1), A)
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = Hom(M, N)(values)
+            sage: f.__mul__(f)
+            Traceback (most recent call last):
+            ...
+            ValueError: Morphisms not composable.
+
         """
         if self.parent().domain() != g.parent().codomain():
-            raise ValueError, "Morphisms not composable."
+            raise ValueError("Morphisms not composable.")
         homset = Hom(g.parent().domain(), self.parent().codomain())
         return homset([self(g(x)) for x in g.domain().generators()])
 
     @cached_method
     def is_zero(self):
-        """
+        r"""
+        Decide if this homomomorphism is trivial.
+
+        OUTPUT: ``True`` if this homomorphism is trivial, and ``False``
+        otherwise.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.free_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FreeModule((0,1), A)
+            sage: N = FreeModule((2,), A)
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = Hom(M, N)(values)
+            sage: f.is_zero()
+            False
+            sage: (f-f).is_zero()
+            True
+
         """
         return all([x.is_zero() for x in self._values])
 
     @cached_method
     def is_identity(self):
+        r"""
+        Decide if this homomomorphism is the identity endomorphism.
+
+        OUTPUT: ``True`` if this homomorphism is the identity, and ``False``
+        otherwise.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FP_Module((0,1), A)
+            sage: N = FP_Module((2,), A)
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = Hom(M, N)(values)
+            sage: f.is_identity()
+            False
+            sage: id = Hom(M, M)(M.generators()); id
+            The identity homomorphism.
+            sage: id.is_identity()
+            True
         """
-        """
+
         if self.parent().is_endomorphism_set():
             # XXX I think this doesn't work.  We need to compare
             #     id.values <-> self._values as FP_Modules.
@@ -240,34 +478,65 @@ class FP_ModuleMorphism(SageMorphism):
         else:
             return False
 
+
     def __call__(self, x):
-        """
-        Evaluate the morphism at an FP_Element of domain.
+        r"""
+        Evaluate the homomorphism at the given domain element ``x``.
 
         INPUT:
 
-        -  ``x``  - An element of the domain of the morphism.
+        -  ``x``  - An element of the domain of the homomorphism.
 
-        OUTPUT: The FP_Hom evaluated at `x`.
+        OUTPUT: The module element of the codomain which is the value of ``x``
+        under this homomorphism.
 
         EXAMPLES::
 
-        """
-        if x.parent() != self.domain():
-            raise ValueError,\
-                  "Cannot evaluate morphism on element not in domain"
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FP_Module((0,1), A)
+            sage: N = FP_Module((2,), A)
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: f = Hom(M, N)(values)
+            sage: f.__call__(M.generator(0))
+            <0>
+            sage: f.__call__(M.generator(1))
+            <Sq(1,1)>
 
-        return self.codomain().element_class(self.codomain(), self.free_morphism(x.free_element)).normalize()
+        """
+
+        if x.parent() != self.domain():
+            raise ValueError("Cannot evaluate morphism on element not in domain.")
+
+#        return self.codomain().element_class(self.codomain(), self.free_morphism(x.free_element)).normalize()
+        return self.codomain().element_class(self.codomain(), self.free_morphism(x.free_element))
 
     def _repr_(self):
         r"""
-        Return a string representation of this morphism.
+        A string representation of this homomorphism.
+
+        OUTPUT: A string.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FreeModule((0,1), A)
+            sage: N = FreeModule((2,), A)
+            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: Hom(M, N)(values)._repr_()
+            'Module homomorphism of degree 5 defined by sending the generators\n  [<1, 0>, <0, 1>]\nto\n  [<0>, <Sq(1,1)>]'
+            sage: Hom(M, N).zero()._repr_()
+            'The trivial homomorphism.'
+            sage: Hom(M, M).identity()._repr_()
+            'The identity homomorphism.'
 
         """
+
         if self.is_zero():
-            return "The trivial module homomorphism."
+            return "The trivial homomorphism."
         elif self.is_identity():
-            return "The identity module homomorphism."
+            return "The identity homomorphism."
         else:
             return "Module homomorphism of degree %d defined by sending "\
                 "the generators\n  %s\nto\n  %s" % (self.degree(), self.domain().generators(), self._values)
@@ -275,7 +544,32 @@ class FP_ModuleMorphism(SageMorphism):
     @cached_method
     def vector_presentation(self, n):
         r"""
+        The restriction of this homomorphism to the domain module elements of
+        degree ``n``.
+
+        The restriction of a module homomorphism to the vectorspace of module
+        elements of degree `n` is a linear function into the vectorspace of
+        elements of degree `n+d` belonging to the codomain.  Here `d` is the
+        degree of this homomorphism.
+
+        INTPUT:
+
+        - ``n`` -- An integer degree.
+
+        OUTPUT: A linear function over finite dimensional vectorspaces over the
+        ground field of the algebra for this module.  The domain of this
+        linear function is isomorphic to the vectorspace of domain elements
+        of degree ``n`` of this free module, via the choice of basis given
+        by :meth:`sage.modules.fp_modules.fp_module.basis_elements`.
+
+        .. SEEALSO::
+            :meth:`sage.modules.fp_modules.fp_module.fp_homspace.domain`, 
+            :meth:`sage.modules.fp_modules.fp_module.fp_homspace.codomain`,
+            :meth:`sage.modules.fp_modules.fp_module.fp_module.vector_presentation`,
+            :meth:`sage.modules.fp_modules.fp_module.fp_module.basis_elements`.
+
         """
+
         self_degree = self.degree() if self.degree() != None else 0
         codomain_degree = self_degree + n
 
@@ -310,7 +604,7 @@ class FP_ModuleMorphism(SageMorphism):
         """
 
         if x.parent() != self.codomain():
-            raise ValueError, "The given element is not in the codomain of this homomorphism."
+            raise ValueError("The given element is not in the codomain of this homomorphism.")
 
         if x.is_zero():
             return self.domain().zero()
@@ -335,7 +629,7 @@ class FP_ModuleMorphism(SageMorphism):
         """
 
         if self.codomain() != f.codomain():
-            raise TypeError, "Cannot lift this homomorphism over the given map since it has a different codomain."
+            raise TypeError('Cannot lift this homomorphism over the given map since it has a different codomain.')
 
         new_values = [f.solve(self(g)) for g in self.domain().generators()]
 
@@ -578,7 +872,7 @@ class FP_ModuleMorphism(SageMorphism):
             Resolve the kernel of this homomorphism.
 
         INPUT::
-          
+
         OUTPUT::
             j: F_ -> D = self.domain() such that the sequence
 
@@ -596,7 +890,7 @@ class FP_ModuleMorphism(SageMorphism):
         #       j      self
         #   F_ ---> D ------> C
         #
-        # with `\im(j) \subset \ker(self)` and that `j` is an onto the kernel 
+        # with `\im(j) \subset \ker(self)` and that `j` is an onto the kernel
         # in degrees below `n`.  Each iteration of the loop then extends the
         # map `j` minimally so that `j_n` bebcomes onto the kernel.
 
@@ -665,7 +959,7 @@ class FP_ModuleMorphism(SageMorphism):
             Resolve the image of this homomorphism.
 
         INPUT::
-          
+
         OUTPUT::
             j: F_ -> C = self.codomain() such that im(j) = im(self).
 
@@ -691,7 +985,7 @@ class FP_ModuleMorphism(SageMorphism):
         #       j         self
         #   F_ ---> C <---------- D
         #
-        # with `\im(j) \subset \im(self)` and that `j` is an onto the image 
+        # with `\im(j) \subset \im(self)` and that `j` is an onto the image
         # in degrees below `n`.  Each iteration of the loop then extends the
         # map `j` minimally so that `j_n` becomes onto the image.
 

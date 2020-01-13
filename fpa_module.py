@@ -1,5 +1,5 @@
 r"""
-Finitely presented modules over the Steenrod algebra.
+Finitely presented modules over the Steenrod algebra
 
 .. RUBRIC:: Introduction
 
@@ -11,7 +11,7 @@ the secondary functions defined.
 .. RUBRIC:: Theoretical background
 
 The Steenrod algebra is the union of finite sub-Hopf algebras
-[Margolis, Spectra and the Steenrod Algebra, Ch. 15, Sect. 1, Prop 7].
+([Marg1983]_ Ch. 15, Sect. 1, Prop 7).
 Therefore, any finitely presented module over the Steenrod algebra is
 defined over a finite sub-Hopf algebra.  Similarly, any homomorphism
 between finitely presented modules over the Steenrod algebra is
@@ -36,8 +36,7 @@ computation can be done.   Then, carry out the calculation there, where it
 is a finite problem, and can be reduced to linear algebra over a finite
 prime field.
 
-
-.. RUBRIC:: User's guide
+.. RUBRIC:: Examples of usage
 
 Creating a module class instance with given generators and relations::
 
@@ -60,11 +59,10 @@ Creating homomorphisms::
     sage: homset = Hom(F, L); homset
     Set of Morphisms from Finitely presented module on 2 generators ...
 
-The ``an_element()`` member function produces a homomorphism.  (Todo: this always
-results in the trivial homomorphism at the moment.)::
+The ``an_element()`` member function produces a homomorphism.::
 
     sage: homset.an_element()
-    The trivial module homomorphism.
+    The trivial homomorphism.
 
 A module homomorphism sending the two generators of the free
 module `F` to the elements `v_1` and `v_2`, respectively::
@@ -92,7 +90,7 @@ the codomain is ``this`` module, and `f` is onto `\ker (f)`::
       [<0, 1>, <Sq(0,1), 0>]
 
 The ``image`` member function behaves similarly, returning an injective
-homomorphism with image equal to the submodule `\im(f)` ::
+homomorphism with image equal to the submodule `im(f)` ::
 
     sage: i = f.image()
     sage: i.codomain() == f.codomain()
@@ -116,7 +114,7 @@ The image module::
 The trivial homomorphism::
 
     sage: t_1 = homset(0); t_1
-    The trivial module homomorphism.
+    The trivial homomorphism.
     sage: t_2 = homset.zero()
     sage: t_1 == t_2
     True
@@ -128,9 +126,9 @@ The identity homomorphism::
 
     sage: id = End(L).identity()
     sage: id + id
-    The trivial module homomorphism.
+    The trivial homomorphism.
     sage: id*id
-    The identity module homomorphism.
+    The identity homomorphism.
     sage: id*id == id
     True
     sage: id*id != id
@@ -138,7 +136,7 @@ The identity homomorphism::
     sage: id.degree()
     0
     sage: g = id + id + id; g
-    The identity module homomorphism.
+    The identity homomorphism.
     sage: g == id
     True
     sage: el = L([Sq(5), Sq(4)]); el.normalize()
@@ -197,7 +195,7 @@ Computing resolutions::
     Resolving the kernel in the range of dimensions [4, 18]: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18.
     Computing f_6 (6/6)
     Resolving the kernel in the range of dimensions [5, 20]: 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20.
-    sage: [x.domain() for x in res]
+    sage: [f.domain() for f in res]
     [Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis,
      Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
      Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
@@ -257,14 +255,13 @@ AUTHORS:
 # ****************************************************************************
 
 
-
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 from sage.categories.homset import Hom
 from sage.modules.free_module import VectorSpace
 from sage.rings.infinity import PlusInfinity
 
-from .fp_module import FP_Module
-from .profile import enveloping_profile_elements
+from sage.modules.fp_modules.fp_module import FP_Module
+from sage.modules.fp_modules.profile import enveloping_profile_elements
 
 
 class FPA_Module(FP_Module):
@@ -278,24 +275,35 @@ class FPA_Module(FP_Module):
     def __classcall_private__(cls, generator_degrees, algebra, relations=()):
         r"""
         Normalize input to ensure a unique representation.
+
+        INPUT:
+
+        - ``generator_degrees`` -- an iterable of non-decreasing integers.
+        - ``algebra`` -- the Steenrod algebra over which the module is defined.
+        - ``relations`` -- an iterable of relations.  A relation is a tuple of
+          coefficients `(c_1, \ldots, c_n)` corresponding to the module
+          generators.
+
+        OUTPUT: The finitely presented module with presentation given by
+        ``generator_degrees`` and ``relations``.
+
         """
         return super(FPA_Module, cls).__classcall__(cls, tuple(generator_degrees), algebra, tuple([tuple([algebra(x) for x in r]) for r in relations]))
 
     def __init__(self, generator_degrees, algebra, relations=()):
         r"""
-
         Create a finitely presented module over the Steenrod algebra.
 
         INPUT:
 
-        - ``generators`` -- A tuple of non-decreasing integers.
+        - ``generator_degrees`` -- A tuple of non-decreasing integers.
         - ``algebra`` -- The Steenrod algebra over which the module is defined.
         - ``relations`` -- A tuple of relations.  A relation is a tuple of
-            coefficients $(c_1, \ldots, c_n)$ corresponding to the module
-            generators.
+          coefficients `(c_1, \ldots, c_n)` corresponding to the module
+          generators.
 
-        OUTPUT: The finitely presented module with presentation given by
-            ``generators`` and ``relations``.
+        OUTPUT: The finitely presented module over ``algebra`` with
+        presentation given by ``generator_degrees`` and ``relations``.
 
         """
         # Call the base class constructor.
@@ -309,21 +317,16 @@ class FPA_Module(FP_Module):
         self.HomSpaceClass = FPA_ModuleHomspace
         self.ModuleClass = FPA_Module
 
-    @classmethod
-    def from_fp_module(cls, fp_module):
-        r"Construct from a finitely presented A-module."
-
-        return cls(
-            fp_module.generator_degrees(),
-            algebra=fp_module.base_ring(),
-            relations=tuple([r.coefficients() for r in fp_module.relations()]))
-
 
     def profile(self):
         r"""
         A finite profile over which this module can be defined.
 
+        .. NOTE:: The profile produced by this function is reasonably small,
+           but is not guaranteed to be minimal.
+        
         EXAMPLES::
+
             sage: from sage.modules.fp_modules.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
@@ -331,6 +334,7 @@ class FPA_Module(FP_Module):
             (2, 1)
 
         TESTS::
+
             sage: from sage.modules.fp_modules.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: X = FPA_Module([0], A)
@@ -356,10 +360,8 @@ class FPA_Module(FP_Module):
         r"""
         A minimal presentation of this module.
 
-        OUTPUT:
-
-        -  ``f`` - An isomorphism $M \to self$, where $M$ has minimal
-            presentation.
+        OUTPUT: An isomorphism `M \to self`, where `M` has minimal
+        presentation.
 
         EXAMPLES::
 
@@ -389,23 +391,22 @@ class FPA_Module(FP_Module):
         INPUT:
 
         - ``k`` -- An non-negative integer.
-
         - ``verbose`` -- A boolean to control if log messages should be emitted.
           (optional, default: ``False``)
 
         OUTPUT:
 
         - ``res`` -- A list of homomorphisms `[\epsilon, f_1, \ldots, f_k]`
-          which are part of a free resolution this module M.  I.e.
+          such that
 
-            `f_i: F_i \to F_{i-1}`
+            `f_i: F_i \to F_{i-1}` for `1<i\leq k`,
 
             `\epsilon: F_0\to M`,
 
           where each `F_i` is a finitely generated free module, and the
           sequence
 
-            F_k --> F_k-1 --> .. --> F_1 --> F_0 --> M --> 0
+            `F_k \overset{f_k}{\longrightarrow} F_{k-1} \overset{f_{k-1}}{\rightarrow} \ldots \rightarrow F_0 \overset{\epsilon}{\rightarrow} M \rightarrow 0`
 
           is exact.
 
@@ -433,11 +434,11 @@ class FPA_Module(FP_Module):
              Finitely presented module on 4 generators and 0 relations over mod 2 Steenrod algebra, milnor basis]
             sage: M = FPA_Module([0], A)
             sage: M.resolution(4)
-            [The identity module homomorphism.,
-             The trivial module homomorphism.,
-             The trivial module homomorphism.,
-             The trivial module homomorphism.,
-             The trivial module homomorphism.]
+            [The identity homomorphism.,
+             The trivial homomorphism.,
+             The trivial homomorphism.,
+             The trivial homomorphism.,
+             The trivial homomorphism.]
 
         """
 
@@ -458,7 +459,7 @@ class FPA_Module(FP_Module):
 
     def export_module_definition(self, powers_of_two_only=True):
         r"""
-        Export the module to Bruner's Ext program format:
+        Export the module to the input format used by R. Bruner's Ext software:
         http://www.math.wayne.edu/~rrb/cohom/modfmt.html
 
         INPUT:
@@ -513,11 +514,11 @@ class FPA_Module(FP_Module):
         """
 
         if not self.base_ring().is_finite():
-            raise RuntimeError, "This module is not defined over a finite algebra."
+            raise (RuntimeError, "This module is not defined over a finite algebra.")
             return
 
         if self.base_ring().characteristic() != 2:
-            raise RuntimeError, "This function is not implemented for odd primes."
+            raise (RuntimeError, "This function is not implemented for odd primes.")
             return
 
         n = self.connectivity()
@@ -540,9 +541,9 @@ class FPA_Module(FP_Module):
             additive_generator_degrees += len(basis_vectors)*[dim + n]
 
         # Print the degrees of the additive generators.
-        print "%d %s" % (
+        print("%d %s" % (
             len(additive_generator_degrees),
-            " ".join(["%d" % x for x in additive_generator_degrees]))
+            " ".join(["%d" % x for x in additive_generator_degrees])))
 
         num_basis_vectors = additive_generator_global_indices[-1]
 
@@ -555,7 +556,7 @@ class FPA_Module(FP_Module):
         # last vector in the same part.
         def _GetIndices(dim, vec):
             if len(vector_space_basis[dim]) != len(vec):
-                raise ValueError, "The given vector\n%s\nhas the wrong size, it should be %d" % (str(vec), len(vector_space_basis[dim]))
+                raise (ValueError, "The given vector\n%s\nhas the wrong size, it should be %d" % (str(vec), len(vector_space_basis[dim])))
             base_index = additive_generator_global_indices[dim]
             return [base_index + a for a,c in enumerate(vec) if c != 0]
 
@@ -563,25 +564,22 @@ class FPA_Module(FP_Module):
         powers = [2**i for i in range(profile[0])] if powers_of_two_only else\
             range(1, 2**profile[0])
 
-        # print(powers)
-
         for k in powers:
             images = [[(self.base_ring().Sq(k)*x).vector_presentation() for x in D]\
                       for D in vector_space_basis]
-            # print(images)
 
             element_index = 0
 
-            # Note that the dim variable is relative to the bottom dimension, n.
+            # Note that the variable dim is relative to the bottom dimension, n.
             for dim, image in enumerate(images):
                 for im in image:
                     if im != 0 and im != None:
                         values = _GetIndices(dim + k, im)
 
-                        print "%d %d %d %s" % (
+                        print ("%d %d %d %s" % (
                             element_index,
                             k,
                             len(values),
-                            " ".join(["%d" % x for x in values]))
+                            " ".join(["%d" % x for x in values])))
                     element_index += 1
 

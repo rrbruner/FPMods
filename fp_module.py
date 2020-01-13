@@ -1,34 +1,49 @@
 r"""
-Finitely presented (graded) modules.
+Finitely presented graded modules
 
 .. RUBRIC:: Introduction
 
-This package allows the user to define finitely presented graded modules
+This class allows the user to define finitely presented graded modules
 over graded algebras, elements of them, and morphisms between them.
+
+This class is intended for private use by the class 
+:class:`sage.modules.fp_modules.fpa_module` modelling finitely presented modules
+over the Steenrod algebra.  As a consequence, all tests and examples use
+the Steenrod algebra (or a finite sub-Hopf algebra of it) as ground algebra.
+
+However, the modules defined by this class does not assume that the algebra
+is the Steenrod algebra and the user could in theory be able to use this to
+explore finitely presented modules over other graded algebras as well.
 
 .. RUBRIC:: Implementation
 
-Any finitely presented module over an algebra $R$ is isomorphic to the cokernel
-of an $R$-linear homomorphism $f:F_1 \to F_0$ of finitely generated free
-modules: The generators of $F_0$ corresponds to the generators of the module,
-and the generators of $F_1$ corresponds to its relations.
+Any finitely presented module over an algebra `R` is isomorphic to the cokernel
+of an `R`-linear homomorphism `f:F_1 \to F_0` of finitely generated free
+modules: The generators of `F_0` corresponds to the generators of the module,
+and the generators of `F_1` corresponds to its relations, via the map `f`.
 
 When a module is constructed, the class constructor uses the given
 set of generators and relations to construct such a map of free modules, using
-the class FreeModuleHomomorphism, and stores it as a member.
-
-.. NOTE:: A note on the API design
+the class :class:`sage.modules.fp_modules.free_morphism.FreeModuleMorphism`,
+and stores it as a member.
 
 This package was designed with homological algebra in mind, and its API often
 focuses on maps rather than objects.  A good example of this is the kernel
-function that computes the kernel of a homomorphism $f: M\to N$.  Its return
-value is not a module instance, but rather an injective homomorphism
-$i: K\to M$ with the property that $\im(i) = \ker(f)$.
-
+function :meth:`kernel` which computes the kernel of a homomorphism `f: M\to N`.
+Its return value is not an instance of the module class, but rather an injective
+homomorphism `i: K\to M` with the property that `\operatorname{im}(i) = \ker(f)`.
 
 EXAMPLES::
 
-<Lots and lots of examples>
+    sage: from sage.modules.fp_modules.fp_module import *
+    sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+
+Define a module defined over a finite sub-Hopf algebra of the mod-2 Steenrod algebra::
+
+    sage: Hko = FP_Module([0], A2, relations=[[Sq(1)], [Sq(2)]])
+    sage: Hko
+    Finitely presented module on 1 generator and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+
 
 AUTHORS:
 
@@ -40,8 +55,8 @@ AUTHORS:
 """
 
 #*****************************************************************************
-#       Copyright (C) 2011 Robert R. Bruner <rrb@math.wayne.edu>
-#             and          Michael J. Catanzaro <mike@math.wayne.edu>
+#       Copyright (C) 2011 Robert R. Bruner <rrb@math.wayne.edu> and
+#                          Michael J. Catanzaro <mike@math.wayne.edu>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -61,13 +76,7 @@ from .free_module import FreeModule
 from .free_element import FreeModuleElement
 
 
-
-
 class FP_Module(UniqueRepresentation, SageModule):
-    r"""
-
-    """
-
     # In the category framework, Elements of the class FP_Module are of the
     # class FP_Element, see
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
@@ -78,21 +87,38 @@ class FP_Module(UniqueRepresentation, SageModule):
     def __classcall_private__(cls, generator_degrees, algebra, relations=()):
         r"""
         Normalize input to ensure a unique representation.
+
+        INPUT:
+
+        - ``generator_degrees`` -- an iterable of non-decreasing integers.
+        - ``algebra`` -- the graded algebra over which the module is defined.
+        - ``relations`` -- an iterable of relations.  A relation is a tuple of
+          coefficients `(c_1, \ldots, c_n)` corresponding to the module
+          generators.
+
+        OUTPUT: The finitely presented module with presentation given by
+        ``generator_degrees`` and ``relations``.
+
         """
         return super(FP_Module, cls).__classcall__(cls, tuple(generator_degrees), algebra, tuple([tuple([algebra(x) for x in r]) for r in relations]))
 
     def __init__(self, generator_degrees, algebra, relations=()):
         r"""
+        Create a finitely presented module over the a graded algebra.
+
         INPUT:
 
         - ``generator_degrees`` -- A tuple of non-decreasing integers.
-        - ``algebra`` -- The algebra over which the module is defined.
-        - ``relations`` -- A tuple of tuples of algebra coefficients
+        - ``algebra`` -- The Steenrod algebra over which the module is defined.
+        - ``relations`` -- A tuple of relations.  A relation is a tuple of
+          coefficients `(c_1, \ldots, c_n)` corresponding to the module
+          generators.
 
-        OUTPUT: The finitely presented module over the given algebra with
-        presentation given by ``generators`` and ``relations``.
+        OUTPUT: The finitely presented module over ``algebra`` with
+        presentation given by ``generator_degrees`` and ``relations``.
 
         EXAMPLES::
+
             sage: from sage.modules.fp_modules.fp_module import FP_Module
             sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
             sage: M = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
@@ -148,19 +174,73 @@ class FP_Module(UniqueRepresentation, SageModule):
 
     @classmethod
     def from_free_module(cls, free_module):
-        "Initialize from a finitely generated free module."
+        r"""
+        Initialize from a finitely generated free module.
+
+        INPUT:
+
+        - ``free_module`` -- a finitely generated free module.
+
+        OUTPUT: the finitely presented module having same set of generators
+        assert ``free_module``, and no relations.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: F = FreeModule((-2,2,4), A)
+            sage: FP_Module.from_free_module(F)
+            Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis
+
+
+        """
         return cls(free_module.generator_degrees(), algebra=free_module.base_ring(), relations=())
 
 
     @classmethod
     def from_free_module_morphism(cls, morphism):
-        "Initialize from a morphism of finitely generated free module."
+        r"""
+        Create a finitely presented module from a morphism of finitely
+        generated free modules.
+
+        INPUT:
+
+        - ``morphism`` -- a morphism between finitely generated free modules.
+
+        OUTPUT: the finitely presented module having presentation equal to the
+        homomorphism ``morphism``.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.fp_modules.fp_module import *
+            sage: A = SteenrodAlgebra(2)
+            sage: F1 = FreeModule((2,), A)
+            sage: F2 = FreeModule((0,), A)
+            sage: v = F2([Sq(2)])
+            sage: pres = Hom(F1, F2)([v])
+            sage: M = FP_Module.from_free_module_morphism(pres); M
+            Finitely presented module on 1 generator and 1 relation over mod 2 Steenrod algebra, milnor basis
+            sage: M.generator_degrees()
+            (0,)
+            sage: M.relations()
+            [<Sq(2)>]
+
+        """
         return cls(morphism.codomain().generator_degrees(), algebra=morphism.base_ring(), relations=tuple([r.coefficients() for r in morphism.values()]))
 
 
     def change_ring(self, algebra):
         r"""
         Change the base ring of this module.
+
+        INPUT:
+        - ``algebra`` -- a graded algebra.
+
+        OUTPUT: The finitely presented module over ``algebra`` defined with 
+        the exact same number of generators of the same degrees and relations
+        as this module.
 
         EXAMPLES::
 
@@ -174,14 +254,15 @@ class FP_Module(UniqueRepresentation, SageModule):
             True
         """
         return self.ModuleClass(
-            self._gds,
-            algebra,
-            self._rls)
+            self._gds, algebra, self._rls)
 
 
     def _element_constructor_(self, x):
         r"""
         Construct any element of this module.
+
+        This function is used internally by the ()-operator when creating
+        module elements, and should not be called by the user explicitly.
 
         INPUT:
 
@@ -222,6 +303,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         else:
             return self.element_class(self, x)
 
+
     def _repr_(self):
         r"""
         Construct a string representation of the module.
@@ -235,7 +317,6 @@ class FP_Module(UniqueRepresentation, SageModule):
             sage: N = FP_Module([0,1], A, [[Sq(2),Sq(1)], [Sq(2)*Sq(1),Sq(2)]]); N
             Finitely presented module on 2 generators and 2 relations over mod 2 Steenrod algebra, milnor basis
         """
-
         return "Finitely presented module on %s generator%s and %s relation%s over %s"\
             %(len(self.j.codomain().generator_degrees()), "" if len(self.j.codomain().generator_degrees()) == 1 else "s",
               len(self.j.values()), "" if len(self.j.values()) == 1 else "s",
@@ -246,7 +327,11 @@ class FP_Module(UniqueRepresentation, SageModule):
         r"""
         The connectivity of the module.
 
-        EXAMPLES:
+        Since a finitely presented module is in particular bounded below,
+        the connectivity is an integer when the module is non-trivial, and
+        `+\infty` when the module is trivial.
+
+        EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
@@ -256,26 +341,26 @@ class FP_Module(UniqueRepresentation, SageModule):
             sage: G = FP_Module([0,2], A, [[1,0]])
             sage: G.connectivity()
             2
+
+        TESTS:
+
+            sage: C = FP_Module([0], SteenrodAlgebra(2, profile=(3,2,1)), relations=[[Sq(1)], [0]])
+            sage: C.connectivity()
+            0
+
             sage: F = FP_Module([-1], A)
             sage: F.connectivity()
             -1
 
-        TESTS:
-            sage: C = FP_Module([0], SteenrodAlgebra(2, profile=(3,2,1)), \
-                relations=[[Sq(1)], [0]])
-            sage: C.connectivity()
-            0
-
-
         """
-        # In case there are no relations, the connectivity is the smallest
-        # degree of the generators.
+        # In case there are no relations, the connectivity is the equal to
+        # the connectivity of the free module on the generators.
         if self.j._degree == None:
             return self.j.codomain().connectivity()
 
         # We must check that the generator(s) in the free generator module are
         # not hit by relations, since we are not guaranteed that the
-        # presentation of the module is minimal.
+        # presentation we have is minimal.
         X = [x for x in self.generator_degrees()]
         X.sort()
 
@@ -292,7 +377,10 @@ class FP_Module(UniqueRepresentation, SageModule):
 
     def is_trivial(self):
         r"""
-        Compute if the relations generate the entire module.
+        Decide if this module is isomorphism to the trivial module.
+
+        OUTPUT: Returns ``True`` if the relations generate the entire module,
+        and ``False`` otherwise.
 
         EXAMPLES::
 
@@ -309,17 +397,16 @@ class FP_Module(UniqueRepresentation, SageModule):
             sage: P.is_trivial()
             True
 
-
         TESTS:
 
-        Creating a module with a redundant relation:
+        Creating a module with a redundant relation::
 
             sage: C = FP_Module([0], SteenrodAlgebra(2, profile=(3,2,1)), \
                 relations=[[Sq(1)], [0]])
             sage: C.is_trivial()
             False
 
-        Creating a trivial module with a redundant relation:
+        Creating a trivial module with a redundant relation::
 
         sage: C = FP_Module([0], SteenrodAlgebra(2), \
                 relations=[[Sq(1)], [1]])
@@ -332,10 +419,13 @@ class FP_Module(UniqueRepresentation, SageModule):
 
     def has_relations(self):
         r"""
-        Return True if no relations are defined.
+        Return ``True`` if no relations are defined.
 
-        Note that this module is free if this function returns ``False``, but
-        a free module can have (unnecessary) relations.
+        OUTPUT: the boolean value ``True`` if no relations are defined, and
+        ``False`` otherwise.
+
+        .. NOTE:: this module is free if this function returns ``False``, but
+           a free module can have (unnecessary) relations.
 
         EXAMPLES::
 
@@ -390,10 +480,24 @@ class FP_Module(UniqueRepresentation, SageModule):
 
 
     @cached_method
-    def basis_elements(self, n):
+    def basis_elements(self, n, verbose=False):
         r"""
-        An ordered set of homogeneous elements spanning the vectorspace of
-        module elements of degree ``n``.
+        A basis for the vectorspace of degree ``n`` module elements.
+
+        INPUT:
+
+        - ``n`` -- an integer.
+
+        - ``verbose`` -- A boolean to control if log messages should be emitted.
+          (optional, default: ``False``)
+
+        OUTPUT: A sequence of homogeneous module elements of degree ``n``
+        which is a basis for the vectorspace of all degree ``n`` module
+        elements.
+
+        .. SEEALSO::
+
+            :meth:`vector_presentation`, :meth:`element_from_coordinates`
 
         EXAMPLES::
 
@@ -413,7 +517,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         """
         return [self.element_from_coordinates(x, n) for\
-            x in self.vector_presentation(n).basis()]
+            x in self.vector_presentation(n, verbose).basis()]
 
 
     @cached_method
@@ -421,20 +525,23 @@ class FP_Module(UniqueRepresentation, SageModule):
         r"""
         The module element in degree ``n`` having coordinates ``coordinates``
         in the standard basis of the vectorspace returned by
-        ``self.vector_presentation``.
+        :meth:`vector_presentation`.
+
+        This function is inverse to
+        :meth:`sage.modules.fp_modules.fp_element.FP_Element.vector_presentation`.
 
         INPUT:
 
-        - ``coordinates`` -- The coordinates for a vector in the standard basis
-        of the degree ``n`` vector space part of this module.
+        - ``coordinates`` -- the coordinates for a vector in the standard basis
+          of the degree ``n`` vector space part of this module.
 
-        - ``n`` -- The degree of the element to construct.
+        - ``n`` -- the degree of the element to construct.
 
         OUTPUT:
 
-        - ``element`` -- An element of the module in the degree ``n``.
+        - ``element`` -- an element of the module in the degree ``n``.
 
-        EXAMPLES:
+        EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
@@ -443,12 +550,15 @@ class FP_Module(UniqueRepresentation, SageModule):
             3
             sage: x = M.element_from_coordinates((0,1,0), 12); x
             <Sq(0,4)>
+
+        Applying the inverse function brings us back to the coordinate form::
+
             sage: x.vector_presentation()
             (0, 1, 0)
 
         .. SEEALSO::
 
-            :meth:`sage.modules.fp_modules.fp_module.vector_presentation`,
+            :meth:`sage.modules.fp_modules.fp_module.FP_Module.vector_presentation`
 
         """
         M_n = self.vector_presentation(n)
@@ -465,41 +575,35 @@ class FP_Module(UniqueRepresentation, SageModule):
 
     def __getitem__(self, n):
         r"""
-        A vectorspace isomorphic to the vectorspace of module elements of
-        degree ``n``.
+        A set of elements which is an additive basis for the
+        vectorspace of all module elements of degree ``n``.
 
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FP_Module([0,2,4], A, [[Sq(4),Sq(2),0]])
-            sage: V = M[4]; V
-            Vector space quotient V/W of dimension 3 over Finite Field of size 2 where
-            V: Vector space of dimension 4 over Finite Field of size 2
-            W: Vector space of degree 4 and dimension 1 over Finite Field of size 2
-            Basis matrix:
-            [0 1 1 0]
-            sage: V.dimension()
-            3
+            sage: M[4]
+            [<Sq(1,1), 0, 0>, <Sq(4), 0, 0>, <0, 0, 1>]
 
         .. SEEALSO::
 
-            :meth:`sage.modules.fp_modules.fp_module.vector_presentation`
+            :meth:`basis_elements`
 
         """
-        return self.vector_presentation(n)
+        return self.basis_elements(n)
 
 
     @cached_method
-    def vector_presentation(self, n):
+    def vector_presentation(self, n, verbose=False):
         r"""
         A vectorspace isomorphic to the vectorspace of module elements of
         degree ``n``.
 
-        An isomorphism between this vectorspace $V$ and the
+        An isomorphism between this vectorspace `V` and the
         degree ``n`` part of this module is given by the linear transformation
-        $e_i\mapsto self.element_from_coordinates(e_i,n)$,
-        where $e_i$ runs through the standard basis for $V$.
+        `e_i\mapsto \text{self.element_from_coordinates}(e_i,n)`,
+        where `e_i` runs through the standard basis for `V`.
 
         INPUT:
 
@@ -531,12 +635,30 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         # Compute the sub vectorspace generated by the relations.
         spanning_set = []
+
+        if verbose:
+            num_total_iterations = 0
+            for relation in self.j.values():
+                if relation.is_zero():
+                    continue
+                num_total_iterations += len(self.base_ring().basis(n - relation.degree()))
+
+            progress = 0
+            iteration_count = 0
+
         for relation in self.j.values():
 
             if relation.is_zero():
                 continue
 
             for a in self.base_ring().basis(n - relation.degree()):
+                if verbose:
+                    iteration_count += 1
+                    prog = int(100*iteration_count/num_total_iterations)
+                    if prog > progress:
+                        progress = prog
+                        print('Progress: %d/100' % prog)
+
                 # assert: isinstance(FreeElement, relation)
                 v = (a*relation).vector_presentation()
                 if v != None:
@@ -672,7 +794,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         OUTPUT:
 
-        -  ``f`` - An isomorphism $M \to self$, where $M$ has minimal
+        -  ``f`` - An isomorphism `M \to self`, where `M` has minimal
             presentation.
 
         EXAMPLES::
@@ -745,7 +867,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
     def submodule(self, spanning_elements):
         r"""
-        The submodule $S$ of this module spanned by the elements
+        The submodule `S` of this module spanned by the elements
         ``spanning_elements``.
 
         INPUT:
@@ -754,7 +876,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         OUTPUT:
 
-        - ``i`` -- The inclusion of $S$ into this module.
+        - ``i`` -- The inclusion of `S` into this module.
 
         EXAMPLES::
 
@@ -794,13 +916,19 @@ class FP_Module(UniqueRepresentation, SageModule):
         OUTPUT:
 
         - ``res`` -- A list of homomorphisms `[\epsilon, f_1, \ldots, f_k]`
-          which are the first `k` homomorphisms in a free resolution this
-          module M.  I.e. $f_i: F_i \to F_{i-1}$, $\epsilon: F_0\to M$, where
-          each $F_i$ is a finitely generated free module, and the sequence
+          such that
 
-            F_k --> F_k-1 --> .. --> F_1 --> F_0 --> M --> 0
+            `f_i: F_i \to F_{i-1}` for `1<i\leq k`,
+
+            `\epsilon: F_0\to M`,
+
+          where each `F_i` is a finitely generated free module, and the
+          sequence
+
+            `F_k \overset{f_k}{\longrightarrow} F_{k-1} \overset{f_{k-1}}{\rightarrow} \ldots \rightarrow F_0 \overset{\epsilon}{\rightarrow} M \rightarrow 0`
 
           is exact.
+
 
         EXAMPLES::
 

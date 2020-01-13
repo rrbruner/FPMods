@@ -30,10 +30,10 @@ AUTHORS:
 
 from __future__ import absolute_import
 
-from .fp_morphism import FP_ModuleMorphism
+from sage.modules.fp_modules.fp_morphism import FP_ModuleMorphism
 from sage.categories.homset import Hom
 
-from .profile import enveloping_profile_elements
+from sage.modules.fp_modules.profile import enveloping_profile_elements
 
 
 class FPA_ModuleMorphism(FP_ModuleMorphism):
@@ -71,7 +71,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         the profile we just computed::
 
             sage: id_fin = id.change_ring(A_fin); id_fin
-            The identity module homomorphism.
+            The identity homomorphism.
             sage: id_fin.domain()
             Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [2, 1]
 
@@ -153,7 +153,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
             sage: f.is_injective()
             True
             sage: k = f.kernel(); k
-            The trivial module homomorphism.
+            The trivial homomorphism.
 
         Since k is both trivial and injective, its domain should
         be the zero module::
@@ -163,7 +163,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
             sage: g = Hom(S, M)([M([Sq(3),Sq(2)])])
             sage: h = g.kernel(); h
-            The identity module homomorphism.
+            The identity homomorphism.
             sage: ker = h.domain();
             sage: ker is S
             True
@@ -215,7 +215,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
             sage: g = Hom(S, M)([M([Sq(3),Sq(2)])])
             sage: j = g.image(); j
-            The trivial module homomorphism.
+            The trivial homomorphism.
 
         So ``g`` had to be trivial::
 
