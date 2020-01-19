@@ -200,10 +200,10 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((0,), A))
             sage: N = homspace.codomain()
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = homspace(values)
             sage: f.degree()
-            3
+            5
 
         The zero homomorphism has no degree::
 
@@ -227,10 +227,10 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = homspace(values)
             sage: f.values()
-            [<0>, <Sq(1,1)>]
+            [<Sq(5)>, <Sq(3,1)>]
             sage: homspace.zero().values()
             [<0>, <0>]
 
@@ -258,7 +258,7 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = homspace(values)
             sage: f._richcmp_(f, op=2)
             True
@@ -305,7 +305,7 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = homspace(values)
             sage: ff = f.__add__(f)
             sage: ff.is_zero()
@@ -340,13 +340,13 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = homspace(values)
             sage: f_inverse = f.__neg__(); f_inverse
-            Module homomorphism of degree 5 defined by sending the generators
+            Module homomorphism of degree 7 defined by sending the generators
               [<1, 0>, <0, 1>]
             to
-              [<0>, <Sq(1,1)>]
+              [<Sq(5)>, <Sq(3,1)>]
             sage: (f + f_inverse).is_zero()
             True
 
@@ -368,9 +368,9 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = homspace(values)
-            sage: values2 = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values2 = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: g = homspace(values2)
             sage: f.__sub__(g)
             The trivial homomorphism.
@@ -394,12 +394,15 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = Hom(M, N)(values)
             sage: values2 = [Sq(2)*M.generator(0)]
             sage: g = Hom(N, M)(values2)
             sage: fg = f.__mul__(g); fg
-            The trivial homomorphism.
+            Module homomorphism of degree 7 defined by sending the generators
+              [<1>]
+            to
+              [<Sq(4,1) + Sq(7)>]
             sage: fg.is_endomorphism()
             True
 
@@ -408,7 +411,7 @@ class FreeModuleMorphism(SageMorphism):
             sage: from sage.modules.fp_modules.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = Hom(M, N)(values)
             sage: f.__mul__(f)
             Traceback (most recent call last):
@@ -436,7 +439,7 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = Hom(M, N)(values)
             sage: f.is_zero()
             False
@@ -460,7 +463,7 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = Hom(M, N)(values)
             sage: f.is_identity()
             False
@@ -493,12 +496,12 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: f = Hom(M, N)(values)
             sage: f.__call__(M.generator(0))
-            <0>
+            <Sq(5)>
             sage: f.__call__(M.generator(1))
-            <Sq(1,1)>
+            <Sq(3,1)>
 
         """
 
@@ -523,9 +526,9 @@ class FreeModuleMorphism(SageMorphism):
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
-            sage: values = [Sq(3)*Sq(2)*N.generator(0), Sq(3)*Sq(1)*N.generator(0)]
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
             sage: Hom(M, N)(values)._repr_()
-            'Module homomorphism of degree 5 defined by sending the generators\n  [<1, 0>, <0, 1>]\nto\n  [<0>, <Sq(1,1)>]'
+            'Module homomorphism of degree 7 defined by sending the generators\n  [<1, 0>, <0, 1>]\nto\n  [<Sq(5)>, <Sq(3,1)>]'
             sage: Hom(M, N).zero()._repr_()
             'The trivial homomorphism.'
             sage: Hom(M, M).identity()._repr_()
