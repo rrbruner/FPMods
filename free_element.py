@@ -94,6 +94,7 @@ AUTHORS:
     - Sverre A. Lunoee-Nielsen (2020-01-11): Rewritten and refactored, and updated to Sage 8.9.
 
 """
+
 #*****************************************************************************
 #       Copyright (C) 2019 Robert R. Bruner <rrb@math.wayne.edu>
 #                     and  Michael J. Catanzaro <mike@math.wayne.edu>

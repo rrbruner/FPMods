@@ -1,15 +1,69 @@
 r"""
-Elements of finitely presented graded modules.
+Elements of finitely presented graded modules
+
+This class implements construction and basic manipulation of homogeneous 
+elements of the finitely generated graded modules, modelled by the Sage 
+parent :class:`sage.modules.fp_modules.fp_module.FPModule`.
+
+Let `\{g_i\}_i` be the finite set of generators for the parent module class,
+and let `\{a_i\}_i` be a set of elements of the base algebra of
+that module, having degrees `\deg(a_i) + \deg(g_i) = n` for some `n\in \ZZ`.
+
+Then an instance of this class created using the `a_i`'s
+represents the module element of degree `n` given by
+
+.. MATH::
+
+    \sum_i a_i\cdot g_i\,.
+
+The ordered set `\{a_i\}` is referred to as the coefficients of the module
+element.
+
+This class is intended for private use by the class 
+:class:`sage.modules.fp_modules.fpa_module` modelling finitely presented 
+modules over the `mod p` Steenrod algeras.
+
+AUTHORS:
+
+    - Robert R. Bruner, Michael J. Catanzaro (2012): initial version
+    - Koen (date in ISO year-month-day format): Updating to Sage 8.1
+    - Sverre A. Lunoee-Nielsen (2020-01-11): Rewritten and refactored, and updated to Sage 8.9.
 
 """
 
+#*****************************************************************************
+#       Copyright (C) 2011 Robert R. Bruner <rrb@math.wayne.edu> and
+#                          Michael J. Catanzaro <mike@math.wayne.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# ****************************************************************************
+
 from sage.structure.element import ModuleElement as SageModuleElement
+
 from .free_element import FreeModuleElement
+
 
 class FP_Element(SageModuleElement):
 
     def __init__(self, module, coefficients):
         r"""
+        Create a module element of a finitely presented graded module over
+        a graded algebra.
+
+        INPUT:
+
+        - ``module`` -- the parent instance of this module element.
+
+        - ``coefficients`` -- a tuple of homogeneous elements of the algebra
+          over which the module is defined, or an integer index.
+
+        OUTPUT: The module element given by the coefficients.  Otherwise, if
+        ``coefficients`` is an integer index, then the Kroenecker delta 
+        function with respect to that index is used as coefficients.
 
         NOTE: Never use this constructor explicitly, but rather the parent's
               call method, or this class' __call__ method.  The reason for this
@@ -17,11 +71,11 @@ class FP_Element(SageModuleElement):
               consequence of the category system.
 
         """
-
         # Store the free representation of the element.
         self.free_element = FreeModuleElement(module.j.codomain(), coefficients)
 
         SageModuleElement.__init__(self, parent=module)
+
 
     def coefficients(self):
         r"""
@@ -45,6 +99,7 @@ class FP_Element(SageModuleElement):
 
         """
         return self.free_element.coefficients()
+
 
     def degree(self):
         r"""
@@ -70,6 +125,7 @@ class FP_Element(SageModuleElement):
         """
         return self.free_element.degree()
 
+
     def _repr_(self):
         r"""
         Return a string representation of this element.
@@ -91,6 +147,7 @@ class FP_Element(SageModuleElement):
 
         """
         return self.free_element._repr_()
+
 
     def _lmul_(self, a):
         r"""
@@ -128,8 +185,8 @@ class FP_Element(SageModuleElement):
              <0, Sq(3,2)>]
 
         """
-
         return self.parent()(a*self.free_element)
+
 
     def _neg_(self):
         r"""
@@ -149,6 +206,7 @@ class FP_Element(SageModuleElement):
 
         """
         return self.parent()(-self.free_element)
+
 
     def _add_(self, other):
         r"""
@@ -193,8 +251,8 @@ class FP_Element(SageModuleElement):
             <Sq(2,1)>
 
         """
-
         return self.parent()(self.free_element + other.free_element)
+
 
     def _cmp_(self, other):
         r"""
@@ -309,7 +367,6 @@ class FP_Element(SageModuleElement):
             True
 
         """        
-
         if self.degree() == None:
             return None
 
@@ -318,6 +375,7 @@ class FP_Element(SageModuleElement):
         # assert(v in M_n.V())
 
         return M_n.quotient_map()(v)
+
 
     def _nonzero_(self):
         r"""
@@ -370,7 +428,6 @@ class FP_Element(SageModuleElement):
             <0, 0, 0>
 
         """
-
         if self.degree() == None:
             return self
 
@@ -391,6 +448,5 @@ class FP_Element(SageModuleElement):
             6795291966596493067
 
         """
-
         return hash(self.coefficients())
 

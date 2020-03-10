@@ -20,9 +20,8 @@ EXAMPLES::
 Homomorphisms are elements of the parent homspace class, and are created
 by specifying how the homomorphism should evaluate on each generator::
 
-    sage: homspace = Hom(M, N)
     sage: values = [Sq(1)*N.generator(0), Sq(2)*N.generator(0)]
-    sage: f = homspace(values); f
+    sage: f = Hom(M, N)(values); f
     Module homomorphism of degree 3 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
@@ -86,20 +85,29 @@ AUTHORS:
 
 """
 
+#*****************************************************************************
+#       Copyright (C) 2019 Robert R. Bruner <rrb@math.wayne.edu>
+#                     and  Michael J. Catanzaro <mike@math.wayne.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# ****************************************************************************
 
 from __future__ import absolute_import
 
+from inspect import isfunction
+
 from sage.categories.homset import Hom
-
-import sage.categories.morphism
-import sage.categories.homset
-
+from sage.categories.morphism import Morphism as SageMorphism
 from sage.misc.cachefunc import cached_method
 
-from inspect import isfunction
-from .free_homspace import is_FreeModuleHomspace
+import sage.categories.homset
+import sage.categories.morphism
 
-from sage.categories.morphism import Morphism as SageMorphism
+from .free_homspace import is_FreeModuleHomspace
 
 
 class FreeModuleMorphism(SageMorphism):
@@ -571,6 +579,32 @@ class FreeModuleMorphism(SageMorphism):
             :meth:`sage.modules.fp_modules.free_homspace.codomain`,
             :meth:`sage.modules.fp_modules.free_module.vector_presentation`,
             :meth:`sage.modules.fp_modules.free_module.basis_elements`.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.free_module import FreeModule
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FreeModule((0,1), A)
+            sage: N = FreeModule((2,), A)
+            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
+            sage: f = Hom(M, N)(values)
+            sage: f.vector_presentation(0)
+            Vector space morphism represented by the matrix:
+            [0 1]
+            Domain: Vector space of dimension 1 over Finite Field of size 2
+            Codomain: Vector space of dimension 2 over Finite Field of size 2
+            sage: f.vector_presentation(1)
+            Vector space morphism represented by the matrix:
+            [0 0 0]
+            [0 1 0]
+            Domain: Vector space of dimension 2 over Finite Field of size 2
+            Codomain: Vector space of dimension 3 over Finite Field of size 2
+            sage: f.vector_presentation(2)
+            Vector space morphism represented by the matrix:
+            [0 0 1 1]
+            [0 0 0 0]
+            Domain: Vector space of dimension 2 over Finite Field of size 2
+            Codomain: Vector space of dimension 4 over Finite Field of size 2
 
         """
 

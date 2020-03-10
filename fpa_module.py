@@ -254,14 +254,12 @@ AUTHORS:
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
-
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 from sage.categories.homset import Hom
-from sage.modules.free_module import VectorSpace
-from sage.rings.infinity import PlusInfinity
-
 from sage.modules.fp_modules.fp_module import FP_Module
 from sage.modules.fp_modules.profile import enveloping_profile_elements
+from sage.modules.free_module import VectorSpace
+from sage.rings.infinity import PlusInfinity
 
 
 class FPA_Module(FP_Module):
@@ -279,7 +277,9 @@ class FPA_Module(FP_Module):
         INPUT:
 
         - ``generator_degrees`` -- an iterable of non-decreasing integers.
+
         - ``algebra`` -- the Steenrod algebra over which the module is defined.
+
         - ``relations`` -- an iterable of relations.  A relation is a tuple of
           coefficients `(c_1, \ldots, c_n)` corresponding to the module
           generators.
@@ -290,6 +290,7 @@ class FPA_Module(FP_Module):
         """
         return super(FPA_Module, cls).__classcall__(cls, tuple(generator_degrees), algebra, tuple([tuple([algebra(x) for x in r]) for r in relations]))
 
+
     def __init__(self, generator_degrees, algebra, relations=()):
         r"""
         Create a finitely presented module over the Steenrod algebra.
@@ -297,7 +298,9 @@ class FPA_Module(FP_Module):
         INPUT:
 
         - ``generator_degrees`` -- A tuple of non-decreasing integers.
+
         - ``algebra`` -- The Steenrod algebra over which the module is defined.
+
         - ``relations`` -- A tuple of relations.  A relation is a tuple of
           coefficients `(c_1, \ldots, c_n)` corresponding to the module
           generators.
@@ -324,7 +327,7 @@ class FPA_Module(FP_Module):
 
         .. NOTE:: The profile produced by this function is reasonably small,
            but is not guaranteed to be minimal.
-        
+
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fpa_module import *
@@ -342,7 +345,6 @@ class FPA_Module(FP_Module):
             (1,)
 
         """
-
         elements = [coeffifient for value in self.j.values()\
                 for coeffifient in value.coefficients()]
 
@@ -441,7 +443,6 @@ class FPA_Module(FP_Module):
              The trivial homomorphism.]
 
         """
-
         algebra = self.base_ring()
         finite_algebra = algebra.__class__(algebra.prime(), profile=self.profile())
 
@@ -450,7 +451,7 @@ class FPA_Module(FP_Module):
         res = FP_Module.resolution(
             self.change_ring(finite_algebra),
             k,
-            top_dim=top_dim, 
+            top_dim=top_dim,
             verbose=verbose)
 
         # Change rings back to the original Steenrod algebra.
@@ -512,7 +513,6 @@ class FPA_Module(FP_Module):
             6 4 1 7
 
         """
-
         if not self.base_ring().is_finite():
             raise (RuntimeError, "This module is not defined over a finite algebra.")
             return

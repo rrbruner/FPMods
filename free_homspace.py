@@ -76,15 +76,25 @@ AUTHORS:
 
 """
 
-
+#*****************************************************************************
+#       Copyright (C) 2011 Robert R. Bruner <rrb@math.wayne.edu> and
+#                          Michael J. Catanzaro <mike@math.wayne.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# ****************************************************************************
 
 from __future__ import absolute_import
 
 from inspect import isfunction
 
-import sage.categories.homset
-from sage.misc.cachefunc import cached_method
 from sage.categories.homset import Homset
+from sage.misc.cachefunc import cached_method
+
+import sage.categories.homset
 
 
 def is_FreeModuleHomspace(x):

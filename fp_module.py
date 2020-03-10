@@ -65,7 +65,6 @@ AUTHORS:
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
-
 from sage.categories.homset import Hom
 from sage.misc.cachefunc import cached_method
 from sage.modules.module import Module as SageModule
@@ -91,7 +90,9 @@ class FP_Module(UniqueRepresentation, SageModule):
         INPUT:
 
         - ``generator_degrees`` -- an iterable of non-decreasing integers.
+
         - ``algebra`` -- the graded algebra over which the module is defined.
+
         - ``relations`` -- an iterable of relations.  A relation is a tuple of
           coefficients `(c_1, \ldots, c_n)` corresponding to the module
           generators.
@@ -102,6 +103,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         """
         return super(FP_Module, cls).__classcall__(cls, tuple(generator_degrees), algebra, tuple([tuple([algebra(x) for x in r]) for r in relations]))
 
+
     def __init__(self, generator_degrees, algebra, relations=()):
         r"""
         Create a finitely presented module over the a graded algebra.
@@ -109,7 +111,9 @@ class FP_Module(UniqueRepresentation, SageModule):
         INPUT:
 
         - ``generator_degrees`` -- A tuple of non-decreasing integers.
+
         - ``algebra`` -- The Steenrod algebra over which the module is defined.
+
         - ``relations`` -- A tuple of relations.  A relation is a tuple of
           coefficients `(c_1, \ldots, c_n)` corresponding to the module
           generators.
@@ -133,7 +137,6 @@ class FP_Module(UniqueRepresentation, SageModule):
             []
 
         """
-
         if None in generator_degrees:
             raise ValueError, ("generators are not all integers: %s" % str(generator_degrees))
 
@@ -293,7 +296,6 @@ class FP_Module(UniqueRepresentation, SageModule):
             <class 'sage.modules.fp_modules.fp_module.FP_Module_with_category.element_class'>
 
         """
-
         if isinstance(x, self.element_class):
             return x
         if isinstance(x, FreeModuleElement):
@@ -628,7 +630,6 @@ class FP_Module(UniqueRepresentation, SageModule):
             sage: x == y
             True
         """
-
         # Get the vector space presentation of the free module on the
         # module generators.
         F_n = self.j.codomain().vector_presentation(n)
@@ -707,7 +708,6 @@ class FP_Module(UniqueRepresentation, SageModule):
             (0, 1)
 
         """
-
         return self.j.codomain().generator_degrees()
 
 

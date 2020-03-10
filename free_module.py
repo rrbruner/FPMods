@@ -95,6 +95,7 @@ AUTHORS:
     - Sverre A. Lunoee-Nielsen (2020-01-11): Rewritten and refactored, and updated to Sage 8.9.
 
 """
+
 #*****************************************************************************
 #       Copyright (C) 2019 Robert R. Bruner <rrb@math.wayne.edu>
 #                     and  Michael J. Catanzaro <mike@math.wayne.edu>
@@ -106,15 +107,14 @@ AUTHORS:
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
-
 from sage.misc.cachefunc import cached_method
 from sage.modules.free_module import VectorSpace
 from sage.modules.module import Module as SageModule
 from sage.rings.infinity import PlusInfinity
 from sage.structure.unique_representation import UniqueRepresentation
 
-from .free_homspace import FreeModuleHomspace
 from .free_element import FreeModuleElement
+from .free_homspace import FreeModuleHomspace
 
 
 class FreeModule(UniqueRepresentation, SageModule):
@@ -131,6 +131,7 @@ class FreeModule(UniqueRepresentation, SageModule):
 
         - ``generator_degrees`` -- a tuple of non-decreasing integers defining
           the number of generators of the module, and their degrees.
+
         - ``algebra`` -- the algebra over which the module is defined.
 
         OUTPUT: The finitely generated free graded module on generators with
@@ -189,7 +190,6 @@ class FreeModule(UniqueRepresentation, SageModule):
             True
             
         """
-
         return len(self._generator_degrees) == 0
 
 
@@ -250,7 +250,6 @@ class FreeModule(UniqueRepresentation, SageModule):
             True
 
         """
-
         if isinstance(coefficients, self.element_class):
             return coefficients
         elif coefficients == 0:
@@ -282,7 +281,6 @@ class FreeModule(UniqueRepresentation, SageModule):
             <Sq(0,0,2,0,1,0,1), Sq(0,4,0,0,1,0,1), Sq(7,1,0,0,1,0,1)>
 
         """
-
         if len(self._generator_degrees) == 0:
             return self.element_class(self, [])
 

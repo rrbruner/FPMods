@@ -1,5 +1,5 @@
 r"""
-The set of homomorphisms between finitely presented graded modules .
+The set of homomorphisms between finitely presented graded modules
 
 EXAMPLES:
 
@@ -96,13 +96,26 @@ TESTS::
     running ._test_zero() . . . pass
 
 """
+
+#*****************************************************************************
+#       Copyright (C) 2011 Robert R. Bruner <rrb@math.wayne.edu> and
+#                          Michael J. Catanzaro <mike@math.wayne.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# ****************************************************************************
+
 from __future__ import absolute_import
 
 from inspect import isfunction
 
-import sage.categories.homset
 from sage.categories.homset import Homset
 from sage.misc.cachefunc import cached_method
+
+import sage.categories.homset
 
 
 def is_FP_ModuleHomspace(x):
@@ -131,18 +144,14 @@ def is_FP_ModuleHomspace(x):
 # statement must not appear before that function.
 from .fp_morphism import FP_ModuleMorphism
 
-
-
 class FP_ModuleHomspace(Homset):
-
-
     # In the category framework, Elements of the class FP_ModuleHomspace are of the
     # class FP_ModuleMorphism, see
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
     Element = FP_ModuleMorphism
 
     def _element_constructor_(self, values):
-        """
+        r"""
         Constructs a morphism contained in this homset.
 
         This function is not part of the public API, but is used by :meth:Hom
@@ -150,7 +159,7 @@ class FP_ModuleHomspace(Homset):
 
         INPUT:
 
-        - ``values`` -- an iterable of FP_Elements of the codomain of this homset which 
+        - ``values`` -- an iterable of FP_Elements of the codomain of this homset which
           equals the values of the module generators of the domain.
 
         OUTPUT: A module homomorphism in this homspace sending the generators
@@ -191,8 +200,9 @@ class FP_ModuleHomspace(Homset):
         else:
             return self.element_class(self, values)
 
+
     def _an_element_(self):
-        """
+        r"""
         Create a morphism in this homset.
 
         This function simply returns the zero homomorphism, which always
@@ -210,8 +220,9 @@ class FP_ModuleHomspace(Homset):
         """
         return self.zero()
 
+
     def zero(self):
-        """
+        r"""
         Create the trivial homomorphism in this homset.
 
         EXAMPLES::
@@ -229,6 +240,7 @@ class FP_ModuleHomspace(Homset):
 
         """
         return self.element_class(self, [self.codomain().zero() for g in self.domain().generator_degrees()])
+
 
     def identity(self):
         r"""
