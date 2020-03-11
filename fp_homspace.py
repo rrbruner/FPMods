@@ -140,11 +140,11 @@ def is_FP_ModuleHomspace(x):
     return isinstance(x, FP_ModuleHomspace)
 
 
-# FP_ModuleMorphism contains reference to is_FP_ModuleHomspace, so this import
-# statement must not appear before that function.
-from .fp_morphism import FP_ModuleMorphism
-
 class FP_ModuleHomspace(Homset):
+    # FP_ModuleMorphism contains reference to is_FP_ModuleHomspace, so this import
+    # statement must not appear before that function.
+    from .fp_morphism import FP_ModuleMorphism
+
     # In the category framework, Elements of the class FP_ModuleHomspace are of the
     # class FP_ModuleMorphism, see
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
