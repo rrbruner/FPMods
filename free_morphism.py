@@ -21,7 +21,8 @@ Homomorphisms are elements of the parent homspace class, and are created
 by specifying how the homomorphism should evaluate on each generator::
 
     sage: values = [Sq(1)*N.generator(0), Sq(2)*N.generator(0)]
-    sage: f = Hom(M, N)(values); f
+    sage: homspace = Hom(M, N)
+    sage: f = homspace(values); f
     Module homomorphism of degree 3 defined by sending the generators
       [<1, 0>, <0, 1>]
     to

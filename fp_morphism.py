@@ -37,11 +37,16 @@ module generators of the domain::
     sage: F2 = FP_Module([3,4], A)
     sage: values = [ F2((Sq(1), 0)), F2((0, Sq(1))) ]
     sage: f = Hom(F1, F2)(values); f
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<Sq(1), 0>, <0, Sq(1)>]
 
 Homomorphisms can be evaluated on elements of the domain module::
 
     sage: x = F1.generator(0)
     sage: y = f(x); y
+    <Sq(1), 0>
     sage: y in f.codomain()
     True
 
@@ -51,19 +56,34 @@ Module homomorphisms are linear and respect to the module action::
     True
     sage: x2 = F1.generator(1)
     sage: f(Sq(1)*x + x2) == Sq(1)*y + f(x2)
+    True
 
 Homomorphisms have well defined degrees::
 
     sage: f.degree()
+    0
 
 Homomorphisms of equal degree form a group under pointwise addition::
 
     sage: values2 = [ F2((Sq(1), 0)), F2((Sq(2), Sq(1))) ]
     sage: f2 = Hom(F1, F2)(values2); f2
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<Sq(1), 0>, <Sq(2), Sq(1)>]
     sage: f + f2
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<0, 0>, <Sq(2), 0>]
     sage: values3 = [ F2((0, 0)), F2((Sq(2), 0)) ]
     sage: f3 = Hom(F1, F2)(values3); f3
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<0, 0>, <Sq(2), 0>]
     sage: f3 == f - f2
+    True
 
 Composition of homomorphisms can be performed as expected::
 
@@ -72,7 +92,10 @@ Composition of homomorphisms can be performed as expected::
     sage: H2 = Hom(F2, Q)
     sage: g = H2( ( Q((Sq(4), 0)), Q((0, Sq(1,1))) ) )
     sage: g*f
-    The trivial homomorphism.
+    Module homomorphism of degree 3 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<Sq(5), 0>, <0, 0>]
     sage: f*g
     Traceback (most recent call last):
      ...
@@ -91,12 +114,12 @@ domain of `g`::
     sage: i.codomain() is g.domain()
     True
     sage: i.domain()
-    Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis
+    Finitely presented module on 4 generators and 4 relations over mod 2 Steenrod algebra, milnor basis
     sage: i
     Module homomorphism of degree 0 defined by sending the generators
-      [<1>]
+      [<1, 0, 0, 0>, <0, 1, 0, 0>, <0, 0, 1, 0>, <0, 0, 0, 1>]
     to
-      (<Sq(6), Sq(5)>,)
+      (<0, Sq(1)>, <Sq(3), 0>, <0, Sq(0,1)>, <Sq(1,2), 0>)
 
 The cokernel of a homomorphism `g` is given via its natural projection
 `p: codomain(g) \rightarrow cokernel(g)`::
@@ -105,38 +128,9 @@ The cokernel of a homomorphism `g` is given via its natural projection
     sage: p.domain() is g.codomain()
     True
     sage: p.codomain()
-    Finitely presented module on 2 generators and 1 relation over mod 2 Steenrod algebra, milnor basis
+    Finitely presented module on 2 generators and 3 relations over mod 2 Steenrod algebra, milnor basis
     sage: p.codomain().relations()
-    [<Sq(6), Sq(5)>]
-    sage: x = F1((Sq(7)*Sq(6), Sq(7)*Sq(5))); x
-    <Sq(7,2), Sq(3,3)>
-
-    sage: x.is_zero()
-    False
-    sage: y = p(x); y.normalize()
-    <0, 0>
-    sage: y.is_zero()
-    True
-    sage: x2 = F1((Sq(5)*Sq(8), Sq(4)*Sq(4)*Sq(4)));
-    sage: (x + x2) == x
-    False
-    sage: p(x + x2) == p(x2)
-    True
-    sage: p_ = p.change_ring(SteenrodAlgebra(2, profile=(3,2,1)))
-    sage: p_.kernel().domain()
-    Finitely presented module on 1 generator and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-    sage: p_.kernel().codomain()
-    Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-    sage: C = p_.codomain()
-    sage: C.generator_degrees()
-    (4, 5)
-    sage: C.relations()
-    [<Sq(6), Sq(5)>]
-    sage: p_.codomain().connectivity()
-    4
-    sage: mono = p_.image()
-    sage: mono.domain()
-    Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+    [<Sq(6), Sq(5)>, <Sq(4), 0>, <0, Sq(1,1)>]
 
 AUTHORS:
 
@@ -165,7 +159,6 @@ import sys
 from sage.categories.homset import Hom
 from sage.categories.morphism import Morphism as SageMorphism
 from sage.misc.cachefunc import cached_method
-from sage.modules.fp_modules.fp_homspace import is_FP_ModuleHomspace
 from sage.modules.fp_modules.fp_element import FP_Element
 from sage.modules.free_module import VectorSpace
 from sage.rings.infinity import PlusInfinity
@@ -211,6 +204,8 @@ class FP_ModuleMorphism(SageMorphism):
             ValueError: Relation <Sq(6), Sq(5)> is not sent to zero.
 
         """
+        from .fp_homspace import is_FP_ModuleHomspace
+
         if not is_FP_ModuleHomspace(parent):
             raise TypeError("parent (=%s) must be a fp module hom space" % parent)
 
@@ -797,7 +792,7 @@ class FP_ModuleMorphism(SageMorphism):
         OUTPUT::
 
         - ``g`` -- A homomorphism with the property that this homomorphism
-          equals ``f\circ g``.  If no lift exist, an error is raised.
+          equals ``f\circ g``.  If no lift exist, ``None`` is returned.
 
         EXAMPLES::
 
@@ -831,9 +826,9 @@ class FP_ModuleMorphism(SageMorphism):
 
         new_values = [f.solve(self(x)) for x in self.domain().generators()]
 
-        # If a lift does not exist, raise an error.
+        # If a lift does not exist, return None.
         if None in new_values:
-            raise ValueError('A lift of this homomorphism over the given map does not exist.')
+            return None
 
         return Hom(self.domain(), f.domain())(new_values)
 
@@ -1190,9 +1185,20 @@ class FP_ModuleMorphism(SageMorphism):
             sage: L = FP_Module([0,0], A, [[Sq(3),Sq(0,1)], [0,Sq(2)]])
             sage: f = Hom(F, L)([L([Sq(2),0]), L([0, Sq(2)])])
             sage: f.resolve_kernel()
+            Traceback (most recent call last):
+            ...
+            ValueError: A top dimension must be specified for this calculation to terminate.
             sage: f.resolve_kernel(top_dim=20)
+            Module homomorphism of degree 0 defined by sending the generators
+              [<1, 0, 0>, <0, 1, 0>, <0, 0, 1>]
+            to
+              (<0, 1>, <Sq(0,1), 0>, <Sq(3), 0>)
             sage: A3 = SteenrodAlgebra(2, profile=(4,3,2,1))
-            sage: f.change_rings(A3).resolve_kernel()
+            sage: f.change_ring(A3).resolve_kernel()
+            Module homomorphism of degree 0 defined by sending the generators
+              [<1, 0, 0>, <0, 1, 0>, <0, 0, 1>]
+            to
+              (<0, 1>, <Sq(0,1), 0>, <Sq(3), 0>)
 
         """
 
@@ -1225,7 +1231,7 @@ class FP_ModuleMorphism(SageMorphism):
         if not top_dim is None:
             limit = min(top_dim, limit)
 
-        if top_dim == PlusInfinity():
+        if limit == PlusInfinity():
             raise ValueError('A top dimension must be specified for this calculation to terminate.')
 
         if verbose:
@@ -1297,9 +1303,20 @@ class FP_ModuleMorphism(SageMorphism):
             sage: L = FP_Module([0,0], A, [[Sq(3),Sq(0,1)], [0,Sq(2)]])
             sage: f = Hom(F, L)([L([Sq(2),0]), L([0, Sq(2)])])
             sage: f.resolve_image()
+            Traceback (most recent call last):
+            ...
+            ValueError: A top dimension must be specified for this calculation to terminate.
             sage: f.resolve_image(top_dim=20)
+            Module homomorphism of degree 0 defined by sending the generators
+              [<1>]
+            to
+              (<Sq(2), 0>,)
             sage: A3 = SteenrodAlgebra(2, profile=(4,3,2,1))
-            sage: f.change_rings(A3).resolve_image()
+            sage: f.change_ring(A3).resolve_image()
+            Module homomorphism of degree 0 defined by sending the generators
+              [<1>]
+            to
+              (<Sq(2), 0>,)
 
         """
 
@@ -1339,7 +1356,7 @@ class FP_ModuleMorphism(SageMorphism):
         if not top_dim is None:
             limit = min(top_dim, limit)
 
-        if top_dim == PlusInfinity():
+        if limit == PlusInfinity():
             raise ValueError('A top dimension must be specified for this calculation to terminate.')
 
         if verbose:

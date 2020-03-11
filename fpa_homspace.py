@@ -68,7 +68,7 @@ TESTS::
     Module homomorphism of degree 0 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
-      (<0, 1>, <Sq(0,1), 0>)
+      [<0, 1>, <Sq(0,1), 0>]
     sage: TestSuite(homset).run(verbose=True)
     running ._test_additive_associativity() . . . pass
     running ._test_an_element() . . . pass

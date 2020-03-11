@@ -1,26 +1,28 @@
 r"""
-Homomorphisms of finitely presented graded modules over the `mod p` Steenrod algebra
+Homomorphisms of finitely presented graded modules over the `\operatorname{mod} p` Steenrod algebra
 
 This class implements construction and basic manipulation of homomorphisms
-between finitely presented graded modules over the `mod p` Steenrod algebra.
-
-
-EXAMPLES::
+between finitely presented graded modules over the `\operatorname{mod} p` Steenrod algebra.
 
 The construction of a homomorphism is done by specifying the values of the
 module generators of the domain::
 
-    sage: from sage.modules.fp_modules.fp_module import FPA_Module
+    sage: from sage.modules.fp_modules.fpa_module import FPA_Module
     sage: A = SteenrodAlgebra(2)
     sage: F1 = FPA_Module([4,5], A)
     sage: F2 = FPA_Module([3,4], A)
     sage: values = [ F2((Sq(1), 0)), F2((0, Sq(1))) ]
     sage: f = Hom(F1, F2)(values); f
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<Sq(1), 0>, <0, Sq(1)>]
 
 Homomorphisms can be evaluated on elements of the domain module::
 
     sage: x = F1.generator(0)
     sage: y = f(x); y
+    <Sq(1), 0>
     sage: y in f.codomain()
     True
 
@@ -30,19 +32,34 @@ Module homomorphisms are linear and respect to the module action::
     True
     sage: x2 = F1.generator(1)
     sage: f(Sq(1)*x + x2) == Sq(1)*y + f(x2)
+    True
 
 Homomorphisms have well defined degrees::
 
     sage: f.degree()
+    0
 
 Homomorphisms of equal degree form a group under pointwise addition::
 
     sage: values2 = [ F2((Sq(1), 0)), F2((Sq(2), Sq(1))) ]
     sage: f2 = Hom(F1, F2)(values2); f2
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<Sq(1), 0>, <Sq(2), Sq(1)>]
     sage: f + f2
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<0, 0>, <Sq(2), 0>]
     sage: values3 = [ F2((0, 0)), F2((Sq(2), 0)) ]
     sage: f3 = Hom(F1, F2)(values3); f3
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<0, 0>, <Sq(2), 0>]
     sage: f3 == f - f2
+    True
 
 Composition of homomorphisms can be performed as expected::
 
@@ -51,71 +68,31 @@ Composition of homomorphisms can be performed as expected::
     sage: H2 = Hom(F2, Q)
     sage: g = H2( ( Q((Sq(4), 0)), Q((0, Sq(1,1))) ) )
     sage: g*f
-    The trivial homomorphism.
+    Module homomorphism of degree 3 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<Sq(5), 0>, <0, 0>]
     sage: f*g
     Traceback (most recent call last):
      ...
     ValueError: Morphisms not composable.
 
-#    sage: w = Hom(F1, F1)(( F1((Sq(6), Sq(5))), F1(0) )); w
-#    Module homomorphism of degree 6 defined by sending the generators
-#      [<1, 0>, <0, 1>]
-#    to
-#      (<Sq(6), Sq(5)>, <0, 0>)
-
 The kernel of a homomorphism `g` is given via its natural injection into the
 domain of `g`::
 
-    sage: i = g.kernel(top_dim=10)
+    sage: i = g.kernel()
     sage: i.codomain() is g.domain()
     True
     sage: i.domain()
-    Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis
-    sage: i
-    Module homomorphism of degree 0 defined by sending the generators
-      [<1>]
-    to
-      (<Sq(6), Sq(5)>,)
+    Finitely presented module on 7 generators and 17 relations over mod 2 Steenrod algebra, milnor basis
 
-The cokernel of a homomorphism `g` is given via its natural projection
-`p: codomain(g) \rightarrow cokernel(g)`::
+The cokernel of a homomorphism `g` is given via its natural projection `p: \operatorname{codomain}(g) \rightarrow \operatorname{cokernel}(g)`::
 
     sage: p = g.cokernel()
     sage: p.domain() is g.codomain()
     True
     sage: p.codomain()
-    Finitely presented module on 2 generators and 1 relation over mod 2 Steenrod algebra, milnor basis
-    sage: p.codomain().relations()
-    [<Sq(6), Sq(5)>]
-    sage: x = F1((Sq(7)*Sq(6), Sq(7)*Sq(5))); x
-    <Sq(7,2), Sq(3,3)>
-
-    sage: x.is_zero()
-    False
-    sage: y = p(x); y.normalize()
-    <0, 0>
-    sage: y.is_zero()
-    True
-    sage: x2 = F1((Sq(5)*Sq(8), Sq(4)*Sq(4)*Sq(4)));
-    sage: (x + x2) == x
-    False
-    sage: p(x + x2) == p(x2)
-    True
-    sage: p_ = p.change_ring(SteenrodAlgebra(2, profile=(3,2,1)))
-    sage: p_.kernel().domain()
-    Finitely presented module on 1 generator and 3 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-    sage: p_.kernel().codomain()
-    Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-    sage: C = p_.codomain()
-    sage: C.generator_degrees()
-    (4, 5)
-    sage: C.relations()
-    [<Sq(6), Sq(5)>]
-    sage: p_.codomain().connectivity()
-    4
-    sage: mono = p_.image()
-    sage: mono.domain()
-    Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
+    Finitely presented module on 2 generators and 3 relations over mod 2 Steenrod algebra, milnor basis
 
 AUTHORS:
 
@@ -148,7 +125,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
     def __init__(self, parent, values):
         r"""
         Create a homomorphism between finitely presented graded modules over
-        the `mod p` Steenrod algebra.
+        the `\operatorname{mod} p` Steenrod algebra.
 
         INPUT:
 
@@ -163,6 +140,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
 
         TESTS:
+
             sage: from sage.modules.fp_modules.fpa_module import FPA_Module
             sage: # Trying to map the generators of a non-free module into a
             sage: # free module:
@@ -193,6 +171,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         A finite profile over which this homomorphism can be defined.
 
         EXAMPLES::
+
             sage: from sage.modules.fp_modules.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -257,6 +236,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         kernel, and False otherwise.
 
         EXAMPLES::
+
             sage: from sage.modules.fp_modules.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -283,19 +263,20 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
             verbose=verbose)
 
 
-    def kernel(self, verbose=False):
+    def kernel(self, top_dim=None, verbose=False):
         r"""
-        Compute the kernel of this homomorphism.
+        The kernel of this homomorphism.
 
         INPUT:
 
         - ``verbose`` -- A boolean to control if log messages should be emitted.
           (optional, default: ``False``)
 
-        OUTPUT:: An injective homomorphism into the domain of `self` which is
-        onto the kernel of this homomorphism.
+        OUTPUT:: An injective homomorphism into the domain of this homomorphism
+        which is onto the kernel of this homomorphism.
 
         EXAMPLES::
+
             sage: from sage.modules.fp_modules.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -341,6 +322,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         onto the image of this homomorphism.
 
         EXAMPLES::
+
             sage: from sage.modules.fp_modules.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -377,7 +359,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         return self._action(FP_ModuleMorphism.image, verbose)
 
 
-    def resolve_kernel(self, verbose=False):
+    def resolve_kernel(self, top_dim=None, verbose=False):
         r"""
         Resolve the kernel of this homomorphism by a free module.
 
@@ -387,13 +369,13 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
           default: ``False``)
 
         OUTPUT: A homomorphism `j: F \rightarrow D` where `D` is the domain of
-        this homomorphism, `F` is free and such that `\ker(self) = \im(j)`.
+        this homomorphism, `F` is free and such that `\ker(self) = \operatorname{im}(j)`.
 
         """
         return self._action(FP_ModuleMorphism.resolve_kernel, verbose)
 
 
-    def resolve_image(self, verbose=False):
+    def resolve_image(self, top_dim=None, verbose=False):
         r"""
         Resolve the image of this homomorphism by a free module.
 
@@ -403,7 +385,8 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
           default: ``False``)
 
         OUTPUT: A homomorphism `j: F \rightarrow C` where `C` is the codomain
-        of this homomorphism, `F` is free, and `\im(self) = \im(j)`.
+        of this homomorphism, `F` is free, and 
+        `\operatorname{im}(self) = \operatorname{im}(j)`.
 
         """
         return self._action(FP_ModuleMorphism.resolve_image, verbose)
