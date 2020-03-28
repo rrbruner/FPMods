@@ -2,7 +2,8 @@ r"""
 Homomorphisms of finitely presented graded modules over the `\operatorname{mod} p` Steenrod algebra
 
 This class implements construction and basic manipulation of homomorphisms
-between finitely presented graded modules over the `\operatorname{mod} p` Steenrod algebra.
+between finitely presented graded modules over the `\operatorname{mod} p`
+Steenrod algebra.
 
 The construction of a homomorphism is done by specifying the values of the
 module generators of the domain::

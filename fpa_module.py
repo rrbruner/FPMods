@@ -179,9 +179,8 @@ Lift elements::
     sage: f.solve(L([Sq(1), 1]))
     <1, 0>
 
-Computing resolutions::
+The following computations cna be found in Michael Catanzaro's thesis where this software originally appeared::
 
-    sage: # From Mike's thesis:
     sage: Hko = FPA_Module([0], A, [[Sq(1)], [Sq(2)]])
     sage: res = Hko.resolution(6, verbose=True)
     Computing f_1 (1/6)

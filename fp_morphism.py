@@ -13,7 +13,7 @@ category of finitely presented modules is Abelian.  The `mod p` Steenrod
 algebra is an example of a non-Noetherian `P`-algebra which give rise to
 an Abelian module category.
 
-This methods of this homomorphism class recognizes the most trivial case of
+The methods of this homomorphism class recognizes the most trivial case of
 coherency: finite, hence trivially Noetherian, graded rings.
 
 The implication of working over a non-finite graded ring is that the function
