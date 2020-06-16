@@ -59,7 +59,10 @@ TESTS::
     sage: homset = Hom(F, L); homset
     Set of Morphisms from Finitely presented module on 2 generators ...
     sage: homset.an_element()
-    The trivial homomorphism.
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<0, 0>, <Sq(1), 1>]
     sage: homset([L((Sq(1), 1)), L((0, Sq(2)))])
     Module homomorphism of degree 2 defined by sending the generators
       [<1, 0>, <0, 1>]
@@ -114,6 +117,14 @@ from inspect import isfunction
 
 from sage.categories.homset import Homset
 from sage.misc.cachefunc import cached_method
+
+from sage.categories.homset import End
+from sage.categories.homset import Hom
+from sage.categories.morphism import Morphism as SageMorphism
+from sage.misc.cachefunc import cached_method
+from sage.modules.free_module import VectorSpace
+from sage.rings.infinity import PlusInfinity
+
 
 import sage.categories.homset
 
@@ -201,25 +212,72 @@ class FP_ModuleHomspace(Homset):
             return self.element_class(self, values)
 
 
-    def _an_element_(self):
+    def an_element(self, n=0, simplest=True):
         r"""
         Create a morphism in this homset.
-
-        This function simply returns the zero homomorphism, which always
-        exists in the homset.
 
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import FP_Module
-            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: F = FP_Module([1,3], A2)
-            sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
-            sage: z = Hom(F, L)._an_element_(); z
-            The trivial homomorphism.
+            sage: A = SteenrodAlgebra(2)
+            sage: HZ = FP_Module([0], A, relations=[[Sq(1)]])
+            sage: Hom(HZ, HZ).an_element(3)
+            Module homomorphism of degree 3 defined by sending the generators
+              [<1>]
+            to
+              [<Sq(0,1)>]
 
         """
-        return self.zero()
+        from sage.modules.free_module_element import vector
+        from sage.modules.fp_modules.fp_morphism import _CreateMatrix
 
+        M = self.domain()
+        N = self.codomain()
+
+        # If the source module has no relations, we simply pick an element
+        # in N for each generator in M, with no restrictions, to define
+        # the values of the homomorphism.
+        if not M.has_relations():
+            vs = [N.an_element(g.degree() + n) for g in M.generators()]
+            return Hom(M,N)(vs)
+
+        def _map_by_relation(r, x, dim):
+            return vector(dim*(0,)) if (r*x).is_zero() else (r*x).vector_presentation()
+
+        # Create the matrix of linear transformations.
+        MM = []
+        for i, r in enumerate(M.relations()):
+            row = []
+            for j, g in enumerate(M.generators()):
+                r_ij = r.coefficients()[j]
+                dim_source = n + g.degree()
+                dim_target = dim_source + r_ij.degree()
+                U = N.vector_presentation(dim_source)
+                V = N.vector_presentation(dim_target)
+                values = [_map_by_relation(r_ij, v, V.dimension()) for v in N[dim_source]]
+                row.append(Hom(U, V)(values))
+            MM.append(row)
+        R = _CreateMatrix(MM, M.base_ring().base_ring())
+
+        # 
+        K = R.right_kernel()
+        if K.dimension() == 0:
+            # No chance of creating a non-trivial homomorphism.
+            return Hom(M,N).zero()
+
+        # Choose a non-zero vector in the kernel of the relations matrix.
+        y = K.basis()[0] if simplest else sum(K.basis())
+        
+        vs = []
+        r = 0
+        for g in M.generators():
+            k = g.degree() + n
+            value_dim = len(N[k])
+            w = N.element_from_coordinates(y[r : r + value_dim], k)
+            vs.append(w)
+            r += value_dim
+
+        return Hom(M, N)(vs)
 
     def zero(self):
         r"""
