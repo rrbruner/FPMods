@@ -58,7 +58,10 @@ TESTS::
     sage: homset = Hom(F, L); homset
     Set of Morphisms from Finitely presented module on 2 generators ...
     sage: homset.an_element()
-    The trivial homomorphism.
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<0, 0>, <Sq(1), 1>]
     sage: homset([L((Sq(1), 1)), L((0, Sq(2)))])
     Module homomorphism of degree 2 defined by sending the generators
       [<1, 0>, <0, 1>]
