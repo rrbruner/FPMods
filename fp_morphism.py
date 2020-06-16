@@ -13,20 +13,9 @@ category of finitely presented modules is Abelian.  The `mod p` Steenrod
 algebra is an example of a non-Noetherian `P`-algebra which give rise to
 an Abelian module category.
 
-The methods of this homomorphism class recognizes the most trivial case of
-coherency: finite, hence trivially Noetherian, graded rings.
-
-The implication of working over a non-finite graded ring is that the function
-that computes the kernel of a homomorphism will never terminate.  For this 
-reason, the functions that depend on computation of the homomorphism kernels,
-allow the user to impose a stop condition given by the maximum degree for which
-the computation should be performed.
-
 This class is intended for private use by the class
 :class:`sage.modules.fp_modules.fpa_morphism.FPA_ModuleMorphism` modelling
 homomorphisms between finitely presented modules over the Steenrod algebra.
-
-EXAMPLES::
 
 The construction of a homomorphism is done by specifying the values of the
 module generators of the domain::
@@ -58,12 +47,18 @@ Module homomorphisms are linear and respect to the module action::
     sage: f(Sq(1)*x + x2) == Sq(1)*y + f(x2)
     True
 
-Homomorphisms have well defined degrees::
+Non-trivial homomorphisms have well defined degrees::
 
     sage: f.degree()
     0
 
-Homomorphisms of equal degree form a group under pointwise addition::
+But just like module elements, trivial homomorphisms have not::
+
+    sage: Hom(F1, F1).zero().degree() is None
+    True
+
+Homomorphisms of equal degree form (together with the zero homomorphism)
+a group under pointwise addition::
 
     sage: values2 = [ F2((Sq(1), 0)), F2((Sq(2), Sq(1))) ]
     sage: f2 = Hom(F1, F2)(values2); f2
@@ -84,6 +79,10 @@ Homomorphisms of equal degree form a group under pointwise addition::
       [<0, 0>, <Sq(2), 0>]
     sage: f3 == f - f2
     True
+    sage: f - f
+    The trivial homomorphism.
+    sage: f + Hom(F1, F2).zero() == f
+    True
 
 Composition of homomorphisms can be performed as expected::
 
@@ -101,12 +100,6 @@ Composition of homomorphisms can be performed as expected::
      ...
     ValueError: Morphisms not composable.
 
-#    sage: w = Hom(F1, F1)(( F1((Sq(6), Sq(5))), F1(0) )); w
-#    Module homomorphism of degree 6 defined by sending the generators
-#      [<1, 0>, <0, 1>]
-#    to
-#      (<Sq(6), Sq(5)>, <0, 0>)
-
 The kernel of a homomorphism `g` is given via its natural injection into the
 domain of `g`::
 
@@ -122,7 +115,7 @@ domain of `g`::
       (<0, Sq(1)>, <Sq(3), 0>, <0, Sq(0,1)>, <Sq(1,2), 0>)
 
 The cokernel of a homomorphism `g` is given via its natural projection
-`p: codomain(g) \rightarrow cokernel(g)`::
+`p: \operatorname{codomain}(g) \rightarrow  \operatorname{cokernel}(g)`::
 
     sage: p = g.cokernel()
     sage: p.domain() is g.codomain()
@@ -156,6 +149,7 @@ from __future__ import print_function
 
 import sys
 
+from sage.categories.homset import End
 from sage.categories.homset import Hom
 from sage.categories.morphism import Morphism as SageMorphism
 from sage.misc.cachefunc import cached_method
@@ -238,12 +232,14 @@ class FP_ModuleMorphism(SageMorphism):
         - ``values`` -- A list of elements in the codomain.  Each element
           corresponds to a module generator in the domain.
 
-        OUTPUT: A module homomorphism defined by sending generator with index
-        `i` to the element in the comdomain which has index `i` in the given
-        input list ``values``.
-
+        OUTPUT:
+        
+        A module homomorphism defined by sending generator with index `i` to
+        the element in the comdomain which has index `i` in the given input
+        list ``values``.
 
         TESTS:
+            
             sage: from sage.modules.fp_modules.fp_module import FP_Module
             sage: # Trying to map the generators of a non-free module into a
             sage: # free module:
@@ -323,7 +319,7 @@ class FP_ModuleMorphism(SageMorphism):
         OUTPUT: the integer degree of this homomorphism, or None if this is
         the zero homomorphism.
 
-        EXAMPLES:
+        EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
@@ -351,7 +347,7 @@ class FP_ModuleMorphism(SageMorphism):
 
         OUTPUT: A sequence of module elements of the codomain.
 
-        EXAMPLES:
+        EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
@@ -536,7 +532,7 @@ class FP_ModuleMorphism(SageMorphism):
             sage: fg.is_endomorphism()
             True
 
-        TESTS::
+        TESTS:
 
             sage: from sage.modules.fp_modules.free_module import *
             sage: A = SteenrodAlgebra(2)
@@ -560,8 +556,10 @@ class FP_ModuleMorphism(SageMorphism):
         r"""
         Decide if this homomomorphism is trivial.
 
-        OUTPUT: ``True`` if this homomorphism is trivial, and ``False``
-        otherwise.
+        OUTPUT: 
+
+        The boolean value ``True`` if this homomorphism is trivial, and
+        ``False`` otherwise.
 
         EXAMPLES::
 
@@ -641,7 +639,6 @@ class FP_ModuleMorphism(SageMorphism):
         if x.parent() != self.domain():
             raise ValueError("Cannot evaluate morphism on element not in domain.")
 
-#        return self.codomain().element_class(self.codomain(), self.free_morphism(x.free_element)).normalize()
         return self.codomain().element_class(self.codomain(), self.free_morphism(x.free_element))
 
 
@@ -781,7 +778,7 @@ class FP_ModuleMorphism(SageMorphism):
 
         INPUT:
 
-        - ``x`` -- An element of the codomain of this moprhism.
+        - ``x`` -- An element of the codomain of this morphism.
 
         OUTPUT: An element of the domain which maps to ``x`` under this
         morphism, or ``None`` if ``x`` was not in the image of this morphism.
@@ -1106,17 +1103,21 @@ class FP_ModuleMorphism(SageMorphism):
           homomorphism, and image contained in the kernel of this homomorphism.
 
         - ``top_dim`` -- An integer used by this function to stop the
-        computation at the given degree, or the value ``None`` if no termination
-        should be enforced.  (optional, default: ``None``)
+          computation at the given degree, or the value ``None`` if no termination
+          should be enforced.  (optional, default: ``None``)
 
         - ``verbose`` -- Boolean to enable progress messages.  (optional,
-          default: ``None``)
+          default: ``False``)
 
-        OUTPUT: A quotient homomorphism `\ker(self) \to H`, where `H` is 
-        isomorphict to `H(self, f)` in degrees less than or equal to ``top_dim``.
+        OUTPUT:
+        
+        A quotient homomorphism `\ker(self) \to H`, where `H` is isomorphic to
+        `H(self, f)` in degrees less than or equal to ``top_dim``.
 
-        .. NOTE:: If the algebra for this module is finite, then no ``top_dim`` 
-        needs to be specified in order to ensure that this function terminates.
+        .. NOTE::
+
+            If the algebra for this module is finite, then no ``top_dim`` 
+            needs to be specified in order to ensure that this function terminates.
 
         EXAMPLES::
 
@@ -1147,8 +1148,10 @@ class FP_ModuleMorphism(SageMorphism):
 
         - ``t`` -- An integer by which the morphism is suspended.
 
-        OUTPUT: The morphism which is the suspension of this morphism by the
-          degree ``t``.
+        OUTPUT:
+
+        The morphism which is the suspension of this morphism by the degree
+        ``t``.
 
         EXAMPLES::
 
@@ -1193,8 +1196,10 @@ class FP_ModuleMorphism(SageMorphism):
         r"""
         Compute the cokernel of this homomorphism.
 
-        OUTPUT: The natural projection from the codomain of this homomorphism
-        to its cokernel.
+        OUTPUT:
+        
+        The natural projection from the codomain of this homomorphism to its
+        cokernel.
 
         EXAMPLES::
 
@@ -1233,17 +1238,21 @@ class FP_ModuleMorphism(SageMorphism):
         INPUT:
 
         - ``top_dim`` -- An integer used by this function to stop the
-        computation at the given degree, or the value ``None`` if no termination
-        should be enforced.  (optional, default: ``None``)
+          computation at the given degree, or the value ``None`` if no
+          termination should be enforced.  (optional, default: ``None``)
 
         - ``verbose`` -- Boolean to enable progress messages. (optional,
-          default: ``None``)
+          default: ``False``)
 
-        OUTPUT: A homomorphism into `\ker(self)` which is an isomorphism in
-        degrees less than or equal to ``top_dim``.
+        OUTPUT:
+        
+        A homomorphism into `\ker(self)` which is an isomorphism in degrees
+        less than or equal to ``top_dim``.
 
-        .. NOTE:: If the algebra for this module is finite, then no ``top_dim`` 
-        needs to be specified in order to ensure that this function terminates.
+        .. NOTE:: 
+        
+            If the algebra for this module is finite, then no ``top_dim`` needs
+            to be specified in order to ensure that this function terminates.
 
         EXAMPLES::
 
@@ -1303,17 +1312,21 @@ class FP_ModuleMorphism(SageMorphism):
         INPUT:
 
         - ``top_dim`` -- An integer used by this function to stop the
-        computation at the given degree, or the value ``None`` if no termination
-        should be enforced.  (optional, default: ``None``)
+          computation at the given degree, or the value ``None`` if no termination
+          should be enforced.  (optional, default: ``None``)
 
         - ``verbose`` -- Boolean to enable progress messages. (optional,
           default: ``False``)
 
-        OUTPUT: A homomorphism into `\im(self)` which is an isomorphism in
-        degrees less than or equal to ``top_dim``.
+        OUTPUT:
+        
+        A homomorphism into `\operatorname{im}(self)` which is an isomorphism in degrees less
+        than or equal to ``top_dim``.
 
-        .. NOTE:: If the algebra for this module is finite, then no ``top_dim`` 
-        needs to be specified in order to ensure that this function terminates.
+        .. NOTE::
+
+            If the algebra for this module is finite, then no ``top_dim`` 
+            needs to be specified in order to ensure that this function terminates.
 
         EXAMPLES::
 
@@ -1363,13 +1376,13 @@ class FP_ModuleMorphism(SageMorphism):
 
     def is_injective(self, top_dim=None, verbose=False):
         r"""
-        Return True if and only if this homomorphism has a trivial kernel.
+        Return ``True`` if and only if this homomorphism has a trivial kernel.
 
         INPUT:
 
         - ``top_dim`` -- An integer used by this function to stop the
-        computation at the given degree, or the value ``None`` if no termination
-        should be enforced.  (optional, default: ``None``)
+          computation at the given degree, or the value ``None`` if no termination
+          should be enforced.  (optional, default: ``None``)
 
         - ``verbose`` -- Boolean to enable progress messages. (optional,
           default: ``False``)
@@ -1386,57 +1399,32 @@ class FP_ModuleMorphism(SageMorphism):
         return self.cokernel().is_zero()
 
 
-#    def resolve_image(self, top_dim=None, verbose=False):
-#        r"""
-#            Resolve the image of this homomorphism.
-#
-#        INPUT::
-#            self
-#            top_dim
-#
-#        OUTPUT::
-#            j: F -> self.codomain()  such that F is free, and im(j) = im(self).
-#
-#        """
-#
-#
-#        # Select those generators which has values in degrees <= limit.
-#        limit = top_dim if top_dim != None else PlusInfinity()
-#        deg = self.degree()
-#        # By shifting the dimensions of each generator by `deg`, we make sure
-#        # that the resulting homomorphism has degree zero.
-#        gens = [g + deg for g in self.domain().generator_degrees() if g + deg <= limit]
-#        vals = [v for v in self.values() if v.degree() <= limit]
-#
-#        # Create the free module on the selected generators.
-#        F_0 = self.codomain().ModuleClass(tuple(gens), self.base_ring())
-#
-#        epsilon = Hom(F_0, self.codomain())(tuple(vals))
-#
-#        return epsilon
-
-
     def resolve_kernel(self, top_dim=None, verbose=False):
         r"""
         Resolve the kernel of this homomorphism by a free module.
 
-        INPUT:: 
+        INPUT:
 
         - ``top_dim`` -- An integer used by this function to stop the
-        computation at the given degree, or the value ``None`` if no termination
-        should be enforced.  (optional, default: ``None``)
+          computation at the given degree, or the value ``None`` if no termination
+          should be enforced.  (optional, default: ``None``)
 
         - ``verbose`` -- Boolean to enable progress messages. (optional,
           default: ``False``)
 
-        OUTPUT: A homomorphism `j: F \rightarrow D` where `D` is the domain of
-        this homomorphism, `F` is free and such that `\ker(self) = \im(j)` in
-        all degrees less than or equal to ``top_dim``.
+        OUTPUT:
+        
+        A homomorphism `j: F \rightarrow D` where `D` is the domain of this
+        homomorphism, `F` is free and such that `\ker(self) = \operatorname{im}(j)` in all
+        degrees less than or equal to ``top_dim``.
 
-        .. NOTE:: If the algebra for this module is finite, then no ``top_dim`` 
-        needs to be specified in order to ensure that this function terminates.
+        .. NOTE::
+        
+            If the algebra for this module is finite, then no ``top_dim`` 
+            needs to be specified in order to ensure that this function terminates.
 
-        TESTS::
+        TESTS:
+
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: F = FP_Module([0,0], A)
@@ -1538,23 +1526,29 @@ class FP_ModuleMorphism(SageMorphism):
         r"""
         Resolve the image of this homomorphism by a free module.
 
-        INPUT:: 
+        INPUT: 
 
         - ``top_dim`` -- An integer used by this function to stop the
-        computation at the given degree, or the value ``None`` if no termination
-        should be enforced.  (optional, default: ``None``)
+          computation at the given degree, or the value ``None`` if no termination
+          should be enforced.  (optional, default: ``None``)
 
         - ``verbose`` -- Boolean to enable progress messages. (optional,
           default: ``False``)
 
-        OUTPUT: A homomorphism `j: F \rightarrow C` where `C` is the codomain
-        of this homomorphism, `F` is free, and `\im(self) = \im(j)`  in
-        all degrees less than or equal to ``top_dim``.
+        OUTPUT: 
+        
+        A homomorphism `j: F \rightarrow C` where `C` is the codomain of this
+        homomorphism, `F` is free, and `\operatorname{im}(self) =
+        \operatorname{im}(j)`  in all degrees less than or equal to
+        ``top_dim``.
 
-        .. NOTE:: If the algebra for this module is finite, then no ``top_dim`` 
-        needs to be specified in order to ensure that this function terminates.
+        .. NOTE::
+        
+            If the algebra for this module is finite, then no ``top_dim`` needs
+            to be specified in order to ensure that this function terminates.
 
-        TESTS::
+        TESTS:
+
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: F = FP_Module([0,0], A)

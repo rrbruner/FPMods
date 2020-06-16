@@ -301,7 +301,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
             sage: ker is S
             True
 
-        So ``g`` had to be trivial::
+        So `g` had to be trivial::
 
             sage: g.is_zero()
             True
@@ -386,7 +386,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
           default: ``False``)
 
         OUTPUT: A homomorphism `j: F \rightarrow C` where `C` is the codomain
-        of this homomorphism, `F` is free, and 
+        of this homomorphism, `F` is free, and
         `\operatorname{im}(self) = \operatorname{im}(j)`.
 
         """

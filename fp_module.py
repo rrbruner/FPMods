@@ -97,7 +97,9 @@ class FP_Module(UniqueRepresentation, SageModule):
           coefficients `(c_1, \ldots, c_n)` corresponding to the module
           generators.
 
-        OUTPUT: The finitely presented module with presentation given by
+        OUTPUT: 
+        
+        The finitely presented module with presentation given by
         ``generator_degrees`` and ``relations``.
 
         """
@@ -118,7 +120,9 @@ class FP_Module(UniqueRepresentation, SageModule):
           coefficients `(c_1, \ldots, c_n)` corresponding to the module
           generators.
 
-        OUTPUT: The finitely presented module over ``algebra`` with
+        OUTPUT:
+        
+        The finitely presented module over ``algebra`` with
         presentation given by ``generator_degrees`` and ``relations``.
 
         EXAMPLES::
@@ -211,7 +215,9 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         - ``morphism`` -- a morphism between finitely generated free modules.
 
-        OUTPUT: the finitely presented module having presentation equal to the
+        OUTPUT:
+        
+        The finitely presented module having presentation equal to the
         homomorphism ``morphism``.
 
         EXAMPLES::
@@ -239,11 +245,14 @@ class FP_Module(UniqueRepresentation, SageModule):
         Change the base ring of this module.
 
         INPUT:
+        
         - ``algebra`` -- a graded algebra.
 
-        OUTPUT: The finitely presented module over ``algebra`` defined with 
-        the exact same number of generators of the same degrees and relations
-        as this module.
+        OUTPUT:
+        
+        The finitely presented module over ``algebra`` defined with the exact
+        same number of generators of the same degrees and relations as this
+        module.
 
         EXAMPLES::
 
@@ -272,8 +281,10 @@ class FP_Module(UniqueRepresentation, SageModule):
         - ``x`` -- A tuple of coefficients, an element of FP_Module, or the
           zero integer constant.
 
-        OUTPUT: An instance of the element class with coefficients from ``x``,
-        the element ``x`` if it already was an element, or the zero element.
+        OUTPUT:
+        
+        An instance of the element class with coefficients from ``x``, the
+        element ``x`` if it already was an element, or the zero element.
 
         EXAMPLES::
 
@@ -381,8 +392,10 @@ class FP_Module(UniqueRepresentation, SageModule):
         r"""
         Decide if this module is isomorphism to the trivial module.
 
-        OUTPUT: Returns ``True`` if the relations generate the entire module,
-        and ``False`` otherwise.
+        OUTPUT:
+        
+        Returns ``True`` if the relations generate the entire module, and
+        ``False`` otherwise.
 
         EXAMPLES::
 
@@ -423,11 +436,15 @@ class FP_Module(UniqueRepresentation, SageModule):
         r"""
         Return ``True`` if no relations are defined.
 
-        OUTPUT: the boolean value ``True`` if no relations are defined, and
-        ``False`` otherwise.
+        OUTPUT:
+        
+        The boolean value ``True`` if no relations are defined, and ``False``
+        otherwise.
 
-        .. NOTE:: this module is free if this function returns ``False``, but
-           a free module can have (unnecessary) relations.
+        .. NOTE::
+        
+            This module is free if this function returns ``False``, but a free
+            module can have (unnecessary) relations.
 
         EXAMPLES::
 

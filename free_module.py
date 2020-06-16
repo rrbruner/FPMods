@@ -4,14 +4,14 @@ Finitely generated free graded modules
 This class implements methods for construction and basic manipulation of
 finitely generated free graded modules over a graded algebra.
 
-This class is intended for private use by the class 
-:class:`sage.modules.fp_modules.fp_module` modelling finitely presented modules
-over graded algeras.
+This class is intended for private use by the class
+:class:`sage.modules.fp_modules.fp_module.FP_Module` modelling finitely
+presented modules over graded algeras.
 
 EXAMPLES:
 
-Create a module over the Steenrod algebra with two generators in degrees
-0 and 1, respectively::
+Create a module over the Steenrod algebra with two generators in degrees 0 and
+1, respectively::
 
     sage: from sage.modules.fp_modules.free_module import *
     sage: A = SteenrodAlgebra(2)

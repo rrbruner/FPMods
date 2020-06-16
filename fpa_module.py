@@ -4,9 +4,9 @@ Finitely presented modules over the Steenrod algebra
 .. RUBRIC:: Introduction
 
 This package allows the user to define finitely presented modules
-over the Steenrod Algebra, elements of them, and morphisms. With
-these objects, the user can perform more complex computations, using
-the secondary functions defined.
+over the Steenrod Algebra, elements of them, and morphisms between them.
+Methods are provided for doing basic homological computations, e.g. computing
+kernels and images of homomorphisms, and finding free resolutions of modules.
 
 .. RUBRIC:: Theoretical background
 
@@ -36,9 +36,9 @@ computation can be done.   Then, carry out the calculation there, where it
 is a finite problem, and can be reduced to linear algebra over a finite
 prime field.
 
-.. RUBRIC:: Examples of usage
+.. RUBRIC:: Examples
 
-Creating a module class instance with given generators and relations::
+Creating a module on a given set of generators and relations::
 
     sage: from sage.modules.fp_modules.fpa_module import FPA_Module
     sage: A = SteenrodAlgebra(2)
@@ -49,67 +49,96 @@ Creating module elements::
 
     sage: m = M([0, 1]); m
     <0, 1>
+    sage: m == M.generator(1)
+    True
     sage: n = M([Sq(2), Sq(1)]); n
     <Sq(2), Sq(1)>
+    sage: n == Sq(2)*M.generator(0) + Sq(1)*M.generator(1)
+    True
 
-Creating homomorphisms::
+Homomorphisms are elements of the parent class :class:`sage.modules.fp_modules.fpa_homset`::
 
     sage: F = FPA_Module([1,3], A);
-    sage: L = FPA_Module([2,3], A, [[Sq(2),Sq(1)], [0,Sq(2)]]);
+    sage: L = FPA_Module([2,3], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
     sage: homset = Hom(F, L); homset
-    Set of Morphisms from Finitely presented module on 2 generators ...
+    Set of Morphisms from Finitely presented module on 2 generators and 0 relations ...
 
-The ``an_element()`` member function produces a homomorphism.::
+A module homomorphism can be created by giving the values of the source
+module's generators.  Here is a module homomorphism sending the two generators
+of the free module `F` to the elements `v_1` and `v_2` of the target module `L`,
+respectively::
 
-    sage: homset.an_element()
-    The trivial homomorphism.
-
-A module homomorphism sending the two generators of the free
-module `F` to the elements `v_1` and `v_2`, respectively::
-
-    sage: v_1 = L((Sq(1), 1)); v_2 = L((0, Sq(2)))
-    sage: f = homset([v_1, v_2]); f
+    sage: v_1 = L((Sq(1), 1))
+    sage: v_2 = L((0, Sq(2)))
+    sage: f = homset([v_1, v_2])
+    sage: f
     Module homomorphism of degree 2 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
       [<Sq(1), 1>, <0, Sq(2)>]
 
-The kernel of `f` can be computed using the member function ``kernel``.  Note
-that this function returns an injective homomorphism `i: K \rightarrow M` where
-the codomain is ``this`` module, and `f` is onto `\ker (f)`::
+The kernel of `f` can be computed using the member function :meth:`kernel`.  Note
+that this function does not return a module, but rather an injective
+homomorphism which is onto `\ker (f)`::
 
-    sage: k = f.kernel() # returns an injective homomorphism onto the kernel.
-    sage: k.is_injective()
-    True
-    sage: k.is_surjective()
-    False
-    sage: k
+    sage: k = f.kernel(); k
     Module homomorphism of degree 0 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
-      [<0, 1>, <Sq(0,1), 0>]
-
-The ``image`` member function behaves similarly, returning an injective
-homomorphism with image equal to the submodule `im(f)` ::
-
-    sage: i = f.image()
-    sage: i.codomain() == f.codomain()
+      [<0, 1>, <Sq(0,1), 0>]    
+    sage: k.codomain() == f.domain()
+    True
+    sage: k.is_injective()
     True
 
-Lifts of maps::
+We can check that the injective image of `k` is the kernel of `f` by
+showing that `f` factors as `h\circ c`, where `c` is the quotient map
+to the cokernel of `k`, and `h` is injective::
 
-    sage: f_ = f.lift(i) # Lift $f$ over the inclusion of its image.
+    sage: coker = k.cokernel()
+    sage: h = Hom(coker.codomain(), L)(f.values())
+    sage: h*coker == f
+    True
+    sage: h.is_injective()
+    True
+
+The method :meth:`image` behaves similarly, returning an injective
+homomorphism with image equal to the submodule `\operatorname{im}(f)` ::
+
+    sage: i = f.image(); i
+    Module homomorphism of degree 0 defined by sending the generators
+      [<1>]
+    to
+      [<Sq(1), 1>]
+    sage: i.codomain() == f.codomain()
+    True
+    sage: i.is_injective()
+    True
+
+We can check that the injective image of `i` is the image of `f``by
+lifting `f` over `i`, and showing that the lift is surjective::
+
+    sage: f_ = f.lift(i); f_
+    Module homomorphism of degree 2 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<1>, <0>]
+    sage: i*f_ == f
+    True
+    sage: f_.is_surjective()
+    True
+
+Lifting homomorphisms::
+
+    sage: # Lift `f` over the inclusion of its image:
+    sage: f_ = f.lift(i)
     sage: f_.domain() == F
     True
     sage: f_.codomain() == i.domain()
     True
+    sage: # Check that `f_` is indeed a lift of `f`:
     sage: i*f_ == f
     True
-
-The image module::
-
-    sage: i.domain()
-    Finitely presented module on 1 generator and 1 relation over mod 2 Steenrod algebra, milnor basis
 
 The trivial homomorphism::
 
@@ -168,7 +197,7 @@ The category framework::
     sage: M.is_parent_of(m)
     True
 
-Lift elements::
+Finding elements in the pre-image of a homomorphism::
 
     sage: F = FPA_Module([1,3], A);
     sage: L = FPA_Module((2,3), A, [[Sq(2),Sq(1)], [0,Sq(2)]]);
@@ -179,59 +208,59 @@ Lift elements::
     sage: f.solve(L([Sq(1), 1]))
     <1, 0>
 
-The following computations cna be found in Michael Catanzaro's thesis where this software originally appeared::
+The following exaples can be found in Michael Catanzaro's thesis where this software originally appeared::
 
-    sage: Hko = FPA_Module([0], A, [[Sq(1)], [Sq(2)]])
-    sage: res = Hko.resolution(6, verbose=True)
-    Computing f_1 (1/6)
-    Computing f_2 (2/6)
-    Resolving the kernel in the range of dimensions [1, 8]: 1 2 3 4 5 6 7 8.
-    Computing f_3 (3/6)
-    Resolving the kernel in the range of dimensions [2, 10]: 2 3 4 5 6 7 8 9 10.
-    Computing f_4 (4/6)
-    Resolving the kernel in the range of dimensions [3, 13]: 3 4 5 6 7 8 9 10 11 12 13.
-    Computing f_5 (5/6)
-    Resolving the kernel in the range of dimensions [4, 18]: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18.
-    Computing f_6 (6/6)
-    Resolving the kernel in the range of dimensions [5, 20]: 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20.
-    sage: [f.domain() for f in res]
-    [Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis,
-     Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
-     Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
-     Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
-     Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
-     Finitely presented module on 4 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
-     Finitely presented module on 4 generators and 0 relations over mod 2 Steenrod algebra, milnor basis]
-    sage: def is_complex(res):
-    ....:     for i in range(len(res)-1):
-    ....:         f = (res[i]*res[i+1])
-    ....:         if not f.is_zero():
-    ....:             return False
-    ....:     return True
-    ....:
-    sage: is_complex(res)
-    True
-    sage: def is_exact(res):
-    ....:     for i in range(len(res)-1):
-    ....:         h = res[i].homology(res[i+1])
-    ....:         if not h.codomain().is_trivial():
-    ....:             return False
-    ....:     return True
-    sage: is_exact(res)
-    True
-    sage: [r.codomain().generator_degrees() for r in res]
-    [(0,), (0,), (1, 2), (2, 4), (3, 7), (4, 8, 12), (5, 9, 13, 14)]
-    sage: [r.values() for r in res]
-    [[<1>],
-     [<Sq(1)>, <Sq(2)>],
-     [<Sq(1), 0>, <Sq(0,1), Sq(2)>],
-     [<Sq(1), 0>, <Sq(2,1), Sq(3)>],
-     [<Sq(1), 0>, <Sq(2,1), Sq(1)>, <0, Sq(2,1)>],
-     [<Sq(1), 0, 0>, <Sq(2,1), Sq(1), 0>, <0, Sq(2,1), Sq(1)>, <0, 0, Sq(2)>],
-     [<Sq(1), 0, 0, 0>,
-      <Sq(2,1), Sq(1), 0, 0>,
-      <0, Sq(2,1), Sq(1), 0>,
-      <0, 0, Sq(0,1), Sq(2)>]]
+#    sage: Hko = FPA_Module([0], A, [[Sq(1)], [Sq(2)]])
+#    sage: res = Hko.resolution(6, verbose=True)
+#    Computing f_1 (1/6)
+#    Computing f_2 (2/6)
+#    Resolving the kernel in the range of dimensions [1, 8]: 1 2 3 4 5 6 7 8.
+#    Computing f_3 (3/6)
+#    Resolving the kernel in the range of dimensions [2, 10]: 2 3 4 5 6 7 8 9 10.
+#    Computing f_4 (4/6)
+#    Resolving the kernel in the range of dimensions [3, 13]: 3 4 5 6 7 8 9 10 11 12 13.
+#    Computing f_5 (5/6)
+#    Resolving the kernel in the range of dimensions [4, 18]: 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18.
+#    Computing f_6 (6/6)
+#    Resolving the kernel in the range of dimensions [5, 20]: 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20.
+#    sage: [f.domain() for f in res]
+#    [Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis,
+#     Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
+#     Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
+#     Finitely presented module on 2 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
+#     Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
+#     Finitely presented module on 4 generators and 0 relations over mod 2 Steenrod algebra, milnor basis,
+#     Finitely presented module on 4 generators and 0 relations over mod 2 Steenrod algebra, milnor basis]
+#    sage: def is_complex(res):
+#    ....:     for i in range(len(res)-1):
+#    ....:         f = (res[i]*res[i+1])
+#    ....:         if not f.is_zero():
+#    ....:             return False
+#    ....:     return True
+#    ....:
+#    sage: is_complex(res)
+#    True
+#    sage: def is_exact(res):
+#    ....:     for i in range(len(res)-1):
+#    ....:         h = res[i].homology(res[i+1])
+#    ....:         if not h.codomain().is_trivial():
+#    ....:             return False
+#    ....:     return True
+#    sage: is_exact(res)
+#    True
+#    sage: [r.codomain().generator_degrees() for r in res]
+#    [(0,), (0,), (1, 2), (2, 4), (3, 7), (4, 8, 12), (5, 9, 13, 14)]
+#    sage: [r.values() for r in res]
+#    [[<1>],
+#     [<Sq(1)>, <Sq(2)>],
+#     [<Sq(1), 0>, <Sq(0,1), Sq(2)>],
+#     [<Sq(1), 0>, <Sq(2,1), Sq(3)>],
+#     [<Sq(1), 0>, <Sq(2,1), Sq(1)>, <0, Sq(2,1)>],
+#     [<Sq(1), 0, 0>, <Sq(2,1), Sq(1), 0>, <0, Sq(2,1), Sq(1)>, <0, 0, Sq(2)>],
+#     [<Sq(1), 0, 0, 0>,
+#      <Sq(2,1), Sq(1), 0, 0>,
+#      <0, Sq(2,1), Sq(1), 0>,
+#      <0, 0, Sq(0,1), Sq(2)>]]
 
 AUTHORS:
 
