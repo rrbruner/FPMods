@@ -165,6 +165,67 @@ from sage.rings.infinity import PlusInfinity
 from sage.structure.unique_representation import UniqueRepresentation
 
 
+def _CreateMatrix(sub_matrices, ground_ring):
+    r"""
+    Create a matrix from a matrix of sub-matrices.
+
+    INPUT:
+
+    - ``block_matrices`` -- A list of lists of matrices, representing a matrix
+      of sub-matrices.
+    - ``ground_ring'' -- The common ground field for the sub-matrices.
+
+    OUTPUT: A single matrix consisting of all the given sub-matrices.
+
+    EXAMPLES.  Let x x x be theheh `f: x, y` is the thing::
+
+        sage: from sage.modules.fp_modules.fp_morphism import _CreateMatrix
+        sage: ground_field = GF(2)
+        sage: U1 = VectorSpace(ground_field, 3)
+        sage: U2 = VectorSpace(ground_field, 2)
+        sage: V1 = VectorSpace(ground_field, 2)
+        sage: V2 = VectorSpace(ground_field, 2)
+        sage: r11 = Hom(U1, V1)([(1,0), (0,0), (1,1)])
+        sage: r12 = Hom(U2, V1)([(1,0), (0,1)])
+        sage: r21 = Hom(U1, V2)([(0,0), (1,1), (1,1)])
+        sage: r22 = Hom(U2, V2)([(1,1), (1,1)])
+        sage: MM = [[r11, r12],[r21, r22]]
+        sage: _CreateMatrix(MM, ground_field)
+        [1 0 1 1 0]
+        [0 0 1 0 1]
+        [0 1 1 1 1]
+        [0 1 1 1 1]
+        
+    """
+    from sage.matrix.constructor import matrix
+
+    if len(sub_matrices) == 0:
+        raise ValueError('Empty parameter.')
+
+    for i in range(len(sub_matrices)):
+        if len(sub_matrices[i]) != len(sub_matrices[0]):
+            raise ValueError('The %d\'th row is of the wrong length: %d != %d' % (len(sub_matrices[i]), len(sub_matrices[0])))
+        for j in range(len(sub_matrices[i])):
+            if sub_matrices[i][j].codomain().dimension() != sub_matrices[i][0].codomain().dimension():
+                raise ValueError('The matrix at (%d, %d) has the wrong number of rows.' % (i,j))
+
+    for j in range(len(sub_matrices[0])):
+        for i in range(len(sub_matrices)):
+            if sub_matrices[i][j].domain().dimension() != sub_matrices[0][j].domain().dimension():
+                raise ValueError('The matrix at (%d, %d) has the wrong number of columns.' % (i,j))
+
+    entries = []
+    for j in range(len(sub_matrices[0])):
+        for n in range(sub_matrices[0][j].domain().dimension()):
+            column = []
+            for i in range(len(sub_matrices)):
+                lin_trans = sub_matrices[i][j]
+                column += lin_trans(lin_trans.domain().basis()[n])
+            entries.append(column)
+
+    return matrix(ground_ring, entries).transpose()
+
+
 class FP_ModuleMorphism(SageMorphism):
 
     def __init__(self, parent, values):
@@ -780,16 +841,18 @@ class FP_ModuleMorphism(SageMorphism):
         return self.domain().element_from_coordinates(u, n)
 
 
-    def lift(self, f):
-        """
+    def lift(self, f, verbose=False):
+        r"""
         A lift of this homomorphism over the given homomorphism ``f``.
 
         INPUT:
 
         - ``f`` -- A homomorphism with codomain equal to the codomain of this
           homomorphism.
+        - ``verbose`` -- Boolean to enable progress messages. (optional,
+          default: ``False``)
 
-        OUTPUT::
+        OUTPUT:
 
         - ``g`` -- A homomorphism with the property that this homomorphism
           equals ``f\circ g``.  If no lift exist, ``None`` is returned.
@@ -798,44 +861,239 @@ class FP_ModuleMorphism(SageMorphism):
 
             sage: from sage.modules.fp_modules.fp_module import FP_Module
             sage: A = SteenrodAlgebra(2)
+
+        Lifting a map from a free module is always possible::
+
             sage: M = FP_Module([0], A, [[Sq(3)]])
             sage: N = FP_Module([0], A, [[Sq(2,2)]])
             sage: F = FP_Module([0], A)
             sage: f = Hom(M,N)([Sq(2)*N.generator(0)])
             sage: k = Hom(F,N)([Sq(1)*Sq(2)*N.generator(0)])
-            sage: k.lift(f)
+            sage: f_ = k.lift(f)
+            sage: f*f_ == k
+            True
+            sage: f_
             Module homomorphism of degree 1 defined by sending the generators
               [<1>]
             to
               [<Sq(1)>]
 
+        A split projection::
+
+            sage: A_plus_HZ = FP_Module([0,0], A, [[0, Sq(1)]])
+            sage: HZ = FP_Module([0], A, [[Sq(1)]])
+            sage: q = Hom(A_plus_HZ, HZ)([HZ([1]), HZ([1])])
+            sage: # We can construct a splitting of `q` manually:
+            sage: split = Hom(HZ,A_plus_HZ)([A_plus_HZ.generator(1)])
+            sage: q*split
+            The identity homomorphism.
+            sage: # Thus, lifting the identity homomorphism over `q` should be possible:
+            sage: id = Hom(HZ,HZ).identity()
+            sage: j = id.lift(q); j
+            Module homomorphism of degree 0 defined by sending the generators
+              [<1>]
+            to
+              [<0, 1>]
+            sage: q*j
+            The identity homomorphism.
+
+        Lifting over the inclusion of the image sub module::
+
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FP_Module([0], A, relations=[[Sq(0,1)]])
+            sage: f = Hom(M,M)([Sq(2)*M.generator(0)])
+            sage: im = f.image(top_dim=10)
+            sage: f.lift(im)
+            Module homomorphism of degree 2 defined by sending the generators
+              [<1>]
+            to
+              [<1>]
+
+        When a lift cannot be found, the None value is returned.  By setting the 
+        verbose argument to True, an explanation of why the lifting failed will
+        be displayed::
+
+            sage: F2 = FP_Module([0,0], A)
+            sage: non_surjection = Hom(F2, F2)([F2([1, 0]), F2([0, 0])])
+            sage: lift = Hom(F2, F2).identity().lift(non_surjection, verbose=True)
+            The generators of the domain of this homomorphism does not map into the image of the homomorphism we are lifting over.
+            sage: lift is None
+            True
+
         TESTS:
 
-            sage: z = Hom(M,N).zero()
-            sage: k.lift(z) is None
+            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: A = SteenrodAlgebra(2)
+            sage: # The trivial map often involved in corner cases..
+            sage: trivial_map = Hom(FP_Module([0], A), FP_Module([], A)).zero()
+            sage: trivial_map.lift(trivial_map)
+            The trivial homomorphism.
+
+            sage: F = FP_Module([0], A)
+            sage: HZ = FP_Module([0], A, relations=[[Sq(1)]])
+            sage: f = Hom(F,HZ)(HZ.generators())
+            sage: split = Hom(HZ, HZ).identity().lift(f, verbose=True)
+            The homomorphism cannot be lifted in any way such that the relations of the domain are respected.
+            sage: split is None
             True
-            sage: Hom(F,N).zero().lift(z)
-            The trivial homomorphism.
-            sage: Hom(F,N)([Sq(2,2)*N.generator(0)]).lift(z)
-            The trivial homomorphism.
+
+            sage: Hom(F, F).identity().lift(f, verbose=true)
+            Traceback (most recent call last):
+            ...
+            ValueError: The codomains of this homomorphism and the homomorphism we are lifting over are different.
+
+            sage: f.lift(Hom(HZ, HZ).zero(), verbose=True)
+            This homomorphism cannot lift over a trivial homomorphism since it is non-trivial.
+
+        .. SEEALSO::
+            :meth:`sage.modules.fp_modules.fp_morphism.split`
 
         """
 
-        if self.codomain() != f.codomain():
-            raise TypeError('Cannot lift this homomorphism over the given map since it has a different codomain.')
+        from sage.modules.free_module_element import vector
 
-        new_values = [f.solve(self(x)) for x in self.domain().generators()]
+        #        self
+        #    L --------> N
+        #                ^
+        #                |
+        #                | f
+        #                |
+        #                M
+        L = self.domain()
+        N = self.codomain()
+        M = f.domain()
 
-        # If a lift does not exist, return None.
-        if None in new_values:
+        # It is an error to call this function with incompatible arguments.
+        if not f.codomain() is N:
+            raise ValueError('The codomains of this homomorphism and the homomorphism '\
+                'we are lifting over are different.')
+
+        # The trivial map lifts over any other map.
+        if self.is_zero():
+            return Hom(L, N).zero()
+
+        # A non-trivial map never lifts over the trivial map.
+        if f.is_zero():
+            if verbose:
+                print('This homomorphism cannot lift over a trivial homomorphism since it is non-trivial.')
+            return None
+     
+        xs_ = [f.solve(self(x)) for x in L.generators()]
+        # If some of the generators are not in the image of f, there is no
+        # hope finding a lift.
+        if None in xs_:
+            if verbose:
+                print('The generators of the domain of this homomorphism does '\
+                      'not map into the image of the homomorphism we are lifting over.')
             return None
 
-        return Hom(self.domain(), f.domain())(new_values)
+        # L is free, so there are no relations to take into consideration.
+        if not L.has_relations():
+            return Hom(L,M)(xs_)
+
+        # self, f, and all generators of L are non-zero.  Thus, they all have
+        # well-defined degrees.
+        xs_degs = [x.degree() for x in xs_]
+
+        # Act on the lifts by the relations of L.
+        zs = [sum([a*b for a,b in zip(r.coefficients(), xs_)]) for r in L.relations()]
+        zs_degs = [r.degree() + self.degree() - f.degree() for r in L.relations()]
+
+        iK = f.kernel(top_dim=max(xs_degs))
+        K = iK.domain()
+
+        def _map_by_relation(r, x, V):
+            return V.zero() if (r*x).is_zero() else (r*x).vector_presentation()
+
+        # Create the matrix of linear transformations.
+        MM = []
+        for i, r in enumerate(L.relations()):
+            row = []
+            for j, x in enumerate(xs_):
+                n = xs_degs[j]
+                m = zs_degs[i]
+                r_ij = r.coefficients()[j]
+                U = K.vector_presentation(n)
+                V = M.vector_presentation(m)
+                values = [_map_by_relation(r_ij, iK(b), V) for b in K[n]]
+                row.append(Hom(U, V)(values))
+            MM.append(row)
+        R = _CreateMatrix(MM, M.base_ring().base_ring())
+
+        # Concatenate the target vectors into one single vector in the 
+        # codomain of the relations matrix R.
+        targets = [vector(len(M[zs_degs[j]])*(0,)) if z.is_zero() else z.vector_presentation() for j, z in enumerate(zs)]
+
+        zs_ = vector(sum([list(v) for v in targets], []))
+
+        # Find `y` in the preimage of `zs_`:
+        try:
+            y = R.solve_right(zs_)
+        except ValueError as error:
+            if verbose:
+                 print('The homomorphism cannot be lifted in any '\
+                     'way such that the relations of the domain are respected.')
+            return None
+
+        # translate from `y\in K_1\oplus \ldots \oplus K_n` to the corresponding element of `K`
+        new_xs = []
+        n = 0
+        for j,X in enumerate(MM[0]):
+            k = X.domain().dimension()
+            w = K.element_from_coordinates(y[n:n+k], xs_degs[j])
+            new_xs.append(xs_[j] + iK(w))
+            n += k
+
+        return Hom(L,M)(new_xs)
+
+
+    def split(self, verbose=False):
+        r"""
+
+        INPUT:
+
+        - ``verbose`` -- Boolean to enable progress messages. (optional,
+          default: ``False``)
+
+        OUTPUT: A homomorphism `f` which splits this homomorphism.
+
+        EXAMPLES::
+
+            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: A = SteenrodAlgebra(2)
+            sage: M = FP_Module([0,0], A, [[0, Sq(1)]])
+            sage: N = FP_Module([0], A, [[Sq(1)]])
+            sage: p = Hom(M, N)([N.generator(0), N.generator(0)])
+            sage: s = p.split(); s
+            Module homomorphism of degree 0 defined by sending the generators
+              [<1>]
+            to
+              [<0, 1>]
+            sage: # Verify that `s` is a splitting:
+            sage: p*s
+            The identity homomorphism.
+
+        TESTS:
+
+            sage: F = FP_Module([0], A)
+            sage: N = FP_Module([0], A, [[Sq(1)]])
+            sage: p = Hom(F, N)([N.generator(0)])
+            sage: p.split(verbose=true) is None
+            The homomorphism cannot be lifted in any way such that the relations of the domain are respected.
+            True
+
+        .. SEEALSO::
+            :meth:`sage.modules.fp_modules.fp_morphism.lift`
+
+        """
+
+        id = End(self.codomain()).identity()
+        return id.lift(self, verbose)
 
 
     def homology(self, f, top_dim=None, verbose=False):
         r"""
-        Compute the sub-quotient module `H(self, f) = \ker(self)/\im(f)`, in
+        Compute the sub-quotient module `H(self, f) = \ker(self)/\operatorname{im}(f)`, in
         a range of degrees.
 
         For a pair of composable morphisms `f: M\to N` and `g: N \to Q` of 
