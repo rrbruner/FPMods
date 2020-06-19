@@ -906,8 +906,8 @@ class FP_ModuleMorphism(SageMorphism):
             to
               [<1>]
 
-        When a lift cannot be found, the None value is returned.  By setting the 
-        verbose argument to True, an explanation of why the lifting failed will
+        When a lift cannot be found, the ``None'' value is returned.  By setting the
+        verbose argument to ``True'', an explanation of why the lifting failed will
         be displayed::
 
             sage: F2 = FP_Module([0,0], A)
@@ -1046,13 +1046,18 @@ class FP_ModuleMorphism(SageMorphism):
 
     def split(self, verbose=False):
         r"""
+        A split of this homomorphism.
 
         INPUT:
 
         - ``verbose`` -- Boolean to enable progress messages. (optional,
           default: ``False``)
 
-        OUTPUT: A homomorphism `f` which splits this homomorphism.
+        OUTPUT:
+
+        - ``g`` -- A homomorphism with the property that the composite
+          homomorphism ``self \circ f = id`` is the identity homomorphism.  If
+          no such split exist, ``None`` is returned.
 
         EXAMPLES::
 
