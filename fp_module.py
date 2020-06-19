@@ -6,7 +6,7 @@ Finitely presented graded modules
 This class allows the user to define finitely presented graded modules
 over graded algebras, elements of them, and morphisms between them.
 
-This class is intended for private use by the class 
+This class is intended for private use by the class
 :class:`sage.modules.fp_modules.fpa_module` modelling finitely presented modules
 over the Steenrod algebra.  As a consequence, all tests and examples use
 the Steenrod algebra (or a finite sub-Hopf algebra of it) as ground algebra.
@@ -97,8 +97,8 @@ class FP_Module(UniqueRepresentation, SageModule):
           coefficients `(c_1, \ldots, c_n)` corresponding to the module
           generators.
 
-        OUTPUT: 
-        
+        OUTPUT:
+
         The finitely presented module with presentation given by
         ``generator_degrees`` and ``relations``.
 
@@ -121,7 +121,7 @@ class FP_Module(UniqueRepresentation, SageModule):
           generators.
 
         OUTPUT:
-        
+
         The finitely presented module over ``algebra`` with
         presentation given by ``generator_degrees`` and ``relations``.
 
@@ -216,7 +216,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         - ``morphism`` -- a morphism between finitely generated free modules.
 
         OUTPUT:
-        
+
         The finitely presented module having presentation equal to the
         homomorphism ``morphism``.
 
@@ -245,11 +245,11 @@ class FP_Module(UniqueRepresentation, SageModule):
         Change the base ring of this module.
 
         INPUT:
-        
+
         - ``algebra`` -- a graded algebra.
 
         OUTPUT:
-        
+
         The finitely presented module over ``algebra`` defined with the exact
         same number of generators of the same degrees and relations as this
         module.
@@ -282,7 +282,7 @@ class FP_Module(UniqueRepresentation, SageModule):
           zero integer constant.
 
         OUTPUT:
-        
+
         An instance of the element class with coefficients from ``x``, the
         element ``x`` if it already was an element, or the zero element.
 
@@ -393,7 +393,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         Decide if this module is isomorphism to the trivial module.
 
         OUTPUT:
-        
+
         Returns ``True`` if the relations generate the entire module, and
         ``False`` otherwise.
 
@@ -437,12 +437,12 @@ class FP_Module(UniqueRepresentation, SageModule):
         Return ``True`` if no relations are defined.
 
         OUTPUT:
-        
+
         The boolean value ``True`` if no relations are defined, and ``False``
         otherwise.
 
         .. NOTE::
-        
+
             This module is free if this function returns ``False``, but a free
             module can have (unnecessary) relations.
 

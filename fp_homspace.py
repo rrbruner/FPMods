@@ -259,7 +259,7 @@ class FP_ModuleHomspace(Homset):
             MM.append(row)
         R = _CreateMatrix(MM, M.base_ring().base_ring())
 
-        # 
+        #
         K = R.right_kernel()
         if K.dimension() == 0:
             # No chance of creating a non-trivial homomorphism.
@@ -267,7 +267,7 @@ class FP_ModuleHomspace(Homset):
 
         # Choose a non-zero vector in the kernel of the relations matrix.
         y = K.basis()[0] if simplest else sum(K.basis())
-        
+
         vs = []
         r = 0
         for g in M.generators():

@@ -85,7 +85,7 @@ homomorphism which is onto `\ker (f)`::
     Module homomorphism of degree 0 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
-      [<0, 1>, <Sq(0,1), 0>]    
+      [<0, 1>, <Sq(0,1), 0>]
     sage: k.codomain() == f.domain()
     True
     sage: k.is_injective()

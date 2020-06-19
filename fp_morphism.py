@@ -7,9 +7,9 @@ between finitely presented graded modules, modelled by the Sage parent
 
 The category of finitely presented graded modules over an arbitrary graded ring
 is not Abelian in general, since kernels of homomorphisms are not neccessarily
-finitely presented.  If, however, the ring is Noetherian, or more generally 
+finitely presented.  If, however, the ring is Noetherian, or more generally
 a `P`-algebra ([Marg1983]_ Ch. 13), then modules are coherent and the
-category of finitely presented modules is Abelian.  The `mod p` Steenrod 
+category of finitely presented modules is Abelian.  The `mod p` Steenrod
 algebra is an example of a non-Noetherian `P`-algebra which give rise to
 an Abelian module category.
 
@@ -189,7 +189,7 @@ def _CreateMatrix(sub_matrices, ground_ring):
         [0 0 1 0 1]
         [0 1 1 1 1]
         [0 1 1 1 1]
-        
+
     """
     from sage.matrix.constructor import matrix
 
@@ -233,13 +233,13 @@ class FP_ModuleMorphism(SageMorphism):
           corresponds to a module generator in the domain.
 
         OUTPUT:
-        
+
         A module homomorphism defined by sending generator with index `i` to
         the element in the comdomain which has index `i` in the given input
         list ``values``.
 
         TESTS:
-            
+
             sage: from sage.modules.fp_modules.fp_module import FP_Module
             sage: # Trying to map the generators of a non-free module into a
             sage: # free module:
@@ -556,7 +556,7 @@ class FP_ModuleMorphism(SageMorphism):
         r"""
         Decide if this homomomorphism is trivial.
 
-        OUTPUT: 
+        OUTPUT:
 
         The boolean value ``True`` if this homomorphism is trivial, and
         ``False`` otherwise.
@@ -974,7 +974,7 @@ class FP_ModuleMorphism(SageMorphism):
             if verbose:
                 print('This homomorphism cannot lift over a trivial homomorphism since it is non-trivial.')
             return None
-     
+
         xs_ = [f.solve(self(x)) for x in L.generators()]
         # If some of the generators are not in the image of f, there is no
         # hope finding a lift.
@@ -1017,7 +1017,7 @@ class FP_ModuleMorphism(SageMorphism):
             MM.append(row)
         R = _CreateMatrix(MM, M.base_ring().base_ring())
 
-        # Concatenate the target vectors into one single vector in the 
+        # Concatenate the target vectors into one single vector in the
         # codomain of the relations matrix R.
         targets = [vector(len(M[zs_degs[j]])*(0,)) if z.is_zero() else z.vector_presentation() for j, z in enumerate(zs)]
 
@@ -1098,8 +1098,8 @@ class FP_ModuleMorphism(SageMorphism):
         Compute the sub-quotient module `H(self, f) = \ker(self)/\operatorname{im}(f)`, in
         a range of degrees.
 
-        For a pair of composable morphisms `f: M\to N` and `g: N \to Q` of 
-        finitely presented modules, the homology module is a finitely 
+        For a pair of composable morphisms `f: M\to N` and `g: N \to Q` of
+        finitely presented modules, the homology module is a finitely
         presented quotient of the kernel sub module `\ker(g) \subset N`.
 
         INPUT:
@@ -1115,13 +1115,13 @@ class FP_ModuleMorphism(SageMorphism):
           default: ``False``)
 
         OUTPUT:
-        
+
         A quotient homomorphism `\ker(self) \to H`, where `H` is isomorphic to
         `H(self, f)` in degrees less than or equal to ``top_dim``.
 
         .. NOTE::
 
-            If the algebra for this module is finite, then no ``top_dim`` 
+            If the algebra for this module is finite, then no ``top_dim``
             needs to be specified in order to ensure that this function terminates.
 
         EXAMPLES::
@@ -1202,7 +1202,7 @@ class FP_ModuleMorphism(SageMorphism):
         Compute the cokernel of this homomorphism.
 
         OUTPUT:
-        
+
         The natural projection from the codomain of this homomorphism to its
         cokernel.
 
@@ -1250,12 +1250,12 @@ class FP_ModuleMorphism(SageMorphism):
           default: ``False``)
 
         OUTPUT:
-        
+
         A homomorphism into `\ker(self)` which is an isomorphism in degrees
         less than or equal to ``top_dim``.
 
-        .. NOTE:: 
-        
+        .. NOTE::
+
             If the algebra for this module is finite, then no ``top_dim`` needs
             to be specified in order to ensure that this function terminates.
 
@@ -1324,13 +1324,13 @@ class FP_ModuleMorphism(SageMorphism):
           default: ``False``)
 
         OUTPUT:
-        
+
         A homomorphism into `\operatorname{im}(self)` which is an isomorphism in degrees less
         than or equal to ``top_dim``.
 
         .. NOTE::
 
-            If the algebra for this module is finite, then no ``top_dim`` 
+            If the algebra for this module is finite, then no ``top_dim``
             needs to be specified in order to ensure that this function terminates.
 
         EXAMPLES::
@@ -1418,14 +1418,14 @@ class FP_ModuleMorphism(SageMorphism):
           default: ``False``)
 
         OUTPUT:
-        
+
         A homomorphism `j: F \rightarrow D` where `D` is the domain of this
         homomorphism, `F` is free and such that `\ker(self) = \operatorname{im}(j)` in all
         degrees less than or equal to ``top_dim``.
 
         .. NOTE::
-        
-            If the algebra for this module is finite, then no ``top_dim`` 
+
+            If the algebra for this module is finite, then no ``top_dim``
             needs to be specified in order to ensure that this function terminates.
 
         TESTS:
@@ -1453,7 +1453,7 @@ class FP_ModuleMorphism(SageMorphism):
 
         """
 
-        # Let 
+        # Let
         #
         #  1) `j` be a homomorphism into `\ker(self)`, and
         #  2) 'n' be an integer.
@@ -1461,7 +1461,7 @@ class FP_ModuleMorphism(SageMorphism):
         # The induction loop starts each iteration assuming that that `j` is onto
         # the kernel in degrees below `n`.  Each iteration of the loop then
         # extends the map `j` minimally so that `j_n` becomes onto the kernel.
-        # 
+        #
         # This induction step is then repeated for all `n \leq` ``top_dim``.
         #
 
@@ -1531,7 +1531,7 @@ class FP_ModuleMorphism(SageMorphism):
         r"""
         Resolve the image of this homomorphism by a free module.
 
-        INPUT: 
+        INPUT:
 
         - ``top_dim`` -- An integer used by this function to stop the
           computation at the given degree, or the value ``None`` if no termination
@@ -1540,15 +1540,15 @@ class FP_ModuleMorphism(SageMorphism):
         - ``verbose`` -- Boolean to enable progress messages. (optional,
           default: ``False``)
 
-        OUTPUT: 
-        
+        OUTPUT:
+
         A homomorphism `j: F \rightarrow C` where `C` is the codomain of this
         homomorphism, `F` is free, and `\operatorname{im}(self) =
         \operatorname{im}(j)`  in all degrees less than or equal to
         ``top_dim``.
 
         .. NOTE::
-        
+
             If the algebra for this module is finite, then no ``top_dim`` needs
             to be specified in order to ensure that this function terminates.
 
@@ -1577,7 +1577,7 @@ class FP_ModuleMorphism(SageMorphism):
 
         """
 
-        # Let 
+        # Let
         #
         #  1) `j` be a homomorphism into `\im(self)`, and
         #  2) 'n' be an integer.
@@ -1585,7 +1585,7 @@ class FP_ModuleMorphism(SageMorphism):
         # The induction loop starts each iteration assuming that that `j` is onto
         # the image in degrees below `n`.  Each iteration of the loop then
         # extends the map `j` minimally so that `j_n` becomes onto the image.
-        # 
+        #
         # This induction step is then repeated for all `n \leq` ``top_dim``.
         #
 

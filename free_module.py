@@ -144,7 +144,7 @@ class FreeModule(UniqueRepresentation, SageModule):
 
         if not algebra.base_ring().is_field():
             raise NotImplementedError('The ground ring of the algebra must be a field.')
-        
+
         # Call the base class constructor.
         SageModule.__init__(self, algebra)
 
@@ -188,7 +188,7 @@ class FreeModule(UniqueRepresentation, SageModule):
             False
             sage: FreeModule((), A).is_trivial()
             True
-            
+
         """
         return len(self._generator_degrees) == 0
 
@@ -406,19 +406,19 @@ class FreeModule(UniqueRepresentation, SageModule):
         # ....:
         # ....: M = FPA_Module([0, 17, 42, 71], A, relations=rels)
         # sage: res = M.resolution(2, top_dim=30, verbose=True)
-        #  
+        #
         # This function was called a total of 2897 times during the computation,
         # and the total running time of the entire computation dropped from
         # 57 to 21 seconds by adding the optimization.
         #
         element = sum([c*element for c, element in zip(coordinates, basis_elements) if c != 0])
-        if element == 0: 
+        if element == 0:
             # The previous sum was over the empty list, yielding the integer
             # 0 as a result, rather than a module element.
             # Fix this by calling the constructor.
             return self._element_constructor_(0)
-        else: 
-            # The sum defining element is of the correct type. We avoid 
+        else:
+            # The sum defining element is of the correct type. We avoid
             # calling the constructor unnecessarily, which seems to
             # save time.
             return element

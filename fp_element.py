@@ -1,8 +1,8 @@
 r"""
 Elements of finitely presented graded modules
 
-This class implements construction and basic manipulation of homogeneous 
-elements of the finitely generated graded modules, modelled by the Sage 
+This class implements construction and basic manipulation of homogeneous
+elements of the finitely generated graded modules, modelled by the Sage
 parent :class:`sage.modules.fp_modules.fp_module.FPModule`.
 
 Let `\{g_i\}_i` be the finite set of generators for the parent module class,
@@ -19,8 +19,8 @@ represents the module element of degree `n` given by
 The ordered set `\{a_i\}` is referred to as the coefficients of the module
 element.
 
-This class is intended for private use by the class 
-:class:`sage.modules.fp_modules.fpa_module` modelling finitely presented 
+This class is intended for private use by the class
+:class:`sage.modules.fp_modules.fpa_module` modelling finitely presented
 modules over the `mod p` Steenrod algeras.
 
 AUTHORS:
@@ -62,7 +62,7 @@ class FP_Element(SageModuleElement):
           over which the module is defined, or an integer index.
 
         OUTPUT: The module element given by the coefficients.  Otherwise, if
-        ``coefficients`` is an integer index, then the Kroenecker delta 
+        ``coefficients`` is an integer index, then the Kroenecker delta
         function with respect to that index is used as coefficients.
 
         NOTE: Never use this constructor explicitly, but rather the parent's
@@ -366,7 +366,7 @@ class FP_Element(SageModuleElement):
             sage: M.zero().vector_presentation() is None
             True
 
-        """        
+        """
         if self.degree() == None:
             return None
 

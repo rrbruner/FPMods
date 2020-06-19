@@ -1,8 +1,8 @@
 r"""
 Elements of finitely presented modules over the Steenrod algebra
 
-This class implements construction and basic manipulation of homogeneous 
-elements of the finitely generated graded modules, modelled by the Sage 
+This class implements construction and basic manipulation of homogeneous
+elements of the finitely generated graded modules, modelled by the Sage
 parent :class:`sage.modules.fp_modules.fpa_module.FPA_Module`.
 
 Let `\{g_i\}_i` be the finite set of generators for the parent module class,
@@ -56,7 +56,7 @@ class FPA_Element(FP_Element):
           over which the module is defined, or an integer index.
 
         OUTPUT: The module element given by the coefficients.  Otherwise, if
-        ``coefficients`` is an integer index, then the Kroenecker delta 
+        ``coefficients`` is an integer index, then the Kroenecker delta
         function with respect to that index is used as coefficients.
 
         .. NOTE:: Never use this constructor explicitly, but rather the parent's
