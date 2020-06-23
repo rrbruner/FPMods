@@ -323,16 +323,16 @@ class FP_Element(SageModuleElement):
         A coordinate vector representing this module element.
 
         These are coordinates with respect to the basis chosen by
-        :func:`sage.modules.fp_modules.fp_module.basis_elements`.
+        :meth:`sage.modules.fp_modules.fp_module.FP_Module.basis_elements`.
 
         OUTPUT: a vector of elements in the ground field of the algebra for
         this module.
 
         .. SEEALSO::
 
-            :func:`sage.modules.fp_modules.fp_module.vector_presentation`
-            :func:`sage.modules.fp_modules.fp_module.basis_elements`
-            :func:`sage.modules.fp_modules.fp_module.element_from_coordinates`
+            :meth:`sage.modules.fp_modules.fp_module.FP_Module.vector_presentation`
+            :meth:`sage.modules.fp_modules.fp_module.FP_Module.basis_elements`
+            :meth:`sage.modules.fp_modules.fp_module.FP_Module.element_from_coordinates`
 
         EXAMPLES::
 

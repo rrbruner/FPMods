@@ -29,9 +29,10 @@ and stores it as a member.
 
 This package was designed with homological algebra in mind, and its API often
 focuses on maps rather than objects.  A good example of this is the kernel
-function :meth:`kernel` which computes the kernel of a homomorphism `f: M\to N`.
-Its return value is not an instance of the module class, but rather an injective
-homomorphism `i: K\to M` with the property that `\operatorname{im}(i) = \ker(f)`.
+function :meth:`sage.modules.fp_modules.fp_morphism.FP_ModuleMorphism.kernel` which
+computes the kernel of a homomorphism `f: M\to N`.  Its return value is not an
+instance of the module class, but rather an injective homomorphism `i: K\to M`
+with the property that `\operatorname{im}(i) = \ker(f)`.
 
 EXAMPLES::
 
@@ -100,7 +101,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         OUTPUT:
 
         The finitely presented module with presentation given by
-        ``generator_degrees`` and ``relations``.
+        the ``generator_degrees`` and ``relations``.
 
         """
         return super(FP_Module, cls).__classcall__(cls, tuple(generator_degrees), algebra, tuple([tuple([algebra(x) for x in r]) for r in relations]))
@@ -117,8 +118,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         - ``algebra`` -- The Steenrod algebra over which the module is defined.
 
         - ``relations`` -- A tuple of relations.  A relation is a tuple of
-          coefficients `(c_1, \ldots, c_n)` corresponding to the module
-          generators.
+          coefficients `(c_1, \ldots, c_n)`, ordered so that they
+          correspond to the module generators.
 
         OUTPUT:
 
@@ -128,13 +129,13 @@ class FP_Module(UniqueRepresentation, SageModule):
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import FP_Module
-            sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
-            sage: M = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
+            sage: A3 = SteenrodAlgebra(2, profile=(4,3,2,1))
+            sage: M = FP_Module([0, 1], A3, [[Sq(2), Sq(1)]])
             sage: M.generators()
             [<1, 0>, <0, 1>]
             sage: M.relations()
             [<Sq(2), Sq(1)>]
-            sage: Z = FP_Module([], A4)
+            sage: Z = FP_Module([], A3)
             sage: Z.generators()
             []
             sage: Z.relations()
@@ -258,11 +259,11 @@ class FP_Module(UniqueRepresentation, SageModule):
 
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
-            sage: A3 = SteenrodAlgebra(2,profile=(3,2,1))
+            sage: A2 = SteenrodAlgebra(2,profile=(3,2,1))
             sage: M = FP_Module([0,1], A, [[Sq(2), Sq(1)]])
-            sage: M.change_ring(A3)
+            sage: M.change_ring(A2)
             Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-            sage: M.change_ring(A3).change_ring(A) is M
+            sage: M.change_ring(A2).change_ring(A) is M
             True
         """
         return self.ModuleClass(
@@ -401,8 +402,8 @@ class FP_Module(UniqueRepresentation, SageModule):
 
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
-            sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FP_Module([], A3)
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: M = FP_Module([], A2)
             sage: M.is_trivial()
             True
             sage: N = FP_Module([1,2], A)
@@ -449,11 +450,11 @@ class FP_Module(UniqueRepresentation, SageModule):
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
-            sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: F = FP_Module([1,2], A3)
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: F = FP_Module([1,2], A2)
             sage: F.has_relations()
             False
-            sage: M = FP_Module([1,2], A3, [[Sq(2), Sq(1)]])
+            sage: M = FP_Module([1,2], A2, [[Sq(2), Sq(1)]])
             sage: M.has_relations()
             True
         """
@@ -464,7 +465,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         r"""
         An element of the module.
 
-        This function chooses deterministically an element of the module.
+        This function chooses deterministically an element, i.e the output
+        dependens only on the module and its input ``degree``.
 
         INPUT:
 
@@ -478,8 +480,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
-            sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FP_Module([0,2,4], A3, [[0, Sq(5), Sq(3)], [Sq(7), 0, Sq(2)*Sq(1)]])
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: M = FP_Module([0,2,4], A2, [[0, Sq(5), Sq(3)], [Sq(7), 0, Sq(2)*Sq(1)]])
             sage: M.zero()
             <0, 0, 0>
             sage: [M.an_element(i) for i in range(10)]
@@ -510,7 +512,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         - ``verbose`` -- A boolean to control if log messages should be emitted.
           (optional, default: ``False``)
 
-        OUTPUT: A sequence of homogeneous module elements of degree ``n``
+        OUTPUT: A list of homogeneous module elements of degree ``n``
         which is a basis for the vectorspace of all degree ``n`` module
         elements.
 
@@ -521,8 +523,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
-            sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FP_Module([0,2], A3, [[Sq(4), Sq(2)], [0, Sq(6)]])
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: M = FP_Module([0,2], A2, [[Sq(4), Sq(2)], [0, Sq(6)]])
             sage: M.basis_elements(4)
             [<Sq(1,1), 0>, <Sq(4), 0>]
             sage: M.basis_elements(5)
@@ -817,8 +819,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
-            sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FP_Module([0,1], A3, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: M = FP_Module([0,1], A2, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: i = M.min_pres()
             sage: i.codomain() is M
             True
@@ -830,7 +832,7 @@ class FP_Module(UniqueRepresentation, SageModule):
             [<Sq(2), Sq(1)>, <0, Sq(2)>]
             sage: i.codomain().relations()
             [<Sq(2), Sq(1)>, <0, Sq(2)>, <Sq(3), 0>]
-            sage: T = FP_Module([0], A3, [[1]])
+            sage: T = FP_Module([0], A2, [[1]])
             sage: T.min_pres().domain()
             Finitely presented module on 0 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
 
@@ -855,8 +857,8 @@ class FP_Module(UniqueRepresentation, SageModule):
 
             sage: from sage.modules.fp_modules.fp_module import *
             sage: A = SteenrodAlgebra(2)
-            sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: Y = FP_Module([0], A3, [[Sq(1)]])
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: Y = FP_Module([0], A2, [[Sq(1)]])
             sage: X = Y.suspension(4)
             sage: X.generator_degrees()
             (4,)
@@ -898,8 +900,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import *
-            sage: A3 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FP_Module([0,1], A3, [[Sq(2),Sq(1)]])
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: M = FP_Module([0,1], A2, [[Sq(2),Sq(1)]])
             sage: i = M.submodule([M.generator(0)])
             sage: i.codomain() is M
             True

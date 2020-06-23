@@ -906,8 +906,8 @@ class FP_ModuleMorphism(SageMorphism):
             to
               [<1>]
 
-        When a lift cannot be found, the ``None'' value is returned.  By setting the
-        verbose argument to ``True'', an explanation of why the lifting failed will
+        When a lift cannot be found, the ``None`` value is returned.  By setting the
+        verbose argument to ``True``, an explanation of why the lifting failed will
         be displayed::
 
             sage: F2 = FP_Module([0,0], A)
