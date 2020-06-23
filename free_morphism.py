@@ -1,82 +1,15 @@
 r"""
 Homomorphisms of finitely generated free graded modules
 
-This class implements construction and basic manipulation of homomorphisms
-between finitely generated free graded modules, modelled by the Sage parent
-:class:`sage.modules.fp_modules.free_module.FreeModule`.
+This class implements construction and basic manipulation of 
+elements of the Sage parent
+:class:`sage.modules.fp_modules.free_homspace.FreeModuleHomspace`, which models
+homomorphisms of free graded modules over connected algebras.
 
-This class is intended for private use by
-:class:`sage.modules.fp_modules.fp_morphism.FP_ModuleMorphism` which models
-homomorphisms between finitely presented modules over graded algeras.
+.. NOTE:: This class is intended for private use by
+    :class:`sage.modules.fp_modules.fp_morphism.FP_ModuleMorphism`.
 
-
-EXAMPLES::
-
-    sage: from sage.modules.fp_modules.free_module import FreeModule
-    sage: A = SteenrodAlgebra(2)
-    sage: M = FreeModule((0,1), A)
-    sage: N = FreeModule((2,), A)
-
-Homomorphisms are elements of the parent homspace class, and are created
-by specifying how the homomorphism should evaluate on each generator::
-
-    sage: values = [Sq(1)*N.generator(0), Sq(2)*N.generator(0)]
-    sage: homspace = Hom(M, N)
-    sage: f = homspace(values); f
-    Module homomorphism of degree 3 defined by sending the generators
-      [<1, 0>, <0, 1>]
-    to
-      [<Sq(1)>, <Sq(2)>]
-    sage: f.values() == values
-    True
-
-Homomorphisms can be evaluated on elements of the domain module::
-
-    sage: v1 = f(Sq(7)*M.generator(0));v1
-    <Sq(5,1)>
-    sage: v2 = f(Sq(17)*M.generator(1));v2
-    <Sq(13,2) + Sq(19)>
-
-Homomorphisms respect the module action::
-
-    sage: v1 == Sq(7)*values[0]
-    True
-    sage: v2 == Sq(17)*values[1]
-    True
-
-Any homomorphism has a well defined degree::
-
-    sage: f.degree()
-    3
-    sage: f.values()[0].degree() - M.generators()[0].degree()
-    3
-
-Homomorphisms of equal degree form a group under pointwise addition::
-
-    sage: g = homspace([Sq(1)*N.generator(0), 0*N.generator(0)])
-    sage: f+g
-    Module homomorphism of degree 3 defined by sending the generators
-      [<1, 0>, <0, 1>]
-    to
-      [<0>, <Sq(2)>]
-    sage: (f+g).values()
-    [<0>, <Sq(2)>]
-    sage: z = homspace.zero(); z
-    The trivial homomorphism.
-    sage: f == f + z
-    True
-    sage: f - f == z
-    True
-
-The restriction of a homomorphism to the vectorspace of `n`-dimensional module
-elements is a linear transformation::
-
-    sage: f_lin = f.vector_presentation(4)
-    sage: f_lin.kernel()
-    Vector space of degree 4 and dimension 2 over Finite Field of size 2
-    Basis matrix:
-    [1 0 0 0]
-    [0 0 0 1]
+For an overview of the free module API, see :doc:`free_module`.
 
 AUTHORS:
 

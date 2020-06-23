@@ -1,91 +1,15 @@
 r"""
-Elements finitely generated free graded modules
+Elements of finitely generated free graded modules
 
-This class implements construction and basic manipulation of homogeneous 
-elements of the finitely generated graded free modules, modelled by the Sage 
-parent :class:`sage.modules.fp_modules.free_module.FreeModule`.
+This class implements construction and basic manipulation of 
+elements of the Sage parent
+:class:`sage.modules.fp_modules.free_module.FreeModule`, which models
+free graded modules over connected algebras.
 
-Let `\{g_i\}_i` be the finite set of generators for the parent module class,
-and let `\{a_i\}_i` be a set of elements of the base algebra of
-that module, having degrees `\deg(a_i) + \deg(g_i) = n` for some `n\in \ZZ`.
+.. NOTE:: This class is intended for private use by
+    :class:`sage.modules.fp_modules.fp_module.FP_Module`.
 
-Then an instance of this class created using the `a_i`'s
-represents the module element of degree `n` given by
-
-.. MATH::
-
-    \sum_i a_i\cdot g_i\,.
-
-The ordered set `\{a_i\}` is referred to as the coefficients of the module
-element.
-
-This class is intended for private use by the class 
-sage.modules.fp_modules.fp_module modelling finitely presented modules over
-graded algeras.
-
-The module generators are examples of instances of the element class::
-
-    sage: from sage.modules.fp_modules.free_module import *
-    sage: A = SteenrodAlgebra(2)
-    sage: M = FreeModule((0,1), A)
-    sage: gens = M.generators(); gens
-    [<1, 0>, <0, 1>]
-    sage: type(gens[0])
-    <class 'sage.modules.fp_modules.free_module.FreeModule_with_category.element_class'>
-
-The module action produces new elements::
-
-    sage: Sq(2)*gens[0]
-    <Sq(2), 0>
-    sage: Sq(1,2)*gens[0] + Sq(6)*gens[1]
-    <Sq(1,2), Sq(6)>
-
-The parent class also has methods for producing elements::
-
-    sage: y = M([Sq(5), Sq(1,1)]); y
-    <Sq(5), Sq(1,1)>
-
-    sage: x = M.element_from_coordinates((0,1,1,0), 5); x
-    <Sq(5), Sq(1,1)>
-
-Comparison of elements::
-
-    sage: x == y
-    True
-
-Each non-zero element has a degree::
-
-    sage: x.degree()
-    5
-    sage: z = M.zero(); z
-    <0, 0>
-    sage: z.degree() is None
-    True
-
-Elements can be added as long as they are in the same degree::
-
-    sage: x + z == x
-    True
-    sage: x - x
-    <0, 0>
-    sage: x + M.element_from_coordinates((1,1), 1)
-    Traceback (most recent call last):
-    ...
-    ValueError: Can't add element of degree 5 and 1
-
-New elements can also be constructed using the left action of the algebra::
-
-    sage: Sq(3)*x
-    <Sq(5,1), 0>
-
-Given an element in degree `n`, it can be given as a vector in the vectorspace of all elements of degree `n`::
-
-    sage: V = M.vector_presentation(5); V
-    Vector space of dimension 4 over Finite Field of size 2
-    sage: v = x.vector_presentation(); v
-    (0, 1, 1, 0)
-    sage: v in V
-    True
+For an overview of the free module API, see :doc:`free_module`.
 
 AUTHORS:
 
@@ -122,17 +46,31 @@ class FreeModuleElement(SageModuleElement):
 
         - ``module`` -- the parent instance of this module element.
 
-        - ``coefficients`` -- a tuple of homogeneous elements of the algebra
-          over which the module is defined, or an integer index.
+        - ``coefficients`` -- a tuple of homogeneous algebra coefficients.
 
-        OUTPUT: The module element given by the coefficients.  Otherwise, if
-        ``coefficients`` is an integer index, then the Kroenecker delta 
-        function with respect to that index is used as coefficients.
+        OUTPUT: The module element given by the coefficients.
 
         .. NOTE:: This constructor should not be used explicitly, instead use
               the parent's call method.  The reason for this is that the
               dynamic type of the element class changes as a consequence of the
               category system.
+
+        EXAMPLES::  
+
+            sage: from sage.modules.fp_modules.free_module import FreeModule
+            sage: M = FreeModule((0, 1), SteenrodAlgebra(2))
+
+            sage: M([0, 0])
+            <0, 0>
+
+            sage: M([1, 0])
+            <1, 0>
+
+            sage: M([0, 1])
+            <0, 1>
+
+            sage: M([Sq(1), 1])
+            <Sq(1), 1>
 
         """
         if isinstance(coefficients, FreeModuleElement):
@@ -155,7 +93,8 @@ class FreeModuleElement(SageModuleElement):
                 #           frequently e.g. when computing resolutions, we could
                 #           potentially speed things up by dropping this
                 #           test.  Since this class constructor is for internal
-                #           use only, this is justified:
+                #           use only, we could justify commenting in the
+                #           following break statement:
                 # self._degree = d
                 # break
 
@@ -175,9 +114,9 @@ class FreeModuleElement(SageModuleElement):
         OUTPUT: A tuple of elements of the algebra over which this module is
         defined.
 
-        EXAMPLES::
+        EXAMPLES::  
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.fp_modules.free_module import FreeModule
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: x = M.element_from_coordinates((0,0,0,1), 5); x
@@ -419,16 +358,16 @@ class FreeModuleElement(SageModuleElement):
         A coordinate vector representing this module element.
 
         These are coordinates with respect to the basis chosen by
-        :func:`sage.modules.fp_modules.free_module.basis_elements`.
+        :meth:`sage.modules.fp_modules.free_module.FreeModule.basis_elements`.
 
         OUTPUT: a vector of elements in the ground field of the algebra for
         this module.
 
         .. SEEALSO::
 
-            :func:`sage.modules.fp_modules.free_module.vector_presentation`
-            :func:`sage.modules.fp_modules.free_module.basis_elements`
-            :func:`sage.modules.fp_modules.free_module.element_from_coordinates`
+            :meth:`sage.modules.fp_modules.free_module.FreeModule.vector_presentation`
+            :meth:`sage.modules.fp_modules.free_module.FreeModule.basis_elements`
+            :meth:`sage.modules.fp_modules.free_module.FreeModule.element_from_coordinates`
 
         EXAMPLES::
 
@@ -496,7 +435,7 @@ class FreeModuleElement(SageModuleElement):
             sage: from sage.modules.fp_modules.free_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FreeModule((0,1), A2)
-            sage: y = M.an_element(12);y
+            sage: y = M.an_element(12); y
             <Sq(2,1,1), Sq(4,0,1)>
             sage: y._nonzero_()
             True

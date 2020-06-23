@@ -1,33 +1,14 @@
 r"""
 Homspace of homomorphisms of finitely generated free graded modules
 
-This is the Sage parent instances of
-:class:`sage.modules.fp_modules.free_module.FreeModule`.
+This class implements methods for construction and basic
+manipulation of homspaces of finitely generated free graded modules over a connected 
+graded `k`-algebra, where `k` is a field.  
 
-This class is intended for private use by
-:class:`sage.modules.fp_modules.fp_homspace.FP_ModuleHomspace`.
+.. NOTE:: This class is intended for private use by
+    :class:`sage.modules.fp_modules.fp_homspace.FP_ModuleHomspace`.
 
-EXAMPLES::
-
-    sage: from sage.modules.fp_modules.free_module import *
-    sage: A = SteenrodAlgebra(2)
-    sage: M = FreeModule((0,1), A)
-    sage: N = FreeModule((2,), A)
-    sage: homspace = Hom(M, N)
-    sage: values = [Sq(2)*N.generator(0), Sq(2)*Sq(1)*N.generator(0)]
-    sage: f = homspace(values); f
-    Module homomorphism of degree 4 defined by sending the generators
-      [<1, 0>, <0, 1>]
-    to
-      [<Sq(2)>, <Sq(0,1) + Sq(3)>]
-
-Convenience methods exist for creating the trivial morphism as well as the
-identity morphism::
-
-    sage: homspace.zero()
-    The trivial homomorphism.
-    sage: Hom(M, M).identity()
-    The identity homomorphism.
+For an overview of the free module API, see :doc:`free_module`.
 
 TESTS::
 
@@ -183,7 +164,7 @@ class FreeModuleHomspace(Homset):
         .. TODO:: At the moment, this function always returns the zero morphism.
         It would be useful if non-trivial morphisms could be produced as well.
 
-        OUTPUT: A morhism in this homspace.
+        OUTPUT: A morphism in this homspace.
 
         EXAMPLES::
 

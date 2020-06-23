@@ -2,91 +2,242 @@ r"""
 Finitely generated free graded modules
 
 This class implements methods for construction and basic manipulation of
-finitely generated free graded modules over a graded algebra.
+finitely generated free graded modules over connected graded algebras.
 
-This class is intended for private use by the class
-:class:`sage.modules.fp_modules.fp_module.FP_Module` modelling finitely
-presented modules over graded algeras.
+.. NOTE:: This class is intended for private use by
+    :class:`sage.modules.fp_modules.fp_module.FP_Module` and its derived class
+    :class:`sage.modules.fp_modules.fpa_module.FPA_Module`.
 
-EXAMPLES:
+.. RUBRIC:: User guide
 
-Create a module over the Steenrod algebra with two generators in degrees 0 and
-1, respectively::
+Let `p` be a prime number.  The mod `p` Steenrod algebra `A_p` is a connected
+algebra over the finite field of `p` elements.  All modules presented here
+will be defined over `A_p`, or one of its sub-Hopf algebras.  E.g.::
 
-    sage: from sage.modules.fp_modules.free_module import *
-    sage: A = SteenrodAlgebra(2)
+    sage: A = SteenrodAlgebra(p=2)
+
+The constructor of the module class takes as arguments an ordered tuple of
+degrees and the algebra over which the module is defined::
+
+    sage: from sage.modules.fp_modules.free_module import FreeModule
     sage: M = FreeModule(generator_degrees=(0,1), algebra=A); M
     Finitely presented free module on 2 generators over mod 2 Steenrod algebra, milnor basis
 
-The module generators are examples of instances of this element class::
+The resulting free module will have generators in the degrees given to its
+constructor::
 
-    sage: gens = M.generators(); gens
+    sage: M.generator_degrees()
+    (0, 1)
+
+The connectivity of a module over a connected graded algebra is the minimum
+degree of all its module generators.  Thus, if the module is non-trivial, the
+connectivity is an integer::
+
+    sage: M.connectivity()
+    0
+
+.. RUBRIC Module elements
+
+For an `A`-module with generators `\{g_i\}_{i=1}^N`, any homogeneous element
+of degree `n` has the form
+
+.. MATH::
+
+    x = \sum_{i=1}^N a_i\cdot g_i\,,
+
+where `a_i\in A_{n-\deg(g_i)}` for all `i`.  The ordered set `\{a_i\}` 
+is referred to as the coefficients of `x`.
+
+When displaying module elements, only the coefficients are shown::
+
+    sage: M.an_element(degree=5)
+    <Sq(2,1), Sq(4)>
+
+    sage: M.an_element(degree=15)
+    <Sq(0,0,0,1), Sq(1,2,1)>
+
+The generators are themselves elements of the module::
+
+    sage: M.generators()
     [<1, 0>, <0, 1>]
-    sage: type(gens[0])
-    <class 'sage.modules.fp_modules.free_module.FreeModule_with_category.element_class'>
 
-Creating elements::
+Producing elements from a given set of coefficients is possible using the
+module class ()-method::
 
-    sage: y = M([Sq(5), Sq(1,1)]); y
+    sage: coeffs=[Sq(5), Sq(1,1)]
+    sage: x = M(coeffs); x
     <Sq(5), Sq(1,1)>
 
-    sage: x = M.element_from_coordinates((0,1,1,0), 5); x
-    <Sq(5), Sq(1,1)>
+The module action produces new elements::
 
-Comparison of elements::
+    sage: Sq(2)*x
+    <Sq(4,1) + Sq(7), Sq(3,1)>
 
-    sage: x == y
-    True
-
-Instances of the element class represent homogeneous elements with a given degree::
+Each non-zero element has a well-defined degree::
 
     sage: x.degree()
     5
-    sage: z = M.zero(); z
+
+But the zero element has not::
+
+    sage: zero = M.zero(); zero
     <0, 0>
-    sage: z.degree() is None
+    sage: zero.degree() is None
     True
 
-Elements can be added as long as they are in the same degree::
+Any two elements can be added as long as they are in the same degree::
 
-    sage: x + z == x
+    sage: y = M.an_element(5); y
+    <Sq(2,1), Sq(4)>
+    sage: x + y
+    <Sq(2,1) + Sq(5), Sq(1,1) + Sq(4)>
+
+or when at least one of them is zero::
+
+    sage: x + zero == x
     True
+
+Finally, additive inverses exist::
+
     sage: x - x
     <0, 0>
-    sage: x + M.element_from_coordinates((1,1), 1)
-    Traceback (most recent call last):
-    ...
-    ValueError: Can't add element of degree 5 and 1
 
-New elements can also be constructed using the left action of the algebra::
-
-    sage: Sq(3)*x
-    <Sq(5,1), 0>
-    sage: Sq(2)*gens[0]
-    <Sq(2), 0>
-    sage: Sq(1,2)*gens[0] + Sq(6)*gens[1]
-    <Sq(1,2), Sq(6)>
-
-For any integer `n`, the set of module elements of degree `n` is a vectorspace
-over the ground field `\mathcal{k}` of the module algebra.  The function
-:math:`basis_elements` provides a basis for this vectorspace::
+For every integer `n`, the set of module elements of degree `n` form a
+vectorspace over the ground field `k`.  A basis for this vectorspace can be
+computed::
 
     sage: M.basis_elements(5)
     [<Sq(2,1), 0>, <Sq(5), 0>, <0, Sq(1,1)>, <0, Sq(4)>]
 
-Using this basis, the vectorspace of degree `n` module elements can be
-presented::
+together with a corresponding vectorspace presentation::
 
-    sage: V = M.vector_presentation(5); V
+    sage: M.vector_presentation(5)
     Vector space of dimension 4 over Finite Field of size 2
 
-Given an element in degree `n`, it can be represented as a vector in the
-vectorspace of all elements of degree `n`::
+Given any element, its coordinates with resepct to this basis can be computed::
 
     sage: v = x.vector_presentation(); v
     (0, 1, 1, 0)
-    sage: v in V
+
+Going the other way, any element can be constructed by specifying its
+coordinates::
+
+    sage: x_ = M.element_from_coordinates((0,1,1,0), 5)
+    sage: x_
+    <Sq(5), Sq(1,1)>
+    sage: x_ == x
     True
+
+.. RUBRIC:: Module homomorphisms
+
+Homomorphisms of free graded `A`-modules `M\to N` are linear maps of their
+underlying `k`-vectorspaces which commute with the `A`-module structure.
+
+To create a homomorphism, first create the object modelling the set of all
+such homomorphisms using the free function ``Hom``::
+
+    sage: M = FreeModule((0,1), A)
+    sage: N = FreeModule((2,), A)
+    sage: homspace = Hom(M, N); homspace
+    Set of Morphisms from Finitely presented free module on 2 generators over mod 2 Steenrod algebra, milnor basis to Finitely presented free module on 1 generator over mod 2 Steenrod algebra, milnor basis in Category of modules over mod 2 Steenrod algebra, milnor basis
+
+Just as module elements, homomorphisms are created using the ()-method
+of the homspace object.  The only argument is a list of module elements in the
+codomain, corresponding to the module generators of the domain::
+
+    sage: g = N([1])  # the generator of the codomain module.
+    sage: values = [Sq(2)*g, Sq(2)*Sq(1)*g]
+    sage: f = homspace(values)
+
+The resulting homomorphism is the one sending the `i`-th generator of the
+domain to the `i`-th codomain value given::
+
+    sage: f
+    Module homomorphism of degree 4 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<Sq(2)>, <Sq(0,1) + Sq(3)>]
+
+Convenience methods exist for creating the trivial morphism::
+
+    sage: homspace.zero()
+    The trivial homomorphism.
+
+as well as the identity endomorphism::
+
+    sage: Hom(M, M).identity()
+    The identity homomorphism.
+
+Homomorphisms can be evaluated on elements of the domain module::
+
+    sage: v1 = f(Sq(7)*M.generator(0)); v1
+    <Sq(3,2)>
+
+    sage: v2 = f(Sq(17)*M.generator(1)); v2
+    <Sq(11,3) + Sq(13,0,1) + Sq(17,1)>
+
+and they respect the module action::
+
+    sage: v1 == Sq(7)*f(M.generator(0))
+    True
+
+    sage: v2 == Sq(17)*f(M.generator(1))
+    True
+
+Any non-trivial homomorphism has a well defined degree::
+
+    sage: f.degree()
+    4
+
+but just as module elements, the trivial homomorphism does not::
+
+    sage: zero_map = homspace.zero()
+    sage: zero_map.degree() is None
+    True
+
+Any two homomorphisms can be added as long as they are of the same degree::
+
+    sage: g = homspace([Sq(2)*g, Sq(3)*g])
+    sage: f + g
+    Module homomorphism of degree 4 defined by sending the generators
+      [<1, 0>, <0, 1>]
+    to
+      [<0>, <Sq(0,1)>]
+
+or when at least one of them is zero::
+
+    sage: f + zero_map == f
+    True
+
+Finally, additive inverses exist::
+
+    sage: x - x
+    <0, 0>
+
+The restriction of a homomorphism to the vectorspace of `n`-dimensional module
+elements is a linear transformation::
+
+    sage: f_4 = f.vector_presentation(4); f_4
+    Vector space morphism represented by the matrix:
+    [0 1 0]
+    [1 1 1]
+    [0 1 0]
+    [0 0 0]
+    Domain: Vector space of dimension 4 over Finite Field of size 2
+    Codomain: Vector space of dimension 3 over Finite Field of size 2
+
+This is compatible with the vector presentations of its domain and codomain
+modules::
+
+    sage: f.domain() is M
+    True
+    sage: f.codomain() is N
+    True
+    sage: f_4.domain() is M.vector_presentation(4)
+    True
+    sage: f_4.codomain() is N.vector_presentation(4 + f.degree())
+    True
+
 
 AUTHORS:
 
@@ -177,7 +328,7 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         Decide if this module is trivial or not.
 
-        OUTPUT: The boolean value True if the module is trivial, and False
+        OUTPUT: The boolean value ``True`` if the module is trivial, and ``False``
         otherwise.
 
         EXAMPLES::
@@ -197,7 +348,7 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         The connectivity of this module.
 
-        OUTPUT: An integer equal to the minimal degree of the generators, if
+        OUTPUT: An integer equal to the minimal degree of all the generators, if
         this module is non-trivial.  Otherwise, `+\infty`.
 
         EXAMPLES::
@@ -440,8 +591,7 @@ class FreeModule(UniqueRepresentation, SageModule):
             4
 
         .. SEEALSO::
-            This function is an alias for
-            :meth:`sage.modules.fp_modules.free_module.vector_presentation`
+            This function is an alias for :meth:`vector_presentation`.
 
         """
         return self.vector_presentation(n)
@@ -451,12 +601,12 @@ class FreeModule(UniqueRepresentation, SageModule):
     def vector_presentation(self, n):
         r"""
         A vectorspace over the ground field of the module algebra,
-        isomorphic to of the degree ``n`` elements of this module.
+        isomorphic to the degree ``n`` elements of this module.
 
         Let `\mathcal{k}` be the ground field of the algebra over this module is defined,
         and let `M_n` be the vectorspace of module elements of degree ``n``.
 
-        The return value of this function is the vectorspace over `k`,
+        The return value of this function is the vectorspace 
         `\mathcal{k}^{r}` where `r = dim(M_n)`.
 
         The isomorphism between `k^{r}` and `M_n` is given by the
@@ -481,8 +631,11 @@ class FreeModule(UniqueRepresentation, SageModule):
             sage: M = FreeModule((0,), A1)
             sage: M.vector_presentation(3)
             Vector space of dimension 2 over Finite Field of size 2
-            sage: [M.vector_presentation(i).dimension() for i in range(0, 7)]
-            [1, 1, 1, 2, 1, 1, 1]
+            sage: M.basis_elements(3)
+            [<Sq(0,1)>, <Sq(3)>]
+            sage: [M.vector_presentation(i).dimension() for i in range(-2, 9)]
+            [0, 0, 1, 1, 1, 2, 1, 1, 1, 0, 0]
+
 
         """
         return VectorSpace(self.base_ring().base_ring(), len(self.basis_elements(n)))
