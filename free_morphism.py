@@ -475,7 +475,7 @@ class FreeModuleMorphism(SageMorphism):
             True
 
         """
-        return all([x.is_zero() for x in self._values])
+        return self._degree == None
 
 
     def is_identity(self):
