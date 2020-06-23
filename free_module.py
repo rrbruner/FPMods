@@ -513,7 +513,10 @@ class FreeModule(UniqueRepresentation, SageModule):
                 'range [0, %s]; generator %s does not exist' %\
                 (len(self._generator_degrees) - 1, index))
 
-        return self.element_class(self, index)
+        Kroenecker = lambda i: 1 if i == index else 0
+        _coefficients = tuple([self.base_ring()(Kroenecker(i)) for i in range(len(self._generator_degrees))])
+
+        return self.element_class(self, _coefficients)
 
 
     def generators(self):

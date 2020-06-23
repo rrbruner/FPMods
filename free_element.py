@@ -137,17 +137,12 @@ class FreeModuleElement(SageModuleElement):
         """
         if isinstance(coefficients, FreeModuleElement):
             self._coefficients = coefficients._coefficients
-        elif isinstance(coefficients, Integer) or isinstance(coefficients, int):
-            # Kroenecker delta if a single index is given.
-            Kroenecker = lambda i: 1 if i == coefficients else 0
-            self._coefficients = tuple([module.base_ring()(
-                Kroenecker(i)) for i in range(len(module.generator_degrees()))])
         else:
             self._coefficients = tuple([module.base_ring()(x) for x in coefficients])
 
         if len(self._coefficients) != len(module.generator_degrees()):
-            raise ValueError('The number of coefficients must match the number of module generators: %d.'\
-                             % len(module.generator_degrees()))
+            raise ValueError('The number of coefficients must match the '
+                'number of module generators: %d.' % len(module.generator_degrees()))
 
         # Check homogenity and store the degree of the element.
         self._degree = None
@@ -484,7 +479,7 @@ class FreeModuleElement(SageModuleElement):
         vector = base_vec.zero()
         for summand_index, algebra_element in sparse_coeffs:
             for scalar_coefficient, monomial in zip(algebra_element.coefficients(), algebra_element.monomials()):
-                vector += scalar_coefficient*base_dict[monomial*FreeModuleElement(self.parent(), summand_index)]
+                vector += scalar_coefficient*base_dict[monomial*self.parent().generator(summand_index)]
 
         return vector
 

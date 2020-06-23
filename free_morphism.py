@@ -635,17 +635,17 @@ class FreeModuleMorphism(SageMorphism):
 
         """
 
-        codomain_degree = n
-        if self._degree != None:
-            codomain_degree += self._degree
-
         D_n = self.domain().vector_presentation(n)
-        C_n = self.codomain().vector_presentation(codomain_degree)
 
-        if self._degree == None:
+        if self.is_zero():
+            C_n = self.codomain().vector_presentation(n)
+
             return Hom(D_n, C_n).zero()
         else:
-            values = [self(e).vector_presentation() for e in self.domain().basis_elements(n)]
+            C_n = self.codomain().vector_presentation(n + self._degree)
+            values = [self(e).vector_presentation() for \
+                        e in self.domain().basis_elements(n)]
+
             return Hom(D_n, C_n)(values)
 
 
