@@ -10,7 +10,7 @@ finitely generated free graded modules over connected graded algebras.
 
 .. RUBRIC:: User guide
 
-Let `p` be a prime number.  The mod `p` Steenrod algebra `A_p` is a connected
+Let `p` be a prime number.  The `\operatorname{mod} p` Steenrod algebra `A_p` is a connected
 algebra over the finite field of `p` elements.  All modules presented here
 will be defined over `A_p`, or one of its sub-Hopf algebras.  E.g.::
 
@@ -48,7 +48,7 @@ of degree `n` has the form
 where `a_i\in A_{n-\deg(g_i)}` for all `i`.  The ordered set `\{a_i\}` 
 is referred to as the coefficients of `x`.
 
-When displaying module elements, only the coefficients are shown::
+Module elements are displayed by their algebra coefficients::
 
     sage: M.an_element(degree=5)
     <Sq(2,1), Sq(4)>
@@ -211,8 +211,8 @@ or when at least one of them is zero::
 
 Finally, additive inverses exist::
 
-    sage: x - x
-    <0, 0>
+    sage: f - f
+    The trivial homomorphism.
 
 The restriction of a homomorphism to the vectorspace of `n`-dimensional module
 elements is a linear transformation::
