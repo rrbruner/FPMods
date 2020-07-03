@@ -3,11 +3,11 @@ Homomorphisms of finitely generated free graded modules
 
 This class implements construction and basic manipulation of
 elements of the Sage parent
-:class:`sage.modules.fp_modules.free_homspace.FreeModuleHomspace`, which models
+:class:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_homspace.FreeModuleHomspace`, which models
 homomorphisms of free graded modules over connected algebras.
 
 .. NOTE:: This class is intended for private use by
-    :class:`sage.modules.fp_modules.fp_morphism.FP_ModuleMorphism`.
+    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_morphism.FP_ModuleMorphism`.
 
 For an overview of the free module API, see :doc:`free_module`.
 
@@ -65,7 +65,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import FreeModule
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
             sage: A = SteenrodAlgebra(2)
             sage: F1 = FreeModule((4,5), A)
             sage: F2 = FreeModule((3,4), A)
@@ -139,7 +139,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((0,), A))
             sage: N = homspace.codomain()
@@ -166,7 +166,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -199,7 +199,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -246,7 +246,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -281,7 +281,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -308,7 +308,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -334,7 +334,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -352,7 +352,7 @@ class FreeModuleMorphism(SageMorphism):
 
         TESTS:
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
@@ -379,7 +379,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -403,7 +403,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -436,7 +436,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -464,7 +464,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -509,16 +509,16 @@ class FreeModuleMorphism(SageMorphism):
         ground field of the algebra for this module.  The domain is isomorphic
         to the vectorspace of domain elements of degree ``n`` of this free
         module, via the choice of basis given by
-        :meth:`sage.modules.fp_modules.free_module.FreeModule.basis_elements`.
+        :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`.
 
         .. SEEALSO::
 
-            :meth:`sage.modules.fp_modules.free_module.FreeModule.vector_presentation`,
-            :meth:`sage.modules.fp_modules.free_module.FreeModule.basis_elements`.
+            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.vector_presentation`,
+            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`.
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.free_module import FreeModule
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)

@@ -31,8 +31,8 @@ AUTHORS:
 from __future__ import absolute_import
 
 from sage.categories.homset import Hom
-from sage.modules.fp_modules.fp_morphism import FP_ModuleMorphism
-from sage.modules.fp_modules.profile import enveloping_profile_elements
+from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_morphism import FP_ModuleMorphism
+from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import enveloping_profile_elements
 
 
 class FPA_ModuleMorphism(FP_ModuleMorphism):
@@ -59,7 +59,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         TESTS:
 
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: # Trying to map the generators of a non-free module into a
             sage: # free module:
             sage: A = SteenrodAlgebra(2)
@@ -90,7 +90,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: id = Hom(M,M).identity()
@@ -155,7 +155,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])
@@ -195,7 +195,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])
@@ -241,7 +241,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])

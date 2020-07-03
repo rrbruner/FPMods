@@ -2,11 +2,11 @@ r"""
 Elements of finitely presented graded modules
 
 This class implements construction and basic manipulation of elements of the
-Sage parent :class:`sage.modules.fp_modules.fp_module.FP_Module`, which models
+Sage parent :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module`, which models
 finitely presented modules over connected graded algebras.
 
 .. NOTE:: This class is used by the derived class
-    :class:`sage.modules.fp_modules.fpa_element.FPA_Element`.
+    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_element.FPA_Element`.
 
 AUTHORS:
 
@@ -71,7 +71,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,1], SteenrodAlgebra(2), [[Sq(4), Sq(3)]])
             sage: x = M.element_from_coordinates((0,0,1), 5)
 
@@ -99,7 +99,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,1], SteenrodAlgebra(2), [[Sq(4), Sq(3)]])
             sage: x = M.an_element(7)
 
@@ -122,7 +122,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,1], SteenrodAlgebra(2), [[Sq(4), Sq(3)]])
             sage: [M.an_element(n) for n in range(1,10)]
             [<Sq(1), 1>,
@@ -151,7 +151,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0,3], A2, [[Sq(2)*Sq(4), Sq(3)]])
             sage: A2.Sq(2)*M.generator(1)
@@ -184,7 +184,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0], A2)
 
@@ -217,7 +217,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0], A2)
 
@@ -267,7 +267,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module((0,1), A2)
             sage: x = M([Sq(1), 1]); x
@@ -308,20 +308,20 @@ class FP_Element(SageModuleElement):
         A coordinate vector representing this module element.
 
         These are coordinates with respect to the basis chosen by
-        :meth:`sage.modules.fp_modules.fp_module.FP_Module.basis_elements`.
+        :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.basis_elements`.
 
         OUTPUT: a vector of elements in the ground field of the algebra for
         this module.
 
         .. SEEALSO::
 
-            :meth:`sage.modules.fp_modules.fp_module.FP_Module.vector_presentation`
-            :meth:`sage.modules.fp_modules.fp_module.FP_Module.basis_elements`
-            :meth:`sage.modules.fp_modules.fp_module.FP_Module.element_from_coordinates`
+            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.vector_presentation`
+            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.basis_elements`
+            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.element_from_coordinates`
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module((0,1), A2)
 
@@ -372,7 +372,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,2,4], SteenrodAlgebra(2), [[Sq(4),Sq(2),0]])
             sage: M(0)._nonzero_()
             False
@@ -403,7 +403,7 @@ class FP_Element(SageModuleElement):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,2,4], SteenrodAlgebra(2), [[Sq(4),Sq(2),0]])
 
             sage: m = M((Sq(6), 0, Sq(2))); m
@@ -434,7 +434,7 @@ class FP_Element(SageModuleElement):
 
         TESTS::
 
-            sage: from sage.modules.fp_modules.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FreeModule((0,1), A2)
             sage: M.an_element(127).__hash__()

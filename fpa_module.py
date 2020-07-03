@@ -59,7 +59,7 @@ The constructor of the module class takes as arguments an ordered tuple of
 degrees and the algebra over which the module is defined, together with an
 optional set of relations::
 
-    sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
     sage: F = FPA_Module([0, 1, 7], algebra=A); F  # A free module
     Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis
 
@@ -398,7 +398,7 @@ Homological algebra
 
 The category of modules over `A` is Abelian, so kernels, images and cokernels
 all exist and can be computed through the API belonging to the homomorphism class
-:class:`sage.modules.fp_modules.fpa_morphism.FPA_ModuleMorphism`.
+:class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_morphism.FPA_ModuleMorphism`.
 
 .. NOTE:: Functions like :meth:`kernel`, :meth:`cokernel`, :meth:`image`,
     :meth:`homology` compute sub- and quotient modules related to homomorphisms,
@@ -620,7 +620,7 @@ commuting triangle:
 We begin by defining the modules and the homomorphisms `f` and `q`.  In the following,
 we let `L = \Sigma^{28}Hko`::
 
-    sage: from sage.modules.fp_modules.fpa_module import FPA_Module
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
     sage: A = SteenrodAlgebra(2)
     sage: Hko = FPA_Module([0], A, [[Sq(2)],[Sq(1)]])
     sage: HZ = FPA_Module([0], A, [[Sq(1)]])
@@ -781,7 +781,7 @@ TESTS:
     sage: M = FPA_Module([2,3], A, [[Sq(2),Sq(1)]]);M
     Finitely presented module on 2 generators and 1 relation ...
     sage: K.element_class
-    <class 'sage.modules.fp_modules.fpa_module.FPA_Module_with_category.element_class'>
+    <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module.FPA_Module_with_category.element_class'>
     sage: m = M((0,1)); m
     <0, 1>
     sage: K.is_parent_of(m)
@@ -814,8 +814,8 @@ AUTHORS:
 
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 from sage.categories.homset import Hom
-from sage.modules.fp_modules.fp_module import FP_Module
-from sage.modules.fp_modules.profile import enveloping_profile_elements
+from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import enveloping_profile_elements
 from sage.modules.free_module import VectorSpace
 from sage.rings.infinity import PlusInfinity
 
@@ -888,7 +888,7 @@ class FPA_Module(FP_Module):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: M.profile()
@@ -896,7 +896,7 @@ class FPA_Module(FP_Module):
 
         TESTS:
 
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: X = FPA_Module([0], A)
             sage: X.profile()
@@ -925,7 +925,7 @@ class FPA_Module(FP_Module):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
 
@@ -973,7 +973,7 @@ class FPA_Module(FP_Module):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: Hko = FPA_Module([0], A, [[Sq(1)], [Sq(2)]])
 
@@ -1035,7 +1035,7 @@ class FPA_Module(FP_Module):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fpa_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
             sage: A1 = algebra=SteenrodAlgebra(p=2, profile=[2,1])
             sage: M = FPA_Module([0], A1)
             sage: M.export_module_definition()

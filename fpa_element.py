@@ -2,7 +2,7 @@ r"""
 Elements of finitely presented modules over the Steenrod algebra
 
 This class implements construction and basic manipulation of elements of the
-Sage parent :class:`sage.modules.fp_modules.fpa_module.FPA_Module`, which models
+Sage parent :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module.FPA_Module`, which models
 finitely presented modules over the `\operatorname{mod} p` Steenrod algebra.
 
 For an overview of the API, see :doc:`fpa_module`.

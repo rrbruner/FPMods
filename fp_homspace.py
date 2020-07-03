@@ -6,11 +6,11 @@ manipulation of homsets of finitely presented graded modules over a connected
 graded `k`-algebra, where `k` is a field.
 
 .. NOTE:: This class is intended for private use by
-    :class:`sage.modules.fp_modules.fpa_homspace.FPA_ModuleHomspace`.
+    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_homspace.FPA_ModuleHomspace`.
 
 TESTS::
 
-    sage: from sage.modules.fp_modules.fp_module import FP_Module
+    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
     sage: from sage.misc.sage_unittest import TestSuite
     sage: A = SteenrodAlgebra(2, profile=(3,2,1))
     sage: F = FP_Module([1,3], A)
@@ -104,8 +104,8 @@ def is_FP_ModuleHomspace(x):
 
     EXAMPLES::
 
-        sage: from sage.modules.fp_modules.fp_module import FP_Module
-        sage: from sage.modules.fp_modules.fp_homspace import is_FP_ModuleHomspace
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_homspace import is_FP_ModuleHomspace
         sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
         sage: F = FP_Module([1,3], A2)
         sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -144,7 +144,7 @@ class FP_ModuleHomspace(Homset):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FP_Module([1,3], A2)
             sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -190,7 +190,7 @@ class FP_ModuleHomspace(Homset):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A = SteenrodAlgebra(2)
             sage: HZ = FP_Module([0], A, relations=[[Sq(1)]])
 
@@ -233,7 +233,7 @@ class FP_ModuleHomspace(Homset):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A = SteenrodAlgebra(2)
             sage: Hko = FP_Module([0], A, relations=[[Sq(2)], [Sq(1)]])
 
@@ -257,7 +257,7 @@ class FP_ModuleHomspace(Homset):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FP_Module([1,3], A2)
             sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -281,7 +281,7 @@ class FP_ModuleHomspace(Homset):
 
         EXAMPLES::
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
 
@@ -328,7 +328,7 @@ class FP_ModuleHomspace(Homset):
 
         TESTS:
 
-            sage: from sage.modules.fp_modules.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
             sage: A = SteenrodAlgebra(2)
             sage: Hko = FP_Module([0], A, relations=[[Sq(2)], [Sq(1)]])
             sage: Hom(Hko, Hko)._basis_elements(21, basis=True)
@@ -489,7 +489,7 @@ class FP_ModuleHomspace(Homset):
 
 
         """
-        from sage.modules.fp_modules.fp_morphism import _CreateRelationsMatrix
+        from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_morphism import _CreateRelationsMatrix
 
         M = self.domain()
         N = self.codomain()
