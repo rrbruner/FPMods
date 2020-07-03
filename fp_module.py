@@ -238,7 +238,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         INPUT:
 
-        - ``algebra`` -- a conncted graded algebra.
+        - ``algebra`` -- a connected graded algebra.
 
         OUTPUT: The finitely presented module over ``algebra`` defined with the
         exact same number of generators of the same degrees and relations as
