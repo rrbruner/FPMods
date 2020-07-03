@@ -1,9 +1,9 @@
 r"""
-Homspace of homomorphisms of finitely generated free graded modules
+The set of homomorphisms of finitely generated free graded modules
 
 This class implements methods for construction and basic
-manipulation of homspaces of finitely generated free graded modules over a connected 
-graded `k`-algebra, where `k` is a field.  
+manipulation of homsets of finitely generated free graded modules over a connected
+graded `k`-algebra, where `k` is a field.
 
 .. NOTE:: This class is intended for private use by
     :class:`sage.modules.fp_modules.fp_homspace.FP_ModuleHomspace`.
@@ -51,9 +51,11 @@ TESTS::
 
 AUTHORS:
 
-    - Robert R. Bruner, Michael J. Catanzaro (2012): initial version
-    - Koen (date in ISO year-month-day format): Updating to Sage 8.1
-    - Sverre A. Lunoee-Nielsen (2020-01-11): Rewritten and refactored, and updated to Sage 8.9.
+    - Robert R. Bruner, Michael J. Catanzaro (2012): Initial version.
+    - Sverre Lunoee--Nielsen and Koen van Woerden (2019-11-29): Updated the
+      original software to Sage version 8.9.
+    - Sverre Lunoee--Nielsen (2020-07-01): Refactored the code and added
+      new documentation and tests.
 
 """
 
@@ -82,7 +84,7 @@ def is_FreeModuleHomspace(x):
     r"""
     Check if the given object is of type FreeModuleHomspace.
 
-    OUTPUT:: the boolean ``True`` if and only if ``x`` is of type
+    OUTPUT: The boolean ``True`` if and only if ``x`` is of type
     FreeModuleHomspace, and ``False`` otherwise.
 
     EXAMPLES::
@@ -114,22 +116,22 @@ class FreeModuleHomspace(Homset):
 
     def _element_constructor_(self, values):
         r"""
-        Construct any element of this homspace.
+        Construct any element of this homset.
 
-        This function is used internally by the ()-operator when creating
-        homspace elements.
+        This function is used internally by the ()-method when creating
+        homomorphisms.
 
         INPUT:
 
         - ``values`` -- A tuple of values (i.e. elements of the
-        codomain for this homspace) corresponding bijectively to the generators
-        of the domain of this homspace, or the zero integer constant.
+        codomain for this homset) corresponding bijectively to the generators
+        of the domain of this homset, or the zero integer constant.
 
         OUTPUT: An instance of the morphism class.  The returned morphism is
-        defined by sending the module generators in the domain to the given
+        defined by mapping the module generators in the domain to the given
         values.
-                
-        OUTPUT: A module homomorphism in the homspace.
+
+        OUTPUT: A module homomorphism.
 
         EXAMPLES::
 
@@ -139,12 +141,14 @@ class FreeModuleHomspace(Homset):
             sage: F = FreeModule((1,3), A2)
             sage: L = FreeModule((2,5), A2)
             sage: H = Hom(F, L)
+
             sage: values = (A2.Sq(4)*L.generator(0), A2.Sq(3)*L.generator(1))
             sage: f = H(values); f
             Module homomorphism of degree 5 defined by sending the generators
               [<1, 0>, <0, 1>]
             to
               [<Sq(4), 0>, <0, Sq(3)>]
+
             sage: H(0)
             The trivial homomorphism.
 
@@ -160,9 +164,6 @@ class FreeModuleHomspace(Homset):
     def _an_element_(self):
         r"""
         Return a morphism belonging to this homspace.
-
-        .. TODO:: At the moment, this function always returns the zero morphism.
-        It would be useful if non-trivial morphisms could be produced as well.
 
         OUTPUT: A morphism in this homspace.
 
@@ -186,7 +187,8 @@ class FreeModuleHomspace(Homset):
         r"""
         Return the trivial morphism of this homspace.
 
-        OUTPUT: The morhism taking the zero value for any element in the domain.
+        OUTPUT: The morphism evaluating to the zero element for any element in
+        the domain.
 
         EXAMPLES::
 
@@ -205,8 +207,7 @@ class FreeModuleHomspace(Homset):
 
     def identity(self):
         r"""
-        Return the identity morphism of this homspace, if this is an
-        endomorphism set.
+        Return the identity morphism, if this is an endomorphism set.
 
         OUTPUT: The identity endomorphism.
 
@@ -220,7 +221,7 @@ class FreeModuleHomspace(Homset):
             sage: H.identity()
             The identity homomorphism.
 
-        TESTS::
+        TESTS:
 
             sage: F = FreeModule((1,3), A2)
             sage: H = Hom(F, L)

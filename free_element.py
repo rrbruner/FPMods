@@ -13,9 +13,11 @@ For an overview of the free module API, see :doc:`free_module`.
 
 AUTHORS:
 
-    - Robert R. Bruner and Michael J. Catanzaro (2005): initial version
-    - Koen (date in ISO year-month-day format): Updating to Sage 8.1
-    - Sverre A. Lunoee-Nielsen (2020-01-11): Rewritten and refactored, and updated to Sage 8.9.
+    - Robert R. Bruner, Michael J. Catanzaro (2012): Initial version.
+    - Sverre Lunoee--Nielsen and Koen van Woerden (2019-11-29): Updated the
+      original software to Sage version 8.9.
+    - Sverre Lunoee--Nielsen (2020-07-01): Refactored the code and added 
+      new documentation and tests.
 
 """
 
@@ -40,7 +42,7 @@ class FreeModuleElement(SageModuleElement):
     def __init__(self, module, coefficients):
         r"""
         Create a module element of a finitely generated free graded module over
-        a graded algebra.
+        a connected graded algebra.
 
         INPUT:
 
@@ -268,7 +270,7 @@ class FreeModuleElement(SageModuleElement):
             sage: x + (-x) == 0
             True
 
-        TESTS::
+        TESTS:
 
             sage: x = M.an_element(4)
             sage: y = M.an_element(5)
@@ -330,7 +332,7 @@ class FreeModuleElement(SageModuleElement):
             sage: A2.Sq(1)*x == y
             True
 
-        TESTS::
+        TESTS:
 
             sage: N = FreeModule((0,), A2)
             sage: x._cmp_(M.an_element(4))  # Elements of different degrees aren't equal
@@ -360,7 +362,7 @@ class FreeModuleElement(SageModuleElement):
         These are coordinates with respect to the basis chosen by
         :meth:`sage.modules.fp_modules.free_module.FreeModule.basis_elements`.
 
-        OUTPUT: a vector of elements in the ground field of the algebra for
+        OUTPUT: A vector of elements in the ground field of the algebra for
         this module.
 
         .. SEEALSO::
@@ -396,7 +398,7 @@ class FreeModuleElement(SageModuleElement):
             sage: x == x_
             True
 
-        TESTS::
+        TESTS:
 
             sage: M.zero().vector_presentation()
             0
@@ -427,7 +429,7 @@ class FreeModuleElement(SageModuleElement):
         r"""
         Determine if this element is non-zero.
 
-        OUTPUT: the boolean value True if this element is non-zero, and False
+        OUTPUT: The boolean value True if this element is non-zero, and False
         otherwise.
 
         EXAMPLES::

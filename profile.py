@@ -1,12 +1,36 @@
+r"""
+    Functions for computing the profiles of sub-Hopf algebras of the
+    mod p Steenrod algebra.
+
+    .. NOTE::
+        Palmieri pads all his profiles by adding a [0] to the beginning.
+        Furthermore, when scanning over elements defined over an odd
+        primary Steenrod Algebra, the Q part comes first, and then the P part.
+        When defining a sub-algebra over an odd Steenrod algebra, the P part
+        must come first in the profile.
+
+        These functions return the P part first, and then the Q part.
+
+AUTHORS:
+
+    - Robert R. Bruner, Michael J. Catanzaro (2012): initial version
+
+"""
+
+#*****************************************************************************
+#       Copyright (C) 2011 Robert R. Bruner <rrb@math.wayne.edu> and
+#                          Michael J. Catanzaro <mike@math.wayne.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# ****************************************************************************
+
+
+
 #----------------------------Profile-Functions-----------------------------------
-
-# Palmieri pads all his profiles by adding a [0] to the beginning.
-# Furthermore, when scanning over elements defined over an odd
-# primary Steenrod Algebra, the Q part comes first, and then the P part.
-# When defining a sub-algebra over an odd Steenrod algebra, the P part
-# must come first in the profile.
-
-# These functions return the P part first, and then the Q part.
 
 from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 from copy import copy

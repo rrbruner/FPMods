@@ -1,53 +1,12 @@
 r"""
-The set of homomorphisms between finitely presented graded modules
+The set of homomorphisms of finitely presented graded modules
 
-EXAMPLES:
+This class implements methods for construction and basic
+manipulation of homsets of finitely presented graded modules over a connected
+graded `k`-algebra, where `k` is a field.
 
-Users will typically use this class indirectly through the free function
-``Hom``::
-
-    sage: from sage.modules.fp_modules.fp_module import FP_Module
-    sage: from sage.misc.sage_unittest import TestSuite
-    sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
-    sage: F = FP_Module([1,3], A2)
-    sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
-    sage: homset = Hom(F, L)
-
-Elements of the homset are homomorphisms `F\rightarrow L`.  To construct a
-homomorphism, a list of values in the codomain module must be given,
-each value corresponding to a module generator of the domain module::
-
-    sage: homset.domain()
-    Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-    sage: homset.codomain()
-    Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-    sage: v0 = L([Sq(1), 1])
-    sage: v1 = L([0, Sq(2)])
-    sage: f = homset([v0, v1]); f
-      Module homomorphism of degree 2 defined by sending the generators
-        [<1, 0>, <0, 1>]
-      to
-        [<Sq(1), 1>, <0, Sq(2)>]
-
-The trivial homomorphism sending all generators to the zero element in the
-codomain can be constructed by a special API call::
-
-    sage: z = homset.zero(); z
-    The trivial homomorphism.
-    sage: z(F.generator(0))
-    <0, 0>
-    sage: z(F.generator(1))
-    <0, 0>
-
-When the domain and codomain of the homset are the same module, the homset
-consists of endomorphisms and which always contain the identity map::
-
-    sage: id = Hom(L, L).identity(); id
-    The identity homomorphism.
-    sage: e = L.an_element(5); e
-    <Sq(0,1), Sq(2)>
-    sage: id(e) == e
-    True
+.. NOTE:: This class is intended for private use by
+    :class:`sage.modules.fp_modules.fpa_homspace.FPA_ModuleHomspace`.
 
 TESTS::
 
@@ -62,7 +21,7 @@ TESTS::
     Module homomorphism of degree 0 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
-      [<0, 0>, <Sq(1), 1>]
+      [<0, 0>, <Sq(1), 0>]
     sage: homset([L((Sq(1), 1)), L((0, Sq(2)))])
     Module homomorphism of degree 2 defined by sending the generators
       [<1, 0>, <0, 1>]
@@ -97,6 +56,14 @@ TESTS::
     running ._test_pickling() . . . pass
     running ._test_some_elements() . . . pass
     running ._test_zero() . . . pass
+
+AUTHORS:
+
+    - Robert R. Bruner, Michael J. Catanzaro (2012): Initial version.
+    - Sverre Lunoee--Nielsen and Koen van Woerden (2019-11-29): Updated the
+      original software to Sage version 8.9.
+    - Sverre Lunoee--Nielsen (2020-07-01): Refactored the code and added
+      new documentation and tests.
 
 """
 
@@ -133,7 +100,7 @@ def is_FP_ModuleHomspace(x):
     r"""
     Check if the given object is of type FP_ModuleHomspace.
 
-    OUTPUT:: a boolean which is True if ``x`` is of type FP_ModuleHomspace.
+    OUTPUT: A boolean which is True if ``x`` is of type FP_ModuleHomspace.
 
     EXAMPLES::
 
@@ -170,11 +137,10 @@ class FP_ModuleHomspace(Homset):
 
         INPUT:
 
-        - ``values`` -- an iterable of FP_Elements of the codomain of this homset which
-          equals the values of the module generators of the domain.
+        - ``values`` -- An iterable of FP_Elements of the codomain.
 
         OUTPUT: A module homomorphism in this homspace sending the generators
-        of the domain module to the corresponding values of the input argument.
+        of the domain module to the given values.
 
         EXAMPLES::
 
@@ -295,10 +261,13 @@ class FP_ModuleHomspace(Homset):
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FP_Module([1,3], A2)
             sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
+
             sage: z = Hom(F, L).zero(); z
             The trivial homomorphism.
+
             sage: z(F.an_element(5))
             <0, 0>
+
             sage: z(F.an_element(23))
             <0, 0>
 
@@ -310,20 +279,20 @@ class FP_ModuleHomspace(Homset):
         r"""
         Create the identity homomorphism.
 
-        If this homset is not an endomorphism set, a type error is raised.
-
         EXAMPLES::
 
             sage: from sage.modules.fp_modules.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
+
             sage: id = Hom(L, L).identity(); id
             The identity homomorphism.
+
             sage: e = L.an_element(5)
             sage: e == id(e)
             True
 
-        It is an error to call this function when the homset is not an
+        It is an error to call this function when the homset is not a
         set of endomorphisms::
 
             sage: F = FP_Module([1,3], A2)

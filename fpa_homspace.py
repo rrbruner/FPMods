@@ -1,52 +1,11 @@
 r"""
-The set of homomorphisms between finitely presented graded modules over the Steenrod algebra
+The set of homomorphisms of finitely presented graded modules over the Steenrod algebra
 
-EXAMPLES:
+This class implements methods for construction and basic
+manipulation of homsets of finitely presented graded modules over the
+`\operatorname{mod} p` Steenrod algebra.  
 
-Users will typically use this class indirectly through the free function
-``Hom``::
-
-    sage: from sage.modules.fp_modules.fpa_module import FPA_Module
-    sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
-    sage: F = FPA_Module([1,3], A2)
-    sage: L = FPA_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
-    sage: homset = Hom(F, L)
-
-Elements of the homset are homomorphisms `F\rightarrow L`.  To construct a
-homomorphism, a list of values in the codomain module must be given,
-each value corresponding to a module generator of the domain module::
-
-    sage: homset.domain()
-    Finitely presented module on 2 generators and 0 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-    sage: homset.codomain()
-    Finitely presented module on 2 generators and 2 relations over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
-    sage: v0 = L([Sq(1), 1])
-    sage: v1 = L([0, Sq(2)])
-    sage: f = homset([v0, v1]); f
-      Module homomorphism of degree 2 defined by sending the generators
-        [<1, 0>, <0, 1>]
-      to
-        [<Sq(1), 1>, <0, Sq(2)>]
-
-The trivial homomorphism sending all generators to the zero element in the
-codomain can be constructed by a special API call::
-
-    sage: z = homset.zero(); z
-    The trivial homomorphism.
-    sage: z(F.generator(0))
-    <0, 0>
-    sage: z(F.generator(1))
-    <0, 0>
-
-When the domain and codomain of the homset are the same module, the homset
-consists of endomorphisms and which always contain the identity map::
-
-    sage: id = Hom(L, L).identity(); id
-    The identity homomorphism.
-    sage: e = L.an_element(5); e
-    <Sq(0,1), Sq(2)>
-    sage: id(e) == e
-    True
+For an overview of the API, see :doc:`fpa_module`.
 
 TESTS::
 
@@ -61,7 +20,7 @@ TESTS::
     Module homomorphism of degree 0 defined by sending the generators
       [<1, 0>, <0, 1>]
     to
-      [<0, 0>, <Sq(1), 1>]
+      [<0, 0>, <Sq(1), 0>]
     sage: homset([L((Sq(1), 1)), L((0, Sq(2)))])
     Module homomorphism of degree 2 defined by sending the generators
       [<1, 0>, <0, 1>]
@@ -96,6 +55,14 @@ TESTS::
     running ._test_pickling() . . . pass
     running ._test_some_elements() . . . pass
     running ._test_zero() . . . pass
+
+AUTHORS:
+
+    - Robert R. Bruner, Michael J. Catanzaro (2012): Initial version.
+    - Sverre Lunoee--Nielsen and Koen van Woerden (2019-11-29): Updated the
+      original software to Sage version 8.9.
+    - Sverre Lunoee--Nielsen (2020-07-01): Refactored the code and added 
+      new documentation and tests.
 
 """
 

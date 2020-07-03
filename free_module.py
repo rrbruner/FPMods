@@ -1,5 +1,5 @@
 r"""
-Finitely generated free graded modules
+Finitely generated free graded modules over connected graded algebras.
 
 This class implements methods for construction and basic manipulation of
 finitely generated free graded modules over connected graded algebras.
@@ -8,11 +8,14 @@ finitely generated free graded modules over connected graded algebras.
     :class:`sage.modules.fp_modules.fp_module.FP_Module` and its derived class
     :class:`sage.modules.fp_modules.fpa_module.FPA_Module`.
 
-.. RUBRIC:: User guide
+==========
+User guide
+==========
 
-Let `p` be a prime number.  The `\operatorname{mod} p` Steenrod algebra `A_p` is a connected
-algebra over the finite field of `p` elements.  All modules presented here
-will be defined over `A_p`, or one of its sub-Hopf algebras.  E.g.::
+Let `p` be a prime number.  The `\operatorname{mod} p` Steenrod algebra `A_p`
+is a connected algebra over the finite field of `p` elements.  All modules
+presented here will be defined over `A_p`, or one of its sub-Hopf algebras.
+E.g.::
 
     sage: A = SteenrodAlgebra(p=2)
 
@@ -36,7 +39,9 @@ connectivity is an integer::
     sage: M.connectivity()
     0
 
-.. RUBRIC Module elements
+---------------
+Module elements
+---------------
 
 For an `A`-module with generators `\{g_i\}_{i=1}^N`, any homogeneous element
 of degree `n` has the form
@@ -50,10 +55,10 @@ is referred to as the coefficients of `x`.
 
 Module elements are displayed by their algebra coefficients::
 
-    sage: M.an_element(degree=5)
+    sage: M.an_element(n=5)
     <Sq(2,1), Sq(4)>
 
-    sage: M.an_element(degree=15)
+    sage: M.an_element(n=15)
     <Sq(0,0,0,1), Sq(1,2,1)>
 
 The generators are themselves elements of the module::
@@ -128,7 +133,9 @@ coordinates::
     sage: x_ == x
     True
 
-.. RUBRIC:: Module homomorphisms
+--------------------
+Module homomorphisms
+--------------------
 
 Homomorphisms of free graded `A`-modules `M\to N` are linear maps of their
 underlying `k`-vectorspaces which commute with the `A`-module structure.
@@ -241,9 +248,11 @@ modules::
 
 AUTHORS:
 
-    - Robert R. Bruner and Michael J. Catanzaro (2005): initial version
-    - Koen (date in ISO year-month-day format): Updating to Sage 8.1
-    - Sverre A. Lunoee-Nielsen (2020-01-11): Rewritten and refactored, and updated to Sage 8.9.
+    - Robert R. Bruner, Michael J. Catanzaro (2012): Initial version.
+    - Sverre Lunoee--Nielsen and Koen van Woerden (2019-11-29): Updated the
+      original software to Sage version 8.9.
+    - Sverre Lunoee--Nielsen (2020-07-01): Refactored the code and added 
+      new documentation and tests.
 
 """
 
@@ -276,14 +285,15 @@ class FreeModule(UniqueRepresentation, SageModule):
 
     def __init__(self, generator_degrees, algebra):
         r"""
-        Create a finitely generated free graded module over a graded algebra.
+        Create a finitely generated free graded module over a connected graded
+        algebra.
 
         INPUT:
 
-        - ``generator_degrees`` -- a tuple of non-decreasing integers defining
+        - ``generator_degrees`` -- a tuple of integers defining
           the number of generators of the module, and their degrees.
 
-        - ``algebra`` -- the algebra over which the module is defined.
+        - ``algebra`` -- the connected algebra over which the module is defined.
 
         OUTPUT: The finitely generated free graded module on generators with
         degrees given by ``generator_degrees``.
@@ -328,8 +338,8 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         Decide if this module is trivial or not.
 
-        OUTPUT: The boolean value ``True`` if the module is trivial, and ``False``
-        otherwise.
+        OUTPUT: The boolean value ``True`` if the module is trivial, and
+        ``False`` otherwise.
 
         EXAMPLES::
 
@@ -375,7 +385,7 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         Construct any element of the module.
 
-        This function is used internally by the ()-operator when creating
+        This function is used internally by the ()-method when creating
         module elements, and should not be called by the user explicitly.
 
         INPUT:
@@ -393,11 +403,14 @@ class FreeModule(UniqueRepresentation, SageModule):
             sage: from sage.modules.fp_modules.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,2,4), A)
+
             sage: zero = M(0); zero
             <0, 0, 0>
+
             sage: e = M((Sq(4), Sq(2), 1)); e
             <Sq(4), Sq(2), 1>
-            sage: e == M(e)
+
+            sage: e is M(e)
             True
 
         """
@@ -409,7 +422,7 @@ class FreeModule(UniqueRepresentation, SageModule):
             return self.element_class(self, coefficients)
 
 
-    def an_element(self, degree=None):
+    def an_element(self, n=None):
         r"""
         Return an element of the module.
 
@@ -435,13 +448,13 @@ class FreeModule(UniqueRepresentation, SageModule):
         if len(self._generator_degrees) == 0:
             return self.element_class(self, [])
 
-        if degree == None:
-            degree = max(self._generator_degrees) + 7
+        if n == None:
+            n = max(self._generator_degrees) + 7
 
         coefficients = []
 
         for g in self._generator_degrees:
-            basis = self.base_ring().basis(degree - g) if degree >= g else ()
+            basis = self.base_ring().basis(n - g) if n >= g else ()
             # All of the algebra generators in basis will bring the
             # module generator in dimension g to dimension
             # g + (topDimension - g) = topDimension.  Picking any one of them
@@ -544,8 +557,9 @@ class FreeModule(UniqueRepresentation, SageModule):
         basis_elements = self.basis_elements(n)
 
         if len(coordinates) != len(basis_elements):
-            raise ValueError('Incorrect coordinate vector size: %s. | Should have length %d.'\
-                % (len(coordinates), len(basis_elements)))
+            raise ValueError('The given coordinate vector has incorrect length: %d.  '
+                  'It should have length %d.' % (len(coordinates), len(basis_elements)))
+
 
         # Adding the condition `if c != 0` improved performance dramatically in this
         # real life example:
@@ -644,7 +658,7 @@ class FreeModule(UniqueRepresentation, SageModule):
     @cached_method
     def generator(self, index):
         r"""
-        Return the module generator with the given ``index``.
+        Return the module generator with the given index.
 
         OUTPUT: An instance of the element class of this parent.
 
@@ -694,7 +708,7 @@ class FreeModule(UniqueRepresentation, SageModule):
     def _Hom_(self, Y, category):
         r"""
         The internal hook used by the free function
-        sage.categories.homset.hom.Hom() to create homsets involving this
+        :meth:`sage.categories.homset.hom.Hom` to create homsets involving this
         parent.
 
         """
