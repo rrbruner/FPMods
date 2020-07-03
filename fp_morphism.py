@@ -159,65 +159,118 @@ from sage.rings.infinity import PlusInfinity
 from sage.structure.unique_representation import UniqueRepresentation
 
 
-def _CreateMatrix(sub_matrices, ground_ring):
+def _CreateRelationsMatrix(module, relations, source_degs, target_degs):
     r"""
-    Create a matrix from a matrix of sub-matrices.
+    The action by the given relations can be written as multiplication by
+    the matrix `R = (r_{ij})_{i,j}` where each entry is an algebra element and
+    each row in the matrix contains the coefficients of a single relation.
+
+    For a given source degree, `n`, the multiplication by `r_{ij}` restricts to
+    a linear transformation `M_n\to M_{n + \deg(r_{ij})}`.  This function returns
+    the matrix of linear transformations gotten by restricting `R` to the given
+    source degrees.
 
     INPUT:
 
-    - ``block_matrices`` -- A list of lists of matrices, representing a matrix
-      of sub-matrices.
-    - ``ground_ring'' -- The common ground field for the sub-matrices.
+    - ``module`` -- The module where the relations acts.
+    - ``relations`` -- A list of lists of algebra coefficients defining the
+      matrix `R`.
+    - ``source_degs`` -- A list of integer degrees.  Its length should be
+      equal to the number of columns of `R`.
+    - ``target_degs`` -- A list of integer degrees.  Its length should be
+      equal to the number of rows of `R`.
 
-    OUTPUT: A single matrix consisting of all the given sub-matrices.
+    Furthermore must the degrees given by the input satisfy the following:
 
-    EXAMPLES.  Let x x x be theheh `f: x, y` is the thing::
+        `\text{source_degs[j]} + \deg(r_{i,j}) = \text{target_degs[i]}`
 
-        sage: from sage.modules.fp_modules.fp_morphism import _CreateMatrix
-        sage: ground_field = GF(2)
-        sage: U1 = VectorSpace(ground_field, 3)
-        sage: U2 = VectorSpace(ground_field, 2)
-        sage: V1 = VectorSpace(ground_field, 2)
-        sage: V2 = VectorSpace(ground_field, 2)
-        sage: r11 = Hom(U1, V1)([(1,0), (0,0), (1,1)])
-        sage: r12 = Hom(U2, V1)([(1,0), (0,1)])
-        sage: r21 = Hom(U1, V2)([(0,0), (1,1), (1,1)])
-        sage: r22 = Hom(U2, V2)([(1,1), (1,1)])
-        sage: MM = [[r11, r12],[r21, r22]]
-        sage: _CreateMatrix(MM, ground_field)
-        [1 0 1 1 0]
-        [0 0 1 0 1]
-        [0 1 1 1 1]
-        [0 1 1 1 1]
+    for all `i, j`.
+
+    OUTPUT:
+
+    - ``block_matrix`` -- A list of lists representing a matrix of linear
+      transformations `(T_{ij})`.  Each transformtion `T_{ij}` is the linear map
+      representing multiplication by the coefficient `r_{ij}` restricted to
+      the module elements of degree ``source_degs[j]``.
+    - ``R`` -- A matrix representing ``block_matrix`` as a single linear
+      transformation.
+
+    TESTS:
+
+        sage: from sage.modules.fp_modules.fp_module import FP_Module
+        sage: from sage.modules.fp_modules.fp_morphism import _CreateRelationsMatrix
+        sage: A = SteenrodAlgebra(p=2)
+        sage: blocks, R = _CreateRelationsMatrix(FP_Module([0], A), [[Sq(2)]], [4], [6])
+
+        sage: blocks
+          [[Vector space morphism represented by the matrix:
+            [0 1 0]
+            [0 1 1]
+            Domain: Vector space quotient V/W of dimension 2 over Finite Field of size 2 where
+            V: Vector space of dimension 2 over Finite Field of size 2
+            W: Vector space of degree 2 and dimension 0 over Finite Field of size 2
+            Basis matrix:
+            []
+            Codomain: Vector space quotient V/W of dimension 3 over Finite Field of size 2 where
+            V: Vector space of dimension 3 over Finite Field of size 2
+            W: Vector space of degree 3 and dimension 0 over Finite Field of size 2
+            Basis matrix:
+            []]]
+
+        sage: R
+          [0 0]
+          [1 1]
+          [0 1]
+
 
     """
     from sage.matrix.constructor import matrix
 
-    if len(sub_matrices) == 0:
-        raise ValueError('Empty parameter.')
+    if len(relations) == 0:
+        raise ValueError('No relations given, cannot build matrix.')
 
-    for i in range(len(sub_matrices)):
-        if len(sub_matrices[i]) != len(sub_matrices[0]):
-            raise ValueError('The %d\'th row is of the wrong length: %d != %d' % (len(sub_matrices[i]), len(sub_matrices[0])))
-        for j in range(len(sub_matrices[i])):
-            if sub_matrices[i][j].codomain().dimension() != sub_matrices[i][0].codomain().dimension():
-                raise ValueError('The matrix at (%d, %d) has the wrong number of rows.' % (i,j))
+    # Create the block matrix of linear transformations.
+    block_matrix = []
+    for i, r_i in enumerate(relations):
+        row = []
+        target_space = module.vector_presentation(target_degs[i])
 
-    for j in range(len(sub_matrices[0])):
-        for i in range(len(sub_matrices)):
-            if sub_matrices[i][j].domain().dimension() != sub_matrices[0][j].domain().dimension():
-                raise ValueError('The matrix at (%d, %d) has the wrong number of columns.' % (i,j))
+        for j, r_ij in enumerate(r_i):
 
+            values = []
+            for b in module.basis_elements(source_degs[j]):
+                w = r_ij*b
+                values.append(
+                    target_space.zero() if w.is_zero() else w.vector_presentation())
+
+            row.append(
+                Hom(module.vector_presentation(source_degs[j]), target_space)(values))
+
+        block_matrix.append(row)
+
+    # Deal with the case of zero dimensional matrices first.
+    total_source_dim = 0
+    for el in block_matrix[0]:
+        total_source_dim += el.domain().dimension()
+    total_target_dim = 0
+    for row in block_matrix:
+        total_target_dim += row[0].codomain().dimension()
+    if total_source_dim == 0:
+        return block_matrix, matrix(total_target_dim, 0)
+    elif total_target_dim == 0:
+        return block_matrix, matrix(0, total_source_dim)
+
+    # Create a matrix from the matrix of linear transformations.
     entries = []
-    for j in range(len(sub_matrices[0])):
-        for n in range(sub_matrices[0][j].domain().dimension()):
+    for j in range(len(block_matrix[0])):
+        for n in range(block_matrix[0][j].domain().dimension()):
             column = []
-            for i in range(len(sub_matrices)):
-                lin_trans = sub_matrices[i][j]
+            for i in range(len(block_matrix)):
+                lin_trans = block_matrix[i][j]
                 column += lin_trans(lin_trans.domain().basis()[n])
             entries.append(column)
 
-    return matrix(ground_ring, entries).transpose()
+    return block_matrix, matrix(module.base_ring().base_ring(), entries).transpose()
 
 
 class FP_ModuleMorphism(SageMorphism):
@@ -849,10 +902,31 @@ class FP_ModuleMorphism(SageMorphism):
         - ``verbose`` -- Boolean to enable progress messages. (optional,
           default: ``False``)
 
-        OUTPUT:
+        OUTPUT: A homomorphism `g` with the property that this homomorphism
+        equals `f\circ g`.  If no lift exist, ``None`` is returned.
 
-        - ``g`` -- A homomorphism with the property that this homomorphism
-          equals ``f\circ g``.  If no lift exist, ``None`` is returned.
+        ALGORITHM:
+
+        Let `L` be the domain of this homomorphism, and choose `x_1, \ldots, x_N`
+        such that `f(x_i) = self(g_i)` where the `g_i`'s are the module
+        generators of `L`.
+
+        The linear function sending `g_i` to `x_i` for every `i` is well
+        defined if and only if the vector `x = (x_1,\ldots, x_N)` lies
+        in the nullspace of the coefficient matrix `R = (r_{ij})` given by the 
+        relations of `L`.
+
+        Let `k \in \ker(f)` solve the matrix equation:
+
+            `R\cdot k = R\cdot x`.
+
+        Define a module homomorphism by sending the generators of `L` to 
+        `x_1 - k_1, \ldots, x_N - k_N`.  This is well defined, and is also a 
+        lift of this homomorphism over `f`.
+
+        Note that it does not matter how we choose the initial elements `x_i`:
+        If `x'` is another choice then `x' - x\in \ker(f)` and
+        `R\cdot k = R\cdot x` if and only if `R\cdot (k + x' - x) = R\cdot x'`.
 
         EXAMPLES::
 
@@ -930,7 +1004,7 @@ class FP_ModuleMorphism(SageMorphism):
             sage: HZ = FP_Module([0], A, relations=[[Sq(1)]])
             sage: f = Hom(F,HZ)(HZ.generators())
             sage: split = Hom(HZ, HZ).identity().lift(f, verbose=True)
-            The homomorphism cannot be lifted in any way such that the relations of the domain are respected.
+            The homomorphism cannot be lifted in any way such that the relations of the domain are respected: matrix equation has no solutions
             sage: split is None
             True
 
@@ -942,20 +1016,44 @@ class FP_ModuleMorphism(SageMorphism):
             sage: f.lift(Hom(HZ, HZ).zero(), verbose=True)
             This homomorphism cannot lift over a trivial homomorphism since it is non-trivial.
 
+            sage: Ap = SteenrodAlgebra(p=2, profile=(2,2,2,1))
+            sage: Hko = FP_Module([0], Ap, [[Sq(2)], [Sq(1)]])
+            sage: f = Hom(Hko, Hko)([(Ap.Sq(0,0,3) + Ap.Sq(0,2,0,1))*Hko.generator(0)])
+            sage: f*f == 0
+            True
+            sage: k = f.kernel()
+            sage: f.lift(k)
+            Module homomorphism of degree 21 defined by sending the generators
+              [<1>]
+            to
+              [<0, Sq(1), 0>]
+
+        Corner cases involving trivial maps::
+
+            sage: M = FP_Module([1], A)
+            sage: M1 = FP_Module([0], A)
+            sage: M2 = FP_Module([0], A, [[Sq(1)]])
+            sage: q = Hom(M1, M2)([M2.generator(0)])
+            sage: z = Hom(M, M2).zero()
+            sage: lift = z.lift(q)
+            sage: lift.domain() is M and lift.codomain() is M1
+            True
+
         .. SEEALSO::
-            :meth:`sage.modules.fp_modules.fp_morphism.split`
+            :meth:`split`
 
         """
 
         from sage.modules.free_module_element import vector
 
         #        self
-        #    L --------> N
-        #                ^
-        #                |
-        #                | f
-        #                |
-        #                M
+        #    L -------> N
+        #     \         ^
+        #       \       |
+        #   lift  \     | f
+        #           \   |
+        #            _| |
+        #               M
         L = self.domain()
         N = self.codomain()
         M = f.domain()
@@ -967,7 +1065,7 @@ class FP_ModuleMorphism(SageMorphism):
 
         # The trivial map lifts over any other map.
         if self.is_zero():
-            return Hom(L, N).zero()
+            return Hom(L, M).zero()
 
         # A non-trivial map never lifts over the trivial map.
         if f.is_zero():
@@ -975,73 +1073,90 @@ class FP_ModuleMorphism(SageMorphism):
                 print('This homomorphism cannot lift over a trivial homomorphism since it is non-trivial.')
             return None
 
-        xs_ = [f.solve(self(x)) for x in L.generators()]
+        xs = [f.solve(self(g)) for g in L.generators()]
+
         # If some of the generators are not in the image of f, there is no
         # hope finding a lift.
-        if None in xs_:
+        if None in xs:
             if verbose:
                 print('The generators of the domain of this homomorphism does '\
                       'not map into the image of the homomorphism we are lifting over.')
             return None
 
-        # L is free, so there are no relations to take into consideration.
+        # If L is free there are no relations to take into consideration.
         if not L.has_relations():
-            return Hom(L,M)(xs_)
+            return Hom(L, M)(xs)
 
-        # self, f, and all generators of L are non-zero.  Thus, they all have
-        # well-defined degrees.
-        xs_degs = [x.degree() for x in xs_]
+        # The degree of the lifted map f_.
+        lift_deg = self.degree() - f.degree()
 
-        # Act on the lifts by the relations of L.
-        zs = [sum([a*b for a,b in zip(r.coefficients(), xs_)]) for r in L.relations()]
-        zs_degs = [r.degree() + self.degree() - f.degree() for r in L.relations()]
+        # Compute the kernel of f.  The equations we will solve will live in
+        # this submodule.
+        iK = f.kernel(top_dim=max([r.degree() + lift_deg for r in L.relations()]))
 
-        iK = f.kernel(top_dim=max(xs_degs))
+        source_degs = [g.degree() + lift_deg for g in L.generators()]
+        target_degs = [r.degree() + lift_deg for r in L.relations()]
+
+        # Act on the liftings xs by the relations.
+        ys = []
         K = iK.domain()
+        all_zero = True
 
-        def _map_by_relation(r, x, V):
-            return V.zero() if (r*x).is_zero() else (r*x).vector_presentation()
+        for r in L.relations():
+            target_degree = r.degree() + lift_deg
 
-        # Create the matrix of linear transformations.
-        MM = []
-        for i, r in enumerate(L.relations()):
-            row = []
-            for j, x in enumerate(xs_):
-                n = xs_degs[j]
-                m = zs_degs[i]
-                r_ij = r.coefficients()[j]
-                U = K.vector_presentation(n)
-                V = M.vector_presentation(m)
-                values = [_map_by_relation(r_ij, iK(b), V) for b in K[n]]
-                row.append(Hom(U, V)(values))
-            MM.append(row)
-        R = _CreateMatrix(MM, M.base_ring().base_ring())
+            y = iK.solve(sum([c*x for c,x in zip(r.coefficients(), xs)]))
+            if y is None:
+                if verbose:
+                    print('The homomorphism cannot be lifted in any '
+                         'way such that the relations of the domain are '
+                         'respected.')
+                return None
 
-        # Concatenate the target vectors into one single vector in the
-        # codomain of the relations matrix R.
-        targets = [vector(len(M[zs_degs[j]])*(0,)) if z.is_zero() else z.vector_presentation() for j, z in enumerate(zs)]
+            if y.is_zero():
+                dim = len(K[target_degree])
+                ys += dim*[0]  # The zero vector of the appropriate dimension.
+            else:
+                all_zero = False
+                ys += list(y.vector_presentation())
 
-        zs_ = vector(sum([list(v) for v in targets], []))
+        # If the initial guess already fits the relations, we are done.
+        if all_zero:
+            return Hom(L, M)(xs)
 
-        # Find `y` in the preimage of `zs_`:
+        block_matrix, R = _CreateRelationsMatrix(
+            K, [r.coefficients() for r in L.relations()], source_degs, target_degs)
+
         try:
-            y = R.solve_right(zs_)
+            solution = R.solve_right(vector(ys))
         except ValueError as error:
-            if verbose:
-                 print('The homomorphism cannot be lifted in any '\
-                     'way such that the relations of the domain are respected.')
-            return None
+            if str(error) == 'matrix equation has no solutions':
+                if verbose:
+                    print('The homomorphism cannot be lifted in any '
+                          'way such that the relations of the domain '
+                          'are respected: %s' % error)
 
-        # translate from `y\in K_1\oplus \ldots \oplus K_n` to the corresponding element of `K`
-        new_xs = []
+                return None
+            else:
+                raise ValueError(error)
+
+        # Interpret the solution vector as a vector in the direct sum
+        # $ K_1\oplus K_2\oplus \ldots \oplus K_n $.
         n = 0
-        for j,X in enumerate(MM[0]):
-            k = X.domain().dimension()
-            w = K.element_from_coordinates(y[n:n+k], xs_degs[j])
-            new_xs.append(xs_[j] + iK(w))
-            n += k
+        for j, source_degree in enumerate(source_degs):
 
-        return Hom(L,M)(new_xs)
+            source_dimension = block_matrix[0][j].domain().dimension()
+
+            w = K.element_from_coordinates(
+                    solution[n:n + source_dimension], source_degree)
+
+            # Subtract the solution w_i from our initial choice of lift
+            # for the generator g_i.
+            xs[j] -= iK(w)
+
+            n += source_degree
+
+        return Hom(L, M)(xs)
 
 
     def split(self, verbose=False):
