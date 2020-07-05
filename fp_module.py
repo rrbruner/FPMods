@@ -134,7 +134,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         """
         if None in generator_degrees:
-            raise ValueError, ("generators are not all integers: %s" % str(generator_degrees))
+            raise ValueError("generators are not all integers: %s" % str(generator_degrees))
 
         # Store a reference to the input parameters if we need to create a
         # copy of this module.
@@ -1046,7 +1046,7 @@ class FP_Module(UniqueRepresentation, SageModule):
                 print ('Computing f_%d (%d/%d)' % (i, i, k))
 
         if k < 0:
-            raise ValueError, "The length of the resolution must be non-negative."
+            raise ValueError("The length of the resolution must be non-negative.")
 
         complex = []
 
