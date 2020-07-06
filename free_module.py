@@ -431,7 +431,7 @@ class FreeModule(UniqueRepresentation, SageModule):
 
         INPUT:
 
-        - ``degree`` --  the degree of the element to construct.  If the default
+        - ``n`` --  the degree of the element to construct.  If the default
           value ``None`` is given, a degree will be chosen by the function.
 
         OUTPUT: An element of the given degree.
