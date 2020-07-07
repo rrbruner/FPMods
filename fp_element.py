@@ -432,14 +432,6 @@ class FP_Element(SageModuleElement):
         r"""
         A hash value representing this element.
 
-        TESTS::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FreeModule((0,1), A2)
-            sage: M.an_element(127).__hash__()
-            6795291966596493067
-
         """
         return hash(self.coefficients())
 
