@@ -254,7 +254,7 @@ class FP_Module(UniqueRepresentation, SageModule):
             sage: M_ = M.change_ring(A2); M_
             Finitely presented module on 2 generators and 1 relation over sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function [3, 2, 1]
 
-            sage: # Chaning back yields the original module.
+            sage: # Changing back yields the original module.
             sage: M_.change_ring(A) is M
             True
         """

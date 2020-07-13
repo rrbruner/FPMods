@@ -605,13 +605,12 @@ Steenrod algebra `A`:
         Hko &= A/A\cdot \{\operatorname{Sq}(2), \operatorname{Sq}(1)\} \,.
     \end{align}
 
-There is a natural projection `q: H\mathbb{Z}\to Hko`, and non-trivial
+There is a natural projection `q: H\mathbb{Z}\to Hko`, and a non-trivial
 endomorphism of degree 28, represented as a degree zero map `f: \Sigma^{28}Hko\to Hko`
 which we define below.
 
-The problem we will solve is finding all possible homomorphisms
-`f': \Sigma^{28}Hko\to H\mathbb{Z}`, making the following diagram into a
-commuting triangle:
+The problem we will solve is to find all possible homomorphisms
+`f': \Sigma^{28}Hko\to H\mathbb{Z}`, making the following diagram commute:
 
 .. MATH::
 
