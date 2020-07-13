@@ -91,6 +91,20 @@ connectivity is an integer::
     sage: M.connectivity()
     0
 
+Each module is defined over a Steenrod algebra or some sub-Hopf algebra of it,
+given by its base ring:
+
+    sage: M.base_ring()
+    mod 2 Steenrod algebra, milnor basis
+    sage: FPA_Module([0],algebra=SteenrodAlgebra(p=2,profile=(3,2,1))).base_ring()
+    sub-Hopf algebra of mod 2 Steenrod algebra, milnor basis, profile function
+    [3, 2, 1]
+
+.. NOTE::
+
+    The :meth:`algebra` will not return the desired algebra. Users should use
+    the :meth:`base_ring` method.
+
 ---------------
 Module elements
 ---------------
