@@ -281,9 +281,19 @@ class FP_ModuleMorphism(SageMorphism):
 
             sage: homspace.zero().degree() is None
             True
+    
+        TESTS::
+
+            sage: M = FP_Module([7], algebra=SteenrodAlgebra(p=2))
+            sage: N = FP_Module([0], algebra=SteenrodAlgebra(p=2), relations=[[Sq(1)]])
+            sage: f = Hom(M,N)([Sq(1)*N.generator(0)])
+            sage: f == Hom(M,N).zero()
+            True
+            sage: f.degree() is None
+            True
 
         """
-        return self.free_morphism.degree()
+        return None if self.is_zero() else self.free_morphism.degree()
 
 
     def values(self):
