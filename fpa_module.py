@@ -72,7 +72,7 @@ A homogeneous relation of degree `n` has the form
 
 where the homogeneous coefficients `a_1,\ldots a_N` in `A`, such that
 `\deg(a_i) + \deg(g_i) = n` for `i=1\ldots N`.  To create a module with
-relations, the coeffients for each relation is given to the constructor::
+relations, the coefficients for each relation is given to the constructor::
     
     sage: r1 = [Sq(8), Sq(7), 0]   # First relation
     sage: r2 = [Sq(7), 0, 1]       # Second relation
@@ -132,7 +132,7 @@ Each non-zero element has a well-defined degree::
     sage: x.degree()
     15
 
-But the zero element has not::
+But the zero element does not::
 
     sage: zero = M.zero(); zero
     <0, 0, 0>
@@ -189,7 +189,7 @@ computed::
      <0, Sq(6), 0>]
 
 Note that the third generator `g_3` of degree 7 having coordinates <0,0,1>
-is apparantly missing from the basis above.  This is because of the relation
+is apparently missing from the basis above.  This is because of the relation
 `\operatorname{Sq}^7(g_1) = g_3`.
 
 A vectorspace presentation can be produced::
@@ -201,7 +201,7 @@ A vectorspace presentation can be produced::
     Basis matrix:
     []
 
-Given any element, its coordinates with resepct to this basis can be computed::
+Given any element, its coordinates with respect to this basis can be computed::
 
     sage: x = M.an_element(7); x
     <Sq(0,0,1), Sq(3,1), 1>
@@ -224,7 +224,7 @@ Module homomorphisms
 Homomorphisms of `A`-modules `M\to N` are linear maps of their
 underlying `\mathbb{F}_p`-vectorspaces which commute with the `A`-module structure.
 
-To create a homomorphism, first create the object modelling the set of all
+To create a homomorphism, first create the object modeling the set of all
 such homomorphisms using the free function ``Hom``::
 
     sage: Hko = FPA_Module([0], A, [[Sq(2)], [Sq(1)]])
@@ -593,7 +593,7 @@ Example: Counting lifts
 
 In this more elaborate example we show how to find all possible lifts of a
 particular homomorphism.  We will do this in two ways, and as a check of
-validitiy, we will compare the results in the end.
+validity, we will compare the results in the end.
 
 We will work with the following modules over the `\operatorname{mod} 2`
 Steenrod algebra `A`:
