@@ -624,7 +624,8 @@ endomorphism of degree 28, represented as a degree zero map `f: \Sigma^{28}Hko\t
 which we define below.
 
 The problem we will solve is to find all possible homomorphisms
-`f': \Sigma^{28}Hko\to H\mathbb{Z}`, making the following diagram commute:
+`f': \Sigma^{28}Hko\to H\mathbb{Z}`, making the following diagram into a 
+commuting triangle:
 
 .. MATH::
 
