@@ -29,6 +29,7 @@ AUTHORS:
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
+from sage.misc.cachefunc import cached_method
 from sage.structure.element import ModuleElement as SageModuleElement
 
 from .free_element import FreeModuleElement
@@ -90,6 +91,7 @@ class FP_Element(SageModuleElement):
         return self.free_element.coefficients()
 
 
+    @cached_method
     def degree(self):
         r"""
         The degree of this element.
@@ -112,8 +114,17 @@ class FP_Element(SageModuleElement):
             sage: (x-x).degree() is None
             True
 
+        TESTS:
+
+            sage: N = FP_Module([0], SteenrodAlgebra(2), [[Sq(2)]])
+            sage: y = Sq(2)*N.generator(0)
+            sage: y == 0
+            True
+            sage: y.degree() is None
+            True
+
         """
-        return self.free_element.degree()
+        return self.free_element.degree() if self._nonzero_() else None
 
 
     def _repr_(self):
@@ -295,12 +306,12 @@ class FP_Element(SageModuleElement):
             0
 
         """
-
-        if self.parent() != other.parent():
+        if self.parent() != other.parent() or\
+            self.degree() != other.degree() or\
+            (self._add_(other._neg_()))._nonzero_():
             return 1
-        elif self.degree() != other.degree() and self.degree() != None and other.degree() != None:
-            return 1
-        return 1 if (self._add_(other._neg_()))._nonzero_() else 0
+        else:
+            return 0
 
 
     def vector_presentation(self):
@@ -353,14 +364,21 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        if self.degree() == None:
+        v = self.free_element.vector_presentation()
+
+        if v == 0:
             return None
 
-        v = self.free_element.vector_presentation()
-        M_n = self.parent().vector_presentation(self.degree())
-        # assert(v in M_n.V())
+        # Note that the free element is not zero at this point, so its degree
+        # is well defined.
+        n = self.free_element.degree() 
+        M_n = self.parent().vector_presentation(n)
+        q = M_n.quotient_map()(v)
 
-        return M_n.quotient_map()(v)
+        if q == 0:
+            return None
+
+        return q
 
 
     def _nonzero_(self):
@@ -388,10 +406,8 @@ class FP_Element(SageModuleElement):
             False
 
         """
-        if self.degree() == None:
-            return False
-
-        return self.vector_presentation() != 0
+        pres = self.vector_presentation()
+        return False if pres is None else (pres != 0)
 
 
     def normalize(self):
@@ -421,8 +437,8 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        if self.degree() == None:
-            return self
+        if not self._nonzero_():
+            return self.parent().zero()
 
         v = self.vector_presentation()
         return self.parent().element_from_coordinates(v, self.degree())
