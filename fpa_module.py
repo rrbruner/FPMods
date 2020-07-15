@@ -805,6 +805,11 @@ TESTS:
     sage: M.is_parent_of(m)
     True
 
+    sage: FPA_Module([0], algebra=ZZ)
+    Traceback (most recent call last):
+    ...
+    TypeError: This module class can only be instantiated when the algebra argument is an instance of sage.algebras.steenrod.steenrod_algebra.SteenrodAlgebra_generic
+
 AUTHORS:
 
     - Robert R. Bruner, Michael J. Catanzaro (2012): Initial version.
@@ -881,6 +886,13 @@ class FPA_Module(FP_Module):
         presentation given by ``generator_degrees`` and ``relations``.
 
         """
+
+        # Make sure that we are creating the module over some Steenrod algebra.
+        from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra_generic
+        if not isinstance(algebra, SteenrodAlgebra_generic):
+            raise TypeError('This module class can only be instantiated when the algebra argument '
+                'is an instance of sage.algebras.steenrod.steenrod_algebra.SteenrodAlgebra_generic')
+
         # Call the base class constructor.
         FP_Module.__init__(self, generator_degrees, algebra, relations)
 
