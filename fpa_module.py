@@ -92,7 +92,7 @@ connectivity is an integer::
     0
 
 Each module is defined over a Steenrod algebra or some sub-Hopf algebra of it,
-given by its base ring:
+given by its base ring::
 
     sage: M.base_ring()
     mod 2 Steenrod algebra, milnor basis
@@ -102,8 +102,8 @@ given by its base ring:
 
 .. NOTE::
 
-    The :meth:`algebra` will not return the desired algebra. Users should use
-    the :meth:`base_ring` method.
+    Calling :meth:`algebra` will not return the desired algebra. Users should
+    use the :meth:`base_ring` method.
 
 ---------------
 Module elements
