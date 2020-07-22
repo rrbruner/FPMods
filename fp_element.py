@@ -316,13 +316,16 @@ class FP_Element(SageModuleElement):
 
     def vector_presentation(self):
         r"""
-        A coordinate vector representing this module element.
+        A coordinate vector representing this module element when it is non-zero.
 
         These are coordinates with respect to the basis chosen by
         :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.basis_elements`.
+        When the element is zero, it has no well defined degree, and this
+        function returns ``None``.
 
-        OUTPUT: a vector of elements in the ground field of the algebra for
-        this module.
+        OUTPUT: A vector of elements in the ground field of the algebra for
+        this module when this element is non-zero.  Otherwise, the value
+        ``None``.
 
         .. SEEALSO::
 
@@ -364,28 +367,25 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        v = self.free_element.vector_presentation()
 
-        if v == 0:
+        # We cannot represent the zero element since it does not have a degree,
+        # and we therefore do not know which vectorspace it belongs to.
+        #
+        # In this case, we could return the integer value 0 since coercion would
+        # place it inside any vectorspace.  However, this will not work for
+        # homomorphisms, so we we return None to be consistent.
+        if self.free_element.degree() is None:
             return None
 
-        # Note that the free element is not zero at this point, so its degree
-        # is well defined.
-        n = self.free_element.degree() 
-        M_n = self.parent().vector_presentation(n)
-        q = M_n.quotient_map()(v)
-
-        if q == 0:
-            return None
-
-        return q
+        F_n = self.parent().vector_presentation(self.free_element.degree())
+        return F_n.quotient_map()(self.free_element.vector_presentation())
 
 
     def _nonzero_(self):
         r"""
         Determine if this element is non-zero.
 
-        OUTPUT: The boolean value ``True`` if this element is non-zero, and ``False`` 
+        OUTPUT: The boolean value ``True`` if this element is non-zero, and ``False``
         otherwise.
 
         EXAMPLES::

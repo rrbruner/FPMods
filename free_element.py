@@ -357,13 +357,16 @@ class FreeModuleElement(SageModuleElement):
     @cached_method
     def vector_presentation(self):
         r"""
-        A coordinate vector representing this module element.
+        A coordinate vector representing this module element when it is non-zero.
 
         These are coordinates with respect to the basis chosen by
         :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`.
+        When the element is zero, it has no well defined degree, and this
+        function returns ``None``.
 
         OUTPUT: A vector of elements in the ground field of the algebra for
-        this module.
+        this module when this element is non-zero.  Otherwise, the value
+        ``None``.
 
         .. SEEALSO::
 
@@ -400,14 +403,19 @@ class FreeModuleElement(SageModuleElement):
 
         TESTS:
 
-            sage: M.zero().vector_presentation()
-            0
+            sage: M.zero().vector_presentation() is None
+            True
 
         """        
 
-        n = self._degree
-        if n == None:
-             return 0
+        # We cannot represent the zero element since it does not have a degree,
+        # and we therefore do not know which vectorspace it belongs to.
+        # 
+        # In this case, we could return the integer value 0 since coercion would
+        # place it inside any vectorspace.  However, this will not work for
+        # homomorphisms, so we we return None to be consistent.
+        if self._degree is None:
+             return None
 
         bas_gen = self.parent().basis_elements(self._degree)
         base_vec = self.parent().vector_presentation(self._degree)

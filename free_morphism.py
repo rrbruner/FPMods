@@ -496,10 +496,14 @@ class FreeModuleMorphism(SageMorphism):
         The restriction of this homomorphism to the domain module elements of
         degree ``n``.
 
-        The restriction of a module homomorphism to the vectorspace of module
-        elements of degree `n` is a linear function into the vectorspace of
-        elements of degree `n+d` belonging to the codomain.  Here `d` is the
+        The restriction of a non-zero module homomorphism to the vectorspace of
+        module elements of degree `n` is a linear function into the vectorspace
+        of elements of degree `n+d` belonging to the codomain.  Here `d` is the
         degree of this homomorphism.
+
+        When this homomorphism is zero, it has no well defined degree so the
+        function cannot be presented since we do not know the degree of its
+        codomain.  In this case, the return value is ``None``.
 
         INPUT:
 
@@ -510,6 +514,7 @@ class FreeModuleMorphism(SageMorphism):
         to the vectorspace of domain elements of degree ``n`` of this free
         module, via the choice of basis given by
         :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`.
+        If the morphism is zero, the value ``None`` is returned.
 
         .. SEEALSO::
 
@@ -542,20 +547,31 @@ class FreeModuleMorphism(SageMorphism):
             Domain: Vector space of dimension 2 over Finite Field of size 2
             Codomain: Vector space of dimension 4 over Finite Field of size 2
 
+        TESTS:
+
+            sage: F = FreeModule((0,), A)
+            sage: z = Hom(F, F)([0])
+            sage: z.is_zero()
+            True
+            sage: z.vector_presentation(0) is None
+            True
+
         """
 
+        # The trivial map has no degree, so we can not create the codomain
+        # of the linear transformation.
+        if self._degree is None:
+            return None
+
         D_n = self.domain().vector_presentation(n)
+        C_n = self.codomain().vector_presentation(n + self._degree)
 
-        if self.is_zero():
-            C_n = self.codomain().vector_presentation(n)
+        values = [self(e) for e in self.domain().basis_elements(n)]
+        return Hom(D_n, C_n)([
+            C_n.zero() if e.is_zero() else e.vector_presentation() for e in values])
 
-            return Hom(D_n, C_n).zero()
-        else:
-            C_n = self.codomain().vector_presentation(n + self._degree)
-            values = [self(e).vector_presentation() for \
-                        e in self.domain().basis_elements(n)]
 
-            return Hom(D_n, C_n)(values)
+
 
 
 
