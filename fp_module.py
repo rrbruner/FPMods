@@ -692,6 +692,7 @@ class FP_Module(UniqueRepresentation, SageModule):
             for relation in self.j.values():
                 if relation.is_zero():
                     continue
+
                 num_total_iterations += len(self.base_ring().basis(n - relation.degree()))
 
             progress = 0
@@ -712,7 +713,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
                 # assert: isinstance(FreeElement, relation)
                 v = (a*relation).vector_presentation()
-                if v != None:
+                if not v is None:
                     spanning_set.append(v)
 
         R_n = F_n.subspace(spanning_set)

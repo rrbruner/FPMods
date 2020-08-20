@@ -625,20 +625,31 @@ class FP_ModuleMorphism(SageMorphism):
     @cached_method
     def vector_presentation(self, n):
         r"""
-        The restriction of this homomorphism to the vectorspace of domain module
-        elements of degree ``n``.
+        The restriction of this homomorphism to the domain module elements of
+        degree ``n``.
 
-        This is a linear function into the vectorspace of elements of degree
-        `n+d` of the codomain, where `d` is the degree of this homomorphism.
+        The restriction of a non-zero module homomorphism to the vectorspace of
+        module elements of degree `n` is a linear function into the vectorspace
+        of elements of degree `n+d` belonging to the codomain.  Here `d` is the
+        degree of this homomorphism.
 
-        INTPUT:
+        When this homomorphism is zero, it has no well defined degree so the
+        function cannot be presented since we do not know the degree of its
+        codomain.  In this case, the return value is ``None``.
+
+        INPUT:
 
         - ``n`` -- An integer degree.
 
         OUTPUT: A linear function of finite dimensional vectorspaces over the
-        ground field of the algebra for this module.
+        ground field of the algebra for this module.  The domain is isomorphic
+        to the vectorspace of domain elements of degree ``n`` of this free
+        module, via the choice of basis given by
+        :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`.
+        If the morphism is zero, the value ``None`` is returned.
 
         .. SEEALSO::
+
             :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.vector_presentation`,
             :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.basis_elements`.
 
@@ -692,26 +703,31 @@ class FP_ModuleMorphism(SageMorphism):
             [0 0 1 0]
             [0 0 0 1]
 
+
+        TESTS:
+
+            sage: F = FP_Module([0], A)
+            sage: Q = FP_Module([0], A, [[Sq(2)]])
+            sage: z = Hom(F, Q)([Sq(2)*Q.generator(0)])
+            sage: z.is_zero()
+            True
+            sage: z.vector_presentation(0) is None
+            True
+
         """
 
-        self_degree = self.degree() if self.degree() != None else 0
-        codomain_degree = self_degree + n
+        # The trivial map has no degree, so we can not create the codomain
+        # of the linear transformation.
+        if self.is_zero():
+            return None
 
         D_n = self.domain().vector_presentation(n)
-        C_n = self.codomain().vector_presentation(codomain_degree)
+        C_n = self.codomain().vector_presentation(self.degree() + n)
 
-        if self.degree() == None:
-            return Hom(D_n, C_n).zero()
+        values = [self(e) for e in self.domain().basis_elements(n)]
 
-        # The member function FP_ModuleElement.vector_presentation() can
-        # return None for the zero element.
-        none_to_zero = lambda v: C_n.zero() if v == None else v
-
-        values = [none_to_zero(self(\
-                self.domain().element_from_coordinates(x, n)\
-            ).vector_presentation()) for x in D_n.basis()]
-
-        return Hom(D_n, C_n)(values)
+        return Hom(D_n, C_n)([
+            C_n.zero() if e.is_zero() else e.vector_presentation() for e in values])
 
 
     def solve(self, x):
@@ -1511,8 +1527,14 @@ class FP_ModuleMorphism(SageMorphism):
         # This induction step is then repeated for all `n \leq` ``top_dim``.
         #
 
+        if self.is_zero():
+            # Epsilon: F_0 -> M
+            M = self.domain()
+            F_0 = M.ModuleClass.from_free_module(self.domain().j.codomain())
+            epsilon = Hom(F_0, M)(tuple(M.generators()))
+            return epsilon
+
         # Create the trivial module F_ to start with.
-        #from .fp_module import FP_Module
         F_ = self.domain().__class__((), algebra=self.base_ring())
         j = Hom(F_, self.domain())(())
 
@@ -1544,25 +1566,36 @@ class FP_ModuleMorphism(SageMorphism):
                 print(' %d' % n, end='')
                 sys.stdout.flush()
 
+            # We have taken care of the case when self is zero, so the
+            # vector presentation exists.
             self_n = self.vector_presentation(n)
             kernel_n = self_n.kernel()
 
             if kernel_n.dimension() == 0:
                 continue
 
-            j_n = j.vector_presentation(n)
-            Q_n = kernel_n.quotient(j_n.image())
-
-            if Q_n.dimension() == 0:
-                continue
-
-            # The map j is not onto in degree `n` of the kernel.
             generator_degrees = tuple((x.degree() for x in F_.generators()))
-            new_generator_degrees = tuple(Q_n.dimension()*(n,))
-            F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
 
-            new_values = tuple([
-                self.domain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
+            if j.is_zero():
+                # The map j is not onto in degree `n` of the kernel.
+                new_generator_degrees = tuple(kernel_n.dimension()*(n,))
+                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
+
+                new_values = tuple([
+                    self.domain().element_from_coordinates(q, n) for q in kernel_n.basis()])
+
+            else:
+                Q_n = kernel_n.quotient(j.vector_presentation(n).image())
+
+                if Q_n.dimension() == 0:
+                    continue
+
+                # The map j is not onto in degree `n` of the kernel.
+                new_generator_degrees = tuple(Q_n.dimension()*(n,))
+                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
+
+                new_values = tuple([
+                    self.domain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
 
             # Create a new homomorphism which is surjective onto the kernel
             # in all degrees less than, and including `n`.
@@ -1678,19 +1711,30 @@ class FP_ModuleMorphism(SageMorphism):
             if image_n.dimension() == 0:
                 continue
 
-            j_n = j.vector_presentation(n)
-            Q_n = image_n.quotient(j_n.image())
 
-            if Q_n.dimension() == 0:
-                continue
-
-            # The map j is not onto in degree `n` of the image.
             generator_degrees = tuple((x.degree() for x in F_.generators()))
-            new_generator_degrees = tuple(Q_n.dimension()*(n,))
-            F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
+            if j.is_zero():
+                # The map j is not onto in degree `n` of the image.
+                new_generator_degrees = tuple(image_n.dimension()*(n,))
+                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
 
-            new_values = tuple([
-                self.codomain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
+                new_values = tuple([
+                    self.codomain().element_from_coordinates(q, n) for q in image_n.basis()])
+
+            else:
+
+                j_n = j.vector_presentation(n)
+                Q_n = image_n.quotient(j_n.image())
+
+                if Q_n.dimension() == 0:
+                    continue
+
+                # The map j is not onto in degree `n` of the image.
+                new_generator_degrees = tuple(Q_n.dimension()*(n,))
+                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
+
+                new_values = tuple([
+                    self.codomain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
 
             # Create a new homomorphism which is surjective onto the image
             # in all degrees less than, and including `n`.

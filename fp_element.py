@@ -29,6 +29,7 @@ AUTHORS:
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
+from sage.misc.cachefunc import cached_method
 from sage.structure.element import ModuleElement as SageModuleElement
 
 from .free_element import FreeModuleElement
@@ -90,6 +91,7 @@ class FP_Element(SageModuleElement):
         return self.free_element.coefficients()
 
 
+    @cached_method
     def degree(self):
         r"""
         The degree of this element.
@@ -112,8 +114,17 @@ class FP_Element(SageModuleElement):
             sage: (x-x).degree() is None
             True
 
+        TESTS:
+
+            sage: N = FP_Module([0], SteenrodAlgebra(2), [[Sq(2)]])
+            sage: y = Sq(2)*N.generator(0)
+            sage: y == 0
+            True
+            sage: y.degree() is None
+            True
+
         """
-        return self.free_element.degree()
+        return self.free_element.degree() if self._nonzero_() else None
 
 
     def _repr_(self):
@@ -295,23 +306,26 @@ class FP_Element(SageModuleElement):
             0
 
         """
-
-        if self.parent() != other.parent():
+        if self.parent() != other.parent() or\
+            self.degree() != other.degree() or\
+            (self._add_(other._neg_()))._nonzero_():
             return 1
-        elif self.degree() != other.degree() and self.degree() != None and other.degree() != None:
-            return 1
-        return 1 if (self._add_(other._neg_()))._nonzero_() else 0
+        else:
+            return 0
 
 
     def vector_presentation(self):
         r"""
-        A coordinate vector representing this module element.
+        A coordinate vector representing this module element when it is non-zero.
 
         These are coordinates with respect to the basis chosen by
         :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.basis_elements`.
+        When the element is zero, it has no well defined degree, and this
+        function returns ``None``.
 
-        OUTPUT: a vector of elements in the ground field of the algebra for
-        this module.
+        OUTPUT: A vector of elements in the ground field of the algebra for
+        this module when this element is non-zero.  Otherwise, the value
+        ``None``.
 
         .. SEEALSO::
 
@@ -353,21 +367,25 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        if self.degree() == None:
+
+        # We cannot represent the zero element since it does not have a degree,
+        # and we therefore do not know which vectorspace it belongs to.
+        #
+        # In this case, we could return the integer value 0 since coercion would
+        # place it inside any vectorspace.  However, this will not work for
+        # homomorphisms, so we we return None to be consistent.
+        if self.free_element.degree() is None:
             return None
 
-        v = self.free_element.vector_presentation()
-        M_n = self.parent().vector_presentation(self.degree())
-        # assert(v in M_n.V())
-
-        return M_n.quotient_map()(v)
+        F_n = self.parent().vector_presentation(self.free_element.degree())
+        return F_n.quotient_map()(self.free_element.vector_presentation())
 
 
     def _nonzero_(self):
         r"""
         Determine if this element is non-zero.
 
-        OUTPUT: The boolean value ``True`` if this element is non-zero, and ``False`` 
+        OUTPUT: The boolean value ``True`` if this element is non-zero, and ``False``
         otherwise.
 
         EXAMPLES::
@@ -388,10 +406,8 @@ class FP_Element(SageModuleElement):
             False
 
         """
-        if self.degree() == None:
-            return False
-
-        return self.vector_presentation() != 0
+        pres = self.vector_presentation()
+        return False if pres is None else (pres != 0)
 
 
     def normalize(self):
@@ -421,8 +437,8 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        if self.degree() == None:
-            return self
+        if not self._nonzero_():
+            return self.parent().zero()
 
         v = self.vector_presentation()
         return self.parent().element_from_coordinates(v, self.degree())
