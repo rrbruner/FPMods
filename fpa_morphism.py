@@ -336,7 +336,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         return self._action(FP_ModuleMorphism._resolve_image, verbose)
 
 
-    def _action(self, method, profile, verbose=False):
+    def _action(self, method, verbose=False):
         r"""
         Changes the ground ring to a finite algebra, acts by the given method
         and changes back into the original ground ring before returning.
