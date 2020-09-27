@@ -56,6 +56,13 @@ class FP_Element(SageModuleElement):
             is that the dynamic type of the element class changes as a
             consequence of the category system.
 
+        TESTS:
+
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_element import FP_Element
+            sage: FP_Element(FP_Module([0], SteenrodAlgebra(2)), [Sq(2)])
+            <Sq(2)>
+
         """
         # Store the free representation of the element.
         self.free_element = FreeModuleElement(module.j.codomain(), coefficients)
@@ -447,6 +454,13 @@ class FP_Element(SageModuleElement):
     def __hash__(self):
         r"""
         A hash value representing this element.
+
+        TESTS::
+
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: M = FP_Module([0,1], SteenrodAlgebra(2), [[Sq(4),Sq(3)]])
+            sage: M([Sq(3), Sq(2)]).__hash__() == M([Sq(1)*Sq(2), Sq(2)]).__hash__()
+            True
 
         """
         return hash(self.coefficients())
