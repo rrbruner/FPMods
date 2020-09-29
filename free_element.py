@@ -339,15 +339,21 @@ class FreeModuleElement(SageModuleElement):
 
             sage: N = FreeModule((0,), A2)
             sage: x._richcmp_(M.an_element(4), op=2)  # Elements of different degrees aren't equal
-            1
+            False
             sage: w = N.an_element(1)
             sage: x._richcmp_(w, op=2) # Elements of different modules aren't equal.
-            1
+            False
+            sage: x._richcmp_(w, op=3) # Elements of different modules aren't equal.
+            True
             sage: z = M.zero()
             sage: x._richcmp_(z, op=2) # Compare the non-trivial x to the zero element.
-            1
+            False
+            sage: x._richcmp_(z, op=3) # Compare the non-trivial x to the zero element.
+            True
             sage: z._richcmp_(z, op=2) # Compare the zero element to itself.
-            0
+            True
+            sage: z._richcmp_(z, op=3) # Compare the zero element to itself.
+            False
 
         """
 

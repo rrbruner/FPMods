@@ -309,11 +309,17 @@ class FP_Element(SageModuleElement):
             sage: w = N.an_element(1)
             sage: x._richcmp_(w, 2) # Elements of different modules aren't equal.
             False
+            sage: x._richcmp_(w, 3) # Elements of different modules aren't equal.
+            True
             sage: z = M.zero()
             sage: x._richcmp_(z, 2) # Compare the non-trivial x to the zero element.
             False
+            sage: x._richcmp_(z, 3) # Compare the non-trivial x to the zero element.
+            True
             sage: z._richcmp_(z, 2) # Compare the zero element to itself.
             True
+            sage: z._richcmp_(z, 3) # Compare the zero element to itself.
+            False
 
         """
         same = True
