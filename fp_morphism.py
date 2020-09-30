@@ -1558,7 +1558,7 @@ class FP_ModuleMorphism(SageMorphism):
 
         if verbose:
             if dim > limit:
-                print('The dimension range is empty: [%d, %d]' % (n, limit))
+                print('The dimension range is empty: [%d, %d]' % (dim, limit))
             else:
                 print('Resolving the kernel in the range of dimensions [%d, %d]:' % (dim, limit), end='')
 
@@ -1698,7 +1698,7 @@ class FP_ModuleMorphism(SageMorphism):
 
         if verbose:
             if dim > limit:
-                print('The dimension range is empty: [%d, %d]' % (n, limit))
+                print('The dimension range is empty: [%d, %d]' % (dim, limit))
             else:
                 print('Resolving the image in the range of dimensions [%d, %d]:' % (dim, limit), end='')
 
