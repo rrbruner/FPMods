@@ -831,11 +831,9 @@ AUTHORS:
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
-from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra
 from sage.categories.homset import Hom
 from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
 from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import enveloping_profile_elements
-from sage.modules.free_module import VectorSpace
 from sage.rings.infinity import PlusInfinity
 
 
@@ -1145,8 +1143,6 @@ class FPA_Module(FP_Module):
         print("%d %s" % (
             len(additive_generator_degrees),
             " ".join(["%d" % x for x in additive_generator_degrees])))
-
-        num_basis_vectors = additive_generator_global_indices[-1]
 
         # A private function which transforms a vector in a given dimension
         # to a vector of global indices for the basis elements corresponding
