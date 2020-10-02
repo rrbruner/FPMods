@@ -41,7 +41,6 @@ from sage.categories.morphism import Morphism as SageMorphism
 from sage.misc.cachefunc import cached_method
 
 import sage.categories.homset
-import sage.categories.morphism
 
 from .free_homspace import is_FreeModuleHomspace
 
@@ -195,7 +194,7 @@ class FreeModuleMorphism(SageMorphism):
           and only if the homomorphisms are not equal.  Otherwise,
           return ``False``.
 
-        OUTPUT: A boolean indicating the result of the comparison operation.
+        OUTPUT: A Boolean.
 
         EXAMPLES::
 
