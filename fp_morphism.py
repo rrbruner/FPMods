@@ -37,10 +37,13 @@ import sys
 
 from sage.categories.homset import End
 from sage.categories.homset import Hom
+
 from sage.categories.morphism import Morphism as SageMorphism
 from sage.misc.cachefunc import cached_method
-from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_element import FP_Element
 from sage.rings.infinity import PlusInfinity
+
+from .free_homspace import FreeModuleHomspace
+from .fp_element import FP_Element
 
 
 def _CreateRelationsMatrix(module, relations, source_degs, target_degs):
@@ -205,7 +208,7 @@ class FP_ModuleMorphism(SageMorphism):
         if not is_FP_ModuleHomspace(parent):
             raise TypeError("parent (=%s) must be a fp module hom space" % parent)
 
-        self.free_morphism = Hom(parent.domain().j.codomain(), parent.codomain().j.codomain())([v.free_element for v in values])
+        self.free_morphism = FreeModuleHomspace(parent.domain().j.codomain(), parent.codomain().j.codomain())([v.free_element for v in values])
         self._values = values
 
         # Call the base class constructor.
@@ -1220,7 +1223,7 @@ class FP_ModuleMorphism(SageMorphism):
         else:
             D = self.domain().suspension(t)
             C = self.codomain().suspension(t)
-            return Hom(D, C)([D(x.free_element.coefficients()) for x in self._values])
+            return Hom(D, C)([C(x.free_element.coefficients()) for x in self._values])
 
 
     def cokernel(self):

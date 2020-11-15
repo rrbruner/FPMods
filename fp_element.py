@@ -154,7 +154,7 @@ class FP_Element(SageModuleElement):
              <Sq(2,0,1), Sq(2,2)>]
 
         """
-        return self.free_element._repr_()
+        return self.free_element.__repr__()
 
 
     def _lmul_(self, a):
@@ -193,7 +193,7 @@ class FP_Element(SageModuleElement):
              <0, Sq(3,2)>]
 
         """
-        return self.parent()(a*self.free_element)
+        return self.parent()(self.free_element._lmul_(a))
 
 
     def _neg_(self):

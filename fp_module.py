@@ -63,6 +63,8 @@ from sage.structure.unique_representation import UniqueRepresentation
 
 from .free_module import FreeModule
 from .free_element import FreeModuleElement
+from .free_homspace import FreeModuleHomspace
+from .free_morphism import FreeModuleMorphism
 
 
 class FP_Module(UniqueRepresentation, SageModule):
@@ -162,7 +164,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         # The module we want to model is the cokernel of the
         # following morphism.
-        self.j = Hom(relationsModule, generatorModule)(rels)
+        self.j = FreeModuleHomspace(relationsModule, generatorModule)(rels)
 
         # Call the base class constructor.
         SageModule.__init__(self, algebra)
@@ -222,12 +224,13 @@ class FP_Module(UniqueRepresentation, SageModule):
         EXAMPLES::
 
             sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_homspace import *
             sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
             sage: A = SteenrodAlgebra(2)
             sage: F1 = FreeModule((2,), A)
             sage: F2 = FreeModule((0,), A)
             sage: v = F2([Sq(2)])
-            sage: pres = Hom(F1, F2)([v])
+            sage: pres = FreeModuleHomspace(F1, F2)([v])
             sage: M = FP_Module.from_free_module_morphism(pres); M
             Finitely presented module on 1 generator and 1 relation over mod 2 Steenrod algebra, milnor basis
             sage: M.generator_degrees()
@@ -719,7 +722,7 @@ class FP_Module(UniqueRepresentation, SageModule):
                         print('Progress: %d/100' % prog)
 
                 # assert: isinstance(FreeElement, relation)
-                v = (a*relation).vector_presentation()
+                v = (relation._lmul_(a)).vector_presentation()
                 if not v is None:
                     spanning_set.append(v)
 

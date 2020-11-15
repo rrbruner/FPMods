@@ -33,10 +33,9 @@ AUTHORS:
 # ****************************************************************************
 
 from sage.misc.cachefunc import cached_method
-from sage.structure.element import ModuleElement as SageModuleElement
 
 
-class FreeModuleElement(SageModuleElement):
+class FreeModuleElement():
 
     def __init__(self, module, coefficients):
         r"""
@@ -105,7 +104,78 @@ class FreeModuleElement(SageModuleElement):
                     if self._degree != d:
                         raise ValueError('Non-homogeneous element defined.')
 
-        SageModuleElement.__init__(self, parent=module)
+        self._parent = module
+#        SageModuleElement.__init__(self, parent=module)
+
+    def parent(self):
+        return self._parent
+
+    def __eq__(self, other):
+        r"""
+        Compare this element with ``other``.
+
+        Implementation of this function allows Sage to make sense of the ==
+        operator for instances of this class.
+
+        INPUT:
+
+        - ``other`` -- An instance of this class.
+
+        - ``op`` -- An integer specifying the comparison operation to be
+          carried out: If ``op`` == 2, then return ``True`` if and only if the
+          elements are equal.  If ``op`` == 3, then return ``True `` if and
+          only if the elements are not equal.  Otherwise, return ``False``.
+
+        OUTPUT: A Boolean.
+
+        EXAMPLES::
+
+            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
+            sage: M = FreeModule((0,1), A2)
+            sage: x = M([Sq(1), 1]); x
+            <Sq(1), 1>
+            sage: y = M([0, Sq(1)]);y
+            <0, Sq(1)>
+
+        Multiplying by Sq(1) takes x to the element y::
+
+            sage: A2.Sq(1)*x == y
+            True
+
+        TESTS:
+
+            sage: N = FreeModule((0,), A2)
+            sage: x._richcmp_(M.an_element(4), op=2)  # Elements of different degrees aren't equal
+            False
+            sage: w = N.an_element(1)
+            sage: x._richcmp_(w, op=2) # Elements of different modules aren't equal.
+            False
+            sage: x._richcmp_(w, op=3) # Elements of different modules aren't equal.
+            True
+            sage: z = M.zero()
+            sage: x._richcmp_(z, op=2) # Compare the non-trivial x to the zero element.
+            False
+            sage: x._richcmp_(z, op=3) # Compare the non-trivial x to the zero element.
+            True
+            sage: z._richcmp_(z, op=2) # Compare the zero element to itself.
+            True
+            sage: z._richcmp_(z, op=3) # Compare the zero element to itself.
+            False
+
+        """
+#        if self.parent() != other.parent():
+#            same = False
+#        elif self._degree != other._degree and self._degree != None and other._degree != None:
+#            same = False
+#        elif (self._add_(other._neg_()))._nonzero_():
+#            same = False
+        if type(other) is int:
+            return self._coefficients == (other,)
+        if self._coefficients == other._coefficients:
+            return True
+        else:
+            return not (self.__add__(other.__neg__())).__nonzero__()
 
 
     def coefficients(self):
@@ -159,7 +229,7 @@ class FreeModuleElement(SageModuleElement):
         return self._degree
 
 
-    def _repr_(self):
+    def __repr__(self):
         r"""
         Return a string representation of this element.
 
@@ -223,7 +293,7 @@ class FreeModuleElement(SageModuleElement):
         return self.parent()((a*c for c in self._coefficients))
 
 
-    def _neg_(self):
+    def __neg__(self):
         r"""
         Return the additive inverse of this element.
 
@@ -243,7 +313,7 @@ class FreeModuleElement(SageModuleElement):
         return self.parent()([-c for c in self._coefficients])
 
 
-    def _add_(self, other):
+    def __add__(self, other):
         r"""
         Return the module sum of this and the given module element.
 
@@ -290,7 +360,7 @@ class FreeModuleElement(SageModuleElement):
         if self.parent() != other.parent():
             raise TypeError("Can't add element in different modules")
         elif self._degree == None: # if self = 0, degree is None
-            return self.parent()(other.coefficients())
+            return self.parent()(other._coefficients)
         elif other._degree == None:   # if other = 0, degree is None
             return self.parent()(self._coefficients)
         elif self._degree != other._degree:
@@ -298,81 +368,7 @@ class FreeModuleElement(SageModuleElement):
                   %(self._degree, other._degree))
         else:
             return self.parent()(
-                [x + y for x,y in zip(self._coefficients, other.coefficients())])
-
-
-    def _richcmp_(self, other, op):
-        r"""
-        Compare this element with ``other``.
-
-        Implementation of this function allows Sage to make sense of the ==
-        operator for instances of this class.
-
-        INPUT:
-
-        - ``other`` -- An instance of this class.
-
-        - ``op`` -- An integer specifying the comparison operation to be
-          carried out: If ``op`` == 2, then return ``True`` if and only if the
-          elements are equal.  If ``op`` == 3, then return ``True `` if and
-          only if the elements are not equal.  Otherwise, return ``False``.
-
-        OUTPUT: A Boolean.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FreeModule((0,1), A2)
-            sage: x = M([Sq(1), 1]); x
-            <Sq(1), 1>
-            sage: y = M([0, Sq(1)]);y
-            <0, Sq(1)>
-
-        Multiplying by Sq(1) takes x to the element y::
-
-            sage: A2.Sq(1)*x == y
-            True
-
-        TESTS:
-
-            sage: N = FreeModule((0,), A2)
-            sage: x._richcmp_(M.an_element(4), op=2)  # Elements of different degrees aren't equal
-            False
-            sage: w = N.an_element(1)
-            sage: x._richcmp_(w, op=2) # Elements of different modules aren't equal.
-            False
-            sage: x._richcmp_(w, op=3) # Elements of different modules aren't equal.
-            True
-            sage: z = M.zero()
-            sage: x._richcmp_(z, op=2) # Compare the non-trivial x to the zero element.
-            False
-            sage: x._richcmp_(z, op=3) # Compare the non-trivial x to the zero element.
-            True
-            sage: z._richcmp_(z, op=2) # Compare the zero element to itself.
-            True
-            sage: z._richcmp_(z, op=3) # Compare the zero element to itself.
-            False
-
-        """
-
-        same = True
-        if self.parent() != other.parent():
-            same = False
-        elif self._degree != other._degree and self._degree != None and other._degree != None:
-            same = False
-        elif (self._add_(other._neg_()))._nonzero_():
-            same = False
-
-        # Equality
-        if op == 2:
-            return same
-
-        # Non-equality
-        if op == 3:
-            return not same
-
-        return False
+                (x + y for x,y in zip(self._coefficients, other._coefficients)))
 
     @cached_method
     def vector_presentation(self):
@@ -448,12 +444,12 @@ class FreeModuleElement(SageModuleElement):
         vector = base_vec.zero()
         for summand_index, algebra_element in sparse_coeffs:
             for scalar_coefficient, monomial in zip(algebra_element.coefficients(), algebra_element.monomials()):
-                vector += scalar_coefficient*base_dict[monomial*self.parent().generator(summand_index)]
+                vector += scalar_coefficient*base_dict[self.parent().generator(summand_index)._lmul_(monomial)]
 
         return vector
 
 
-    def _nonzero_(self):
+    def __nonzero__(self):
         r"""
         Determine if this element is non-zero.
 
@@ -482,6 +478,9 @@ class FreeModuleElement(SageModuleElement):
 
         return not all(c == 0 for c in self._coefficients)
 
+
+    def is_zero(self):
+        return not self.__nonzero__()
 
     def __hash__(self):
         r"""

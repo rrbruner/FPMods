@@ -37,13 +37,12 @@ from __future__ import absolute_import
 from inspect import isfunction
 
 from sage.categories.homset import Hom
-from sage.categories.morphism import Morphism as SageMorphism
 from sage.misc.cachefunc import cached_method
 
 from .free_homspace import is_FreeModuleHomspace
 
 
-class FreeModuleMorphism(SageMorphism):
+class FreeModuleMorphism():
 
     def __init__(self, parent, values):
         r"""
@@ -92,7 +91,7 @@ class FreeModuleMorphism(SageMorphism):
         else:
             _values = [C(a) for a in values]
 
-        # Check the homomorphism is well defined.
+        # Check that the homomorphism is well defined.
         if len(D.generator_degrees()) != len(_values):
             raise ValueError("The number of values must equal the number of " \
                 "generators in the domain.  Invalid argument: %s." % _values)
@@ -123,8 +122,13 @@ class FreeModuleMorphism(SageMorphism):
                 raise ValueError(errorMessage)
 
         self._values = _values
+#
+#        SageMorphism.__init__(self, parent)
+        self._parent = parent
 
-        SageMorphism.__init__(self, parent)
+
+    def parent(self):
+        return self._parent
 
 
     def degree(self):
@@ -178,7 +182,7 @@ class FreeModuleMorphism(SageMorphism):
         return self._values
 
 
-    def _richcmp_(self, other, op):
+    def __eq__(self, other):
         r"""
         Compare this homomorphism to the given homomorphism.
 
@@ -210,19 +214,9 @@ class FreeModuleMorphism(SageMorphism):
         """
 
         try:
-            same = (self - other).is_zero()
+            return (self - other).is_zero()
         except ValueError:
             return False
-
-        # Equality
-        if op == 2:
-            return same
-
-        # Non-equality
-        if op == 3:
-            return not same
-
-        return False
 
 
     def __add__(self, g):
@@ -264,7 +258,7 @@ class FreeModuleMorphism(SageMorphism):
         elif self._degree and g.degree() and self._degree != g.degree():
             raise ValueError("Morphisms do not have the same degree.")
 
-        v = [self(x) + g(x) for x in self.domain().generators()]
+        v = [self(x).__add__(g(x)) for x in self.domain().generators()]
 
         return self.parent()(v)
 
@@ -294,7 +288,7 @@ class FreeModuleMorphism(SageMorphism):
 
         """
 
-        return self.parent()([-x for x in self._values])
+        return self.parent()([x.__neg__() for x in self._values])
 
 
     def __sub__(self, g):
@@ -449,13 +443,19 @@ class FreeModuleMorphism(SageMorphism):
         if x.parent() != self.domain():
             raise ValueError("Cannot evaluate morphism on element not in the domain.")
 
-        value = sum([c*v for c, v in zip(
+        value = sum([v._lmul_(c) for c, v in zip(
             x.coefficients(), self._values)], self.codomain()(0))
 
         return value
 
 
-    def _repr_(self):
+    def domain(self):
+        return self._parent.domain()
+
+    def codomain(self):
+        return self._parent.codomain()
+
+    def __repr__(self):
         r"""
         A string representation of this homomorphism.
 
