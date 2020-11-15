@@ -169,6 +169,9 @@ class FreeModuleHomspace():
     def codomain(self):
         return self._codomain
 
+    def base_ring(self):
+        return self._domain.base_ring()
+
     def _an_element_(self):
         r"""
         Return a morphism belonging to this homspace.

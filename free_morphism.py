@@ -130,6 +130,9 @@ class FreeModuleMorphism():
     def parent(self):
         return self._parent
 
+    def base_ring(self):
+        return self._parent.base_ring()
+
 
     def degree(self):
         r"""
