@@ -269,19 +269,13 @@ AUTHORS:
 
 from sage.misc.cachefunc import cached_method
 from sage.modules.free_module import VectorSpace
-from sage.modules.module import Module as SageModule
 from sage.rings.infinity import PlusInfinity
-from sage.structure.unique_representation import UniqueRepresentation
 
 from .free_element import FreeModuleElement
 from .free_homspace import FreeModuleHomspace
 
 
-class FreeModule(UniqueRepresentation, SageModule):
-    # To accomodate Sage's category framework, we must specify what the
-    # elements class is for this parent class.  See
-    # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
-    Element = FreeModuleElement
+class FreeModule():
 
     def __init__(self, generator_degrees, algebra):
         r"""
@@ -306,19 +300,12 @@ class FreeModule(UniqueRepresentation, SageModule):
             Finitely presented free module on 3 generators over mod 2 Steenrod algebra, milnor basis
 
         """
+
+        self._algebras = algebra
+
         self._generator_degrees = generator_degrees
-        if None in generator_degrees:
-            raise ValueError('generator_degrees are not all integers: %s' % str(generator_degrees))
-
-        if not algebra.base_ring().is_field():
-            raise NotImplementedError('The ground ring of the algebra must be a field.')
-
-        # Call the base class constructor.
-        SageModule.__init__(self, algebra)
-
-        self._populate_coercion_lists_()
-
-        self.ModuleClass = FreeModule
+#        if None in generator_degrees:
+#            raise ValueError('generator_degrees are not all integers: %s' % str(generator_degrees))
 
 
     def generator_degrees(self):
@@ -710,24 +697,6 @@ class FreeModule(UniqueRepresentation, SageModule):
 
         """
         return [self.generator(i) for i in range(len(self._generator_degrees))]
-
-
-    def _Hom_(self, Y, category):
-        r"""
-        The internal hook used by the free function
-        :meth:`sage.categories.homset.hom.Hom` to create homsets involving this
-        parent.
-
-        TESTS:
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-            sage: A = SteenrodAlgebra(2)
-            sage: M = FreeModule((0,1), A)
-            sage: M._Hom_(M, category=None)
-            Set of Morphisms from Finitely presented free module on 2 generators over mod 2 Steenrod algebra, milnor basis to Finitely presented free module on 2 generators over mod 2 Steenrod algebra, milnor basis in Category of modules over mod 2 Steenrod algebra, milnor basis
-
-        """
-        return FreeModuleHomspace(self, Y, category)
 
 
     def suspension(self, t):

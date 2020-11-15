@@ -33,10 +33,9 @@ AUTHORS:
 # ****************************************************************************
 
 from sage.misc.cachefunc import cached_method
-from sage.structure.element import ModuleElement as SageModuleElement
 
 
-class FreeModuleElement(SageModuleElement):
+class FreeModuleElement():
 
     def __init__(self, module, coefficients):
         r"""
@@ -74,21 +73,16 @@ class FreeModuleElement(SageModuleElement):
             <Sq(1), 1>
 
         """
-        if isinstance(coefficients, FreeModuleElement):
-            self._coefficients = coefficients._coefficients
-        else:
-            self._coefficients = tuple([module.base_ring()(x) for x in coefficients])
-
-        if len(self._coefficients) != len(module.generator_degrees()):
-            raise ValueError('The number of coefficients must match the '
-                'number of module generators: %d.' % len(module.generator_degrees()))
+        self._coefficients = coefficients._coefficients
+        self._module = module
 
         # Check homogenity and store the degree of the element.
         self._degree = None
-        for g, c in zip(module.generator_degrees(), self._coefficients):
-            if not c.is_zero():
-                d = g + c.degree()
 
+        for i in range(len(self.__coefficients)):
+            c = self._coefficients[i]
+            if not c.is_zero():
+                d = self._module.generator_degree(i) + c.degree()
                 # XXX todo: Measure how much time is spent in this loop.  Since
                 #           construction of free module elements is done
                 #           frequently e.g. when computing resolutions, we could
@@ -96,16 +90,14 @@ class FreeModuleElement(SageModuleElement):
                 #           test.  Since this class constructor is for internal
                 #           use only, we could justify commenting in the
                 #           following break statement:
-                # self._degree = d
-                # break
+                #self._degree = d
+                #break
 
                 if self._degree == None:
                     self._degree = d
                 else:
                     if self._degree != d:
                         raise ValueError('Non-homogeneous element defined.')
-
-        SageModuleElement.__init__(self, parent=module)
 
 
     def coefficients(self):
@@ -183,6 +175,7 @@ class FreeModuleElement(SageModuleElement):
         return '<%s>' % ', '.join(['%s' % c for c in self._coefficients])
 
 
+    # Kanskje modulen skal ha en multiplikasjonsmetode.  Da slipper vi å holde en referanse til modulen i denne klassen.
     def _lmul_(self, a):
         r"""
         Act by left multiplication on this element by ``a``.
@@ -219,89 +212,10 @@ class FreeModuleElement(SageModuleElement):
              <0, 0, Sq(3,2)>]
 
         """
-
-        return self.parent()((a*c for c in self._coefficients))
-
-
-    def _neg_(self):
-        r"""
-        Return the additive inverse of this element.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FreeModule((0,), A2)
-            sage: x = M.an_element(6);x
-            <Sq(0,2)>
-            sage: -x
-            <Sq(0,2)>
-            sage: x + (-x) == 0
-            True
-
-        """
-        return self.parent()([-c for c in self._coefficients])
+        return FreeModuleElement(self._module, (a*c for c in self._coefficients))
 
 
-    def _add_(self, other):
-        r"""
-        Return the module sum of this and the given module element.
-
-        Implementation of this function allows Sage to make sense of the +
-        operator for instances of this class.
-
-        INPUT:
-
-        - ``other`` -- another element of this element's module.  Only elements
-          of the same degree are allowed to be added together.
-
-        OUTPUT: the module sum of this element and the given element ``other``.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FreeModule((0,), A2)
-            sage: x = M.an_element(6);x
-            <Sq(0,2)>
-            sage: -x
-            <Sq(0,2)>
-            sage: x + (-x) == 0
-            True
-
-        TESTS:
-
-            sage: x = M.an_element(4)
-            sage: y = M.an_element(5)
-            sage: x+y
-            Traceback (most recent call last):
-            ...
-            ValueError: Can't add element of degree 4 and 5
-            sage: z = M.zero()
-            sage: x+z == x
-            True
-            sage: z+x
-            <Sq(1,1)>
-            sage: y+z
-            <Sq(2,1)>
-
-        """
-
-        if self.parent() != other.parent():
-            raise TypeError("Can't add element in different modules")
-        elif self._degree == None: # if self = 0, degree is None
-            return self.parent()(other.coefficients())
-        elif other._degree == None:   # if other = 0, degree is None
-            return self.parent()(self._coefficients)
-        elif self._degree != other._degree:
-            raise ValueError("Can't add element of degree %s and %s"\
-                  %(self._degree, other._degree))
-        else:
-            return self.parent()(
-                [x + y for x,y in zip(self._coefficients, other.coefficients())])
-
-
-    def _richcmp_(self, other, op):
+    def equals(self, other):
         r"""
         Compare this element with ``other``.
 
@@ -356,23 +270,14 @@ class FreeModuleElement(SageModuleElement):
 
         """
 
-        same = True
-        if self.parent() != other.parent():
-            same = False
-        elif self._degree != other._degree and self._degree != None and other._degree != None:
-            same = False
-        elif (self._add_(other._neg_()))._nonzero_():
-            same = False
+        for i in range(len(self.__coefficients)):
+            e = self._coefficients[i]*self._module.generator(i)
+            f = other._coefficients[i]*other._module.generator(i)
+            if e != f:
+                return False
 
-        # Equality
-        if op == 2:
-            return same
+        return True
 
-        # Non-equality
-        if op == 3:
-            return not same
-
-        return False
 
     @cached_method
     def vector_presentation(self):
@@ -437,8 +342,8 @@ class FreeModuleElement(SageModuleElement):
         if self._degree is None:
              return None
 
-        bas_gen = self.parent().basis_elements(self._degree)
-        base_vec = self.parent().vector_presentation(self._degree)
+        bas_gen = self._module.basis_elements(self._degree)
+        base_vec = self._module.vector_presentation(self._degree)
 
         base_dict = dict(zip(bas_gen, base_vec.basis()))
 
@@ -448,12 +353,12 @@ class FreeModuleElement(SageModuleElement):
         vector = base_vec.zero()
         for summand_index, algebra_element in sparse_coeffs:
             for scalar_coefficient, monomial in zip(algebra_element.coefficients(), algebra_element.monomials()):
-                vector += scalar_coefficient*base_dict[monomial*self.parent().generator(summand_index)]
+                vector += scalar_coefficient*base_dict[monomial*self._module.generator(summand_index)]
 
         return vector
 
 
-    def _nonzero_(self):
+    def is_zero(self):
         r"""
         Determine if this element is non-zero.
 
@@ -478,23 +383,7 @@ class FreeModuleElement(SageModuleElement):
         """
 
         if self._degree == None:
-            return False
+            return True
 
-        return not all(c == 0 for c in self._coefficients)
-
-
-    def __hash__(self):
-        r"""
-        A hash value representing this element.
-
-        TESTS:
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
-            sage: M = FreeModule((0,1), A2)
-            sage: M([Sq(3), Sq(2)]).__hash__() == M([Sq(1)*Sq(2), Sq(2)]).__hash__()
-            True
-
-        """
-        return hash(self._coefficients)
+        return all(c == 0 for c in self._coefficients)
 

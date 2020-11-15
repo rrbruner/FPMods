@@ -36,16 +36,12 @@ from __future__ import absolute_import
 
 from inspect import isfunction
 
-from sage.categories.homset import Hom
-from sage.categories.morphism import Morphism as SageMorphism
 from sage.misc.cachefunc import cached_method
 
-from .free_homspace import is_FreeModuleHomspace
 
+class FreeModuleMorphism():
 
-class FreeModuleMorphism(SageMorphism):
-
-    def __init__(self, parent, values):
+    def __init__(self, domain, codomain, values):
         r"""
         Create a homomorphism between finitely generated free graded modules.
 
@@ -79,8 +75,8 @@ class FreeModuleMorphism(SageMorphism):
 
         """
 
-        if not is_FreeModuleHomspace(parent):
-            raise TypeError("The parent (%s) must be a f.p. free module homset." % parent)
+#        if not is_FreeModuleHomspace(parent):
+#            raise TypeError("The parent (%s) must be a f.p. free module homset." % parent)
 
         # Get the values.
         C = parent.codomain()
@@ -123,8 +119,6 @@ class FreeModuleMorphism(SageMorphism):
                 raise ValueError(errorMessage)
 
         self._values = _values
-
-        SageMorphism.__init__(self, parent)
 
 
     def degree(self):
@@ -224,149 +218,6 @@ class FreeModuleMorphism(SageMorphism):
 
         return False
 
-
-    def __add__(self, g):
-        r"""
-        The pointwise sum of this and the given homomorphism.
-
-        Pointwise addition of two homomorphisms `f` and `g` with the same domain
-        and codomain is given by the formula `(f+g)(x) = f(x) + g(x)` for
-        every `x` in the domain of `f`.
-
-        INPUT:
-
-        - ``g`` -- A homomorphism with the same domain and codomain as this
-          homomorphism.
-
-        OUTPUT: The pointwise sum homomorphism of this and the given
-        homomorphism.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A = SteenrodAlgebra(2)
-            sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
-            sage: N = homspace.codomain()
-            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
-            sage: f = homspace(values)
-            sage: ff = f.__add__(f)
-            sage: ff.is_zero()
-            True
-            sage: ff.__add__(f) == f
-            True
-
-        """
-
-        if self.domain() != g.domain():
-            raise ValueError("Morphisms do not have the same domain.")
-        elif self.codomain() != g.codomain():
-            raise ValueError("Morphisms do not have the same codomain.")
-        elif self._degree and g.degree() and self._degree != g.degree():
-            raise ValueError("Morphisms do not have the same degree.")
-
-        v = [self(x) + g(x) for x in self.domain().generators()]
-
-        return self.parent()(v)
-
-
-    def __neg__(self):
-        r"""
-        The additive inverse of this homomorphism with respect to the group
-        structure given by pointwise sum.
-
-        OUTPUT: An instance of this class.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A = SteenrodAlgebra(2)
-            sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
-            sage: N = homspace.codomain()
-            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
-            sage: f = homspace(values)
-            sage: f_inverse = f.__neg__(); f_inverse
-            Module homomorphism of degree 7 defined by sending the generators
-              [<1, 0>, <0, 1>]
-            to
-              [<Sq(5)>, <Sq(3,1)>]
-            sage: (f + f_inverse).is_zero()
-            True
-
-        """
-
-        return self.parent()([-x for x in self._values])
-
-
-    def __sub__(self, g):
-        r"""
-        The pointwise difference between this and the given homomorphism.
-
-        OUTPUT: An instance of this class.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A = SteenrodAlgebra(2)
-            sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
-            sage: N = homspace.codomain()
-            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
-            sage: f = homspace(values)
-            sage: values2 = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
-            sage: g = homspace(values2)
-            sage: f.__sub__(g)
-            The trivial homomorphism.
-
-        """
-
-        return self.__add__(g.__neg__())
-
-
-    def __mul__(self, g):
-        r"""
-        The composition of the given homomorphism ``g``, followed by this
-        homomorphisms.
-
-        OUTPUT: A homomorphism from the domain of this homomorphism, into the
-        codomain of the homomorphism ``g``.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A = SteenrodAlgebra(2)
-            sage: M = FreeModule((0,1), A)
-            sage: N = FreeModule((2,), A)
-            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
-            sage: f = Hom(M, N)(values)
-            sage: values2 = [Sq(2)*M.generator(0)]
-            sage: g = Hom(N, M)(values2)
-            sage: fg = f.__mul__(g); fg
-            Module homomorphism of degree 7 defined by sending the generators
-              [<1>]
-            to
-              [<Sq(4,1) + Sq(7)>]
-            sage: fg.is_endomorphism()
-            True
-
-        TESTS:
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A = SteenrodAlgebra(2)
-            sage: M = FreeModule((0,1), A)
-            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
-            sage: f = Hom(M, N)(values)
-            sage: f.__mul__(f)
-            Traceback (most recent call last):
-            ...
-            ValueError: Morphisms are not composable.
-
-        """
-
-        if self.parent().domain() != g.parent().codomain():
-            raise ValueError("Morphisms are not composable.")
-        homset = Hom(g.parent().domain(), self.parent().codomain())
-        return homset([self(g(x)) for x in g.domain().generators()])
-
-
     def is_zero(self):
         r"""
         Decide if this homomomorphism is trivial.
@@ -390,37 +241,7 @@ class FreeModuleMorphism(SageMorphism):
         """
         return self._degree == None
 
-
-    def is_identity(self):
-        r"""
-        Decide if this homomomorphism is the identity endomorphism.
-
-        OUTPUT: The boolean value ``True`` if this homomorphism is the
-        identity, and ``False`` otherwise.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: A = SteenrodAlgebra(2)
-            sage: M = FreeModule((0,1), A)
-            sage: N = FreeModule((2,), A)
-            sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
-            sage: f = Hom(M, N)(values)
-            sage: f.is_identity()
-            False
-            sage: id = Hom(M, M)(M.generators()); id
-            The identity homomorphism.
-            sage: id.is_identity()
-            True
-        """
-
-        if self.parent().is_endomorphism_set():
-            return self.parent().identity() == self
-        else:
-            return False
-
-
-    def __call__(self, x):
+    def evaluate(self, x):
         r"""
         Evaluate the homomorphism at the given domain element ``x``.
 
@@ -446,13 +267,10 @@ class FreeModuleMorphism(SageMorphism):
 
         """
 
-        if x.parent() != self.domain():
-            raise ValueError("Cannot evaluate morphism on element not in the domain.")
+        # if x.parent() != self.domain():
+        #     raise ValueError("Cannot evaluate morphism on element not in the domain.")
 
-        value = sum([c*v for c, v in zip(
-            x.coefficients(), self._values)], self.codomain()(0))
-
-        return value
+        return FreeModuleElement(self._codomain, c*v for c, v in zip(x.coefficients(), self._values))
 
 
     def _repr_(self):

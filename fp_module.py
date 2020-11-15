@@ -56,20 +56,18 @@ AUTHORS:
 # ****************************************************************************
 
 from sage.categories.homset import Hom
+from sage.categories.sets_cat import cartesian_product
 from sage.misc.cachefunc import cached_method
 from sage.modules.module import Module as SageModule
 from sage.rings.infinity import PlusInfinity
 from sage.structure.unique_representation import UniqueRepresentation
-
-from .free_module import FreeModule
-from .free_element import FreeModuleElement
 
 
 class FP_Module(UniqueRepresentation, SageModule):
     # In the category framework, Elements of the class FP_Module are of the
     # class FP_Element, see
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
-    from .fp_element import FP_Element
+    from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_element import FP_Element
     Element = FP_Element
 
     @staticmethod
@@ -146,23 +144,32 @@ class FP_Module(UniqueRepresentation, SageModule):
         # Store a reference to the input parameters if we need to create a
         # copy of this module.
         self._gds = generator_degrees
+
         self._rls = relations
 
-        # The free module on the generators of the module.
-        generatorModule = FreeModule(
-            generator_degrees, algebra=algebra)
+#       # The free module on the generators of the module.
+#       generatorModule = FreeModule(
+#           generator_degrees, algebra=algebra)
+#
+        
+        self._rel_degs = []
+        for rel in self._rls:
 
-        # Use the coefficients given for the relations and make module elements
-        # from them.  Filter out the zero elements, as they are redundant.
-        rels = [v for v in [generatorModule(r) for r in relations] if not v.is_zero()]
+            if len(rel) != len(self._gds):
+                raise ValueError(f'Incorrect number of coefficients: {rel}.')
 
-        # The free module for the relations of the module.
-        relationsModule = FreeModule(
-            tuple([r.degree() for r in rels]), algebra=algebra)
+            deg = None
+            for i, rel_i in enumerate(rel):
+                if rel_i == 0:
+                    continue
 
-        # The module we want to model is the cokernel of the
-        # following morphism.
-        self.j = Hom(relationsModule, generatorModule)(rels)
+                n = rel_i.degree() + self._gds[i]
+                if deg is None:
+                    deg = n
+                elif deg != n:
+                    raise ValueError(f'Wrong degree: {rel}')
+
+            self._rel_degs.append(0 if deg is None else deg)
 
         # Call the base class constructor.
         SageModule.__init__(self, algebra)
@@ -173,70 +180,10 @@ class FP_Module(UniqueRepresentation, SageModule):
         # member functions to create modules and homspace instances of classes
         # that derive from this class.  We needed to do this explicitly since
         # Sage changes the class dynamically as part of its Category framework.
-        from .fp_homspace import FP_ModuleHomspace
+        from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_homspace import FP_ModuleHomspace
+
         self.HomSpaceClass = FP_ModuleHomspace
         self.ModuleClass = FP_Module
-
-
-    @classmethod
-    def from_free_module(cls, free_module):
-        r"""
-        Initialize from a finitely generated free module.
-
-        INPUT:
-
-        - ``free_module`` -- a finitely generated free module.
-
-        OUTPUT: the finitely presented module having same set of generators
-        assert ``free_module``, and no relations.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
-            sage: A = SteenrodAlgebra(2)
-            sage: F = FreeModule((-2,2,4), A)
-            sage: FP_Module.from_free_module(F)
-            Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis
-
-
-        """
-        return cls(free_module.generator_degrees(), algebra=free_module.base_ring(), relations=())
-
-
-    @classmethod
-    def from_free_module_morphism(cls, morphism):
-        r"""
-        Create a finitely presented module from a morphism of finitely
-        generated free modules.
-
-        INPUT:
-
-        - ``morphism`` -- a morphism between finitely generated free modules.
-
-        OUTPUT:
-
-        The finitely presented module having presentation equal to the
-        homomorphism ``morphism``.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
-            sage: A = SteenrodAlgebra(2)
-            sage: F1 = FreeModule((2,), A)
-            sage: F2 = FreeModule((0,), A)
-            sage: v = F2([Sq(2)])
-            sage: pres = Hom(F1, F2)([v])
-            sage: M = FP_Module.from_free_module_morphism(pres); M
-            Finitely presented module on 1 generator and 1 relation over mod 2 Steenrod algebra, milnor basis
-            sage: M.generator_degrees()
-            (0,)
-            sage: M.relations()
-            [<Sq(2)>]
-
-        """
-        return cls(morphism.codomain().generator_degrees(), algebra=morphism.base_ring(), relations=tuple([r.coefficients() for r in morphism.values()]))
 
 
     def change_ring(self, algebra):
@@ -265,8 +212,7 @@ class FP_Module(UniqueRepresentation, SageModule):
             sage: M_.change_ring(A) is M
             True
         """
-        return self.ModuleClass(
-            self._gds, algebra, self._rls)
+        return self.ModuleClass(self._gds, algebra, self._rls)
 
 
     def _element_constructor_(self, x):
@@ -311,10 +257,10 @@ class FP_Module(UniqueRepresentation, SageModule):
         """
         if isinstance(x, self.element_class):
             return x
-        if isinstance(x, FreeModuleElement):
-            return self.element_class(self, x.coefficients())
+#       if isinstance(x, FreeModuleElement):
+#           return self.element_class(self, x.coefficients())
         elif x == 0:
-            return self.element_class(self, len(self.j.codomain().generator_degrees())*(0,))
+            return self.element_class(self, len(self._gds)*(0,))
         else:
             return self.element_class(self, x)
 
@@ -336,8 +282,8 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         """
         return "Finitely presented module on %s generator%s and %s relation%s over %s"\
-            %(len(self.j.codomain().generator_degrees()), "" if len(self.j.codomain().generator_degrees()) == 1 else "s",
-              len(self.j.values()), "" if len(self.j.values()) == 1 else "s",
+            %(len(self._gds), "" if len(self._gds) == 1 else "s",
+              len(self._rls), "" if len(self._rls) == 1 else "s",
               self.base_ring())
 
 
@@ -383,20 +329,21 @@ class FP_Module(UniqueRepresentation, SageModule):
         """
         # In case there are no relations, the connectivity is the equal to
         # the connectivity of the free module on the generators.
-        if self.j._degree == None:
-            return self.j.codomain().connectivity()
+        if self._rls == ():
+            return min(self._gds + (PlusInfinity(),))
 
         # We must check that the generator(s) in the free generator module are
         # not hit by relations, since we are not guaranteed that the
         # presentation we have is minimal.
-        X = [x for x in self.generator_degrees()]
+        X = [x for x in self._gds]
         X.sort()
 
         previous = None
         for k in X:
             if previous != None and k == previous:
                 continue
-            if not self.j.vector_presentation(k - self.j._degree).is_surjective():
+            if self.vector_presentation(k).dimension() != 0:
+#                if not self.j.vector_presentation(k - self.j._degree).is_surjective():
                 return k
             previous = k
 
@@ -477,7 +424,7 @@ class FP_Module(UniqueRepresentation, SageModule):
             False
 
         """
-        return not self.j.is_zero()
+        return len(self._rls) != 0 #not self.j.is_zero()
 
 
     def an_element(self, n=None):
@@ -512,8 +459,9 @@ class FP_Module(UniqueRepresentation, SageModule):
              <Sq(1,0,1), Sq(6), Sq(1,1)>,
              <Sq(2,0,1), Sq(4,1), Sq(2,1)>]
         """
-        a_free_element = self.j.codomain().an_element(n)
-        return self._element_constructor_(a_free_element)
+        raise NotImplementedError('an_element')
+#        a_free_element = self.j.codomain().an_element(n)
+#        return self._element_constructor_(a_free_element)
 
 
     @cached_method
@@ -656,9 +604,14 @@ class FP_Module(UniqueRepresentation, SageModule):
         """
         return self.basis_elements(n)
 
+    def free_vector_presentation(self, n):
+        r'''
+        '''
+        return cartesian_product([self.base_ring()[n-d] for d in self._gds])
+
 
     @cached_method
-    def vector_presentation(self, n, verbose=False):
+    def vector_presentation(self, n):
         r"""
         A vectorspace isomorphic to the vectorspace of module elements of
         degree ``n``.
@@ -687,46 +640,37 @@ class FP_Module(UniqueRepresentation, SageModule):
             3
 
         """
-        # Get the vector space presentation of the free module on the
-        # module generators.
-        F_n = self.j.codomain().vector_presentation(n)
-
-        # Compute the sub vectorspace generated by the relations.
         spanning_set = []
 
-        if verbose:
-            num_total_iterations = 0
-            for relation in self.j.values():
-                if relation.is_zero():
-                    continue
+        A = self.base_ring()
+        F = self.free_vector_presentation(n)
 
-                num_total_iterations += len(self.base_ring().basis(n - relation.degree()))
+        spanning_set = []
+        for rel, rel_deg in zip(self._rls, self._rel_degs):
 
-            progress = 0
-            iteration_count = 0
+#            if rel == 0:
+#                continue
 
-        for relation in self.j.values():
+            for a in A.basis(n - rel_deg):
 
-            if relation.is_zero():
-                continue
+                v = F.zero()
 
-            for a in self.base_ring().basis(n - relation.degree()):
-                if verbose:
-                    iteration_count += 1
-                    prog = int(100*iteration_count/num_total_iterations)
-                    if prog > progress:
-                        progress = prog
-                        print('Progress: %d/100' % prog)
+                for i, rel_i in enumerate(rel):
+                    # i = index of the free module summand
+                    e_i = a*rel_i
 
-                # assert: isinstance(FreeElement, relation)
-                v = (a*relation).vector_presentation()
-                if not v is None:
-                    spanning_set.append(v)
+                    # v_i is the vector of F_i representing the algebra element e_i.
+                    F_i = F.cartesian_factors()[i]
+                    v_i = sum([F_i.basis()[c] for c in e_i.monomial_coefficients()])
+                    # print(f'{i}: {v_i}')
 
-        R_n = F_n.subspace(spanning_set)
+                    v += F.cartesian_embedding(i)(F_i.zero() if v_i == 0 else v_i)
 
-        # Return the quotient of the free part by the relations.
-        return F_n/R_n
+                spanning_set.append(v)
+
+        U = F.submodule(spanning_set)
+
+        return F.quotient_module(U)
 
 
     def _Hom_(self, Y, category):
@@ -768,7 +712,7 @@ class FP_Module(UniqueRepresentation, SageModule):
             (0, 1)
 
         """
-        return self.j.codomain().generator_degrees()
+        return self._gds
 
 
     def generators(self):
@@ -793,7 +737,7 @@ class FP_Module(UniqueRepresentation, SageModule):
             []
 
         """
-        return [self.generator(i) for i in range(len(self.j.codomain().generator_degrees()))]
+        return [self.generator(i) for i in range(len(self._gds))]
 
 
     def generator(self, index):
@@ -814,7 +758,16 @@ class FP_Module(UniqueRepresentation, SageModule):
             <0, 1>
 
         """
-        return self.element_class(self, self.j.codomain().generator(index))
+#        return self.element_class(self, self.j.codomain().generator(index))
+        if index < 0 or index >= len(self._gds):
+            raise ValueError('The parent module has generators in the index '\
+                'range [0, %s]; generator %s does not exist' %\
+                (len(self._gds) - 1, index))
+
+        Kroenecker = lambda i: 1 if i == index else 0
+        _coefficients = tuple([self.base_ring()(Kroenecker(i)) for i in range(len(self._gds))])
+
+        return self.element_class(self, _coefficients)
 
 
     def relations(self):
@@ -839,24 +792,22 @@ class FP_Module(UniqueRepresentation, SageModule):
             []
 
         """
-        return self.j.values()
+        return [self.element_class(self, c) for c in self._rls]
 
-
-    def relation(self, index):
-        r"""
-        The module relation of the given index.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
-            sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
-            sage: N = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
-            sage: N.relation(0)
-            <Sq(2), Sq(1)>
-
-        """
-        return self.j.values()[index]
-
+#   def relation(self, index):
+#       r"""
+#       The module relation of the given index.
+#
+#       EXAMPLES::
+#
+#           sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import *
+#           sage: A4 = SteenrodAlgebra(2, profile=(4,3,2,1))
+#           sage: N = FP_Module([0, 1], A4, [[Sq(2), Sq(1)]])
+#           sage: N.relation(0)
+#           <Sq(2), Sq(1)>
+#
+#       """
+#       return self.j.values()[index]
 
     def min_pres(self, top_dim=None, verbose=False):
         r"""
@@ -939,7 +890,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         """
         return self.ModuleClass(
-            generator_degrees=tuple([g + t for g in self.j.codomain().generator_degrees()]),
+            generator_degrees=tuple([g + t for g in self._gds]),
             algebra=self.base_ring(),
             relations=self._rls)
 
@@ -1059,7 +1010,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         complex = []
 
         # Epsilon: F_0 -> M
-        F_0 = self.ModuleClass.from_free_module(self.j.codomain())
+        F_0 = self.ModuleClass(self._gds, self.base_ring())
         epsilon = Hom(F_0, self)(tuple(self.generators()))
         complex.append(epsilon)
 
@@ -1068,8 +1019,8 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         # f_1: F_1 -> F_0
         _print_progress(1, k)
-        F_1 = self.ModuleClass.from_free_module(self.j.domain())
-        pres = Hom(F_1, F_0)(tuple([ F_0(x.coefficients()) for x in self.j.values() ]))
+        F_1 = self.ModuleClass(self, (rel.degree() for rel in self._rels))
+        pres = Hom(F_1, F_0)(tuple([ F_0(c) for c in self._rels ]))
 
         complex.append(pres)
 

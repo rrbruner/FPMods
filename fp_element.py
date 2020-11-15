@@ -65,7 +65,32 @@ class FP_Element(SageModuleElement):
 
         """
         # Store the free representation of the element.
-        self.free_element = FreeModuleElement(module.j.codomain(), coefficients)
+        self._coefficients = coefficients
+
+
+        # Check homogenity and store the degree of the element.
+        self._degree = None
+
+        for i in range(len(self._coefficients)):
+            c = self._coefficients[i]
+            if not c.is_zero():
+                d = module.generator_degrees()[i] + c.degree()
+                # XXX todo: Measure how much time is spent in this loop.  Since
+                #           construction of free module elements is done
+                #           frequently e.g. when computing resolutions, we could
+                #           potentially speed things up by dropping this
+                #           test.  Since this class constructor is for internal
+                #           use only, we could justify commenting in the
+                #           following break statement:
+                #self._degree = d
+                #break
+
+                if self._degree == None:
+                    self._degree = d
+                else:
+                    if self._degree != d:
+                        raise ValueError('Non-homogeneous element defined.')
+
 
         SageModuleElement.__init__(self, parent=module)
 
@@ -95,7 +120,7 @@ class FP_Element(SageModuleElement):
             (0, 0)
 
         """
-        return self.free_element.coefficients()
+        return self._coefficients
 
 
     @cached_method
@@ -154,8 +179,8 @@ class FP_Element(SageModuleElement):
              <Sq(2,0,1), Sq(2,2)>]
 
         """
-        return self.free_element._repr_()
-
+#        return self.free_element._repr_()
+        return '<%s>' % ', '.join(['%s' % c for c in self._coefficients])
 
     def _lmul_(self, a):
         r"""
@@ -193,7 +218,8 @@ class FP_Element(SageModuleElement):
              <0, Sq(3,2)>]
 
         """
-        return self.parent()(a*self.free_element)
+        return self.parent()((a*c for c in self._coefficients))
+#        return self.parent()(a*self.free_element)
 
 
     def _neg_(self):
@@ -216,7 +242,7 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        return self.parent()(-self.free_element)
+        return self.parent()((-c for c in self._coefficients))
 
 
     def _add_(self, other):
@@ -265,7 +291,7 @@ class FP_Element(SageModuleElement):
             <Sq(2,1)>
 
         """
-        return self.parent()(self.free_element + other.free_element)
+        return self.parent()((c+d for c,d in zip(self._coefficients, other._coefficients)))
 
 
     def _richcmp_(self, other, op):
@@ -402,8 +428,27 @@ class FP_Element(SageModuleElement):
         if self.free_element.degree() is None:
             return None
 
-        F_n = self.parent().vector_presentation(self.free_element.degree())
-        return F_n.quotient_map()(self.free_element.vector_presentation())
+        V_n = self.parent().vector_presentation(self._degree)
+
+        return V_n.retract(self.free_vector_presentation())
+
+
+    def free_vector_presentation(self):
+        r'''
+        '''
+
+        F = self.parent().free_vector_presentation()
+
+        v = F.zero()
+
+        for i, c_i in enumerate(self._coefficients):
+            # i = index of the free module summand
+            # v_i is the vector of F_i representing the algebra element e_i.
+            F_i = F.cartesian_factors()[i]
+            v_i = sum([F_i[c] for c in c_i.monomial_coefficients()])
+            v += F.cartesian_embedding(i)(v_i)
+
+        return v
 
 
     def _nonzero_(self):
@@ -431,8 +476,7 @@ class FP_Element(SageModuleElement):
             False
 
         """
-        pres = self.vector_presentation()
-        return False if pres is None else (pres != 0)
+        return not self.vector_presentation().is_zero()
 
 
     def normalize(self):
@@ -462,6 +506,7 @@ class FP_Element(SageModuleElement):
             True
 
         """
+        raise NotImplementedError('xxxx')
         if not self._nonzero_():
             return self.parent().zero()
 
@@ -481,5 +526,5 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        return hash(self.coefficients())
+        return hash(self._coefficients)
 
