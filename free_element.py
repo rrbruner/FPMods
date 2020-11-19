@@ -35,7 +35,12 @@ AUTHORS:
 from sage.misc.cachefunc import cached_method
 
 
-class FreeModuleElement():
+cdef class FreeModuleElement():
+#class FreeModuleElement():
+
+    cdef object _parent
+    cdef object _coefficients
+    cdef object _degree
 
     def __init__(self, module, coefficients):
         r"""
@@ -172,10 +177,10 @@ class FreeModuleElement():
 #            same = False
         if type(other) is int:
             return self._coefficients == (other,)
-        if self._coefficients == other._coefficients:
+        if self._coefficients == other.coefficients():
             return True
         else:
-            return not (self.__add__(other.__neg__())).__nonzero__()
+            return not (self.__add__(other.__neg__())).non_zero()
 
 
     def coefficients(self):
@@ -449,7 +454,7 @@ class FreeModuleElement():
         return vector
 
 
-    def __nonzero__(self):
+    def non_zero(self):
         r"""
         Determine if this element is non-zero.
 
@@ -480,7 +485,7 @@ class FreeModuleElement():
 
 
     def is_zero(self):
-        return not self.__nonzero__()
+        return not self.non_zero()
 
     def __hash__(self):
         r"""
