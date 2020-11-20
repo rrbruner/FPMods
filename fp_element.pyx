@@ -35,7 +35,10 @@ from sage.structure.element import ModuleElement as SageModuleElement
 from .free_element import FreeModuleElement
 
 
-class FP_Element(SageModuleElement):
+cdef class FP_Element():
+
+    cdef object free_element
+    cdef object _parent
 
     def __init__(self, module, coefficients):
         r"""
@@ -67,8 +70,12 @@ class FP_Element(SageModuleElement):
         # Store the free representation of the element.
         self.free_element = FreeModuleElement(module.j.codomain(), coefficients)
 
-        SageModuleElement.__init__(self, parent=module)
+        self._parent = module
 
+#        SageModuleElement.__init__(self, parent=module)
+
+    def parent(self):
+        return self._parent
 
     def coefficients(self):
         r"""
@@ -131,10 +138,10 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        return self.free_element.degree() if self._nonzero_() else None
+        return self.free_element.degree() if self.nonzero() else None
 
 
-    def _repr_(self):
+    def __repr__(self):
         r"""
         Return a string representation of this element.
 
@@ -196,7 +203,7 @@ class FP_Element(SageModuleElement):
         return self.parent()(self.free_element._lmul_(a))
 
 
-    def _neg_(self):
+    def __neg__(self):
         r"""
         Return the additive inverse of this element.
 
@@ -219,7 +226,7 @@ class FP_Element(SageModuleElement):
         return self.parent()(-self.free_element)
 
 
-    def _add_(self, other):
+    def __add__(self, other):
         r"""
         Return the module sum of this and the given module element.
 
@@ -265,10 +272,12 @@ class FP_Element(SageModuleElement):
             <Sq(2,1)>
 
         """
-        return self.parent()(self.free_element + other.free_element)
+        return self.parent()(self.free_element + other._free_element())
 
+    def _free_element(self):
+        return self.free_element
 
-    def _richcmp_(self, other, op):
+    def __eq__(self, other):
         r"""
         Compare this element with ``other``.
 
@@ -322,21 +331,31 @@ class FP_Element(SageModuleElement):
             False
 
         """
-        same = True
-        if self.parent() != other.parent() or\
-            self.degree() != other.degree() or\
-            (self._add_(other._neg_()))._nonzero_():
-            same = False
 
-        # Equality
-        if op == 2:
-            return same
 
-        # Non-equality
-        if op == 3:
-            return not same
+#        if type(other) is int:
+#            return self._coefficients == (other,)
+#        if self._coefficients == other.coefficients():
+#            return True
+#        else:
+        return not (self.__add__(other.__neg__())).nonzero()
 
-        return False
+#
+#        same = True
+#        if self.parent() != other.parent() or\
+#            self.degree() != other.degree() or\
+#            (self._add_(other._neg_())).nonzero():
+#            same = False
+#
+#        # Equality
+#        if op == 2:
+#            return same
+#
+#        # Non-equality
+#        if op == 3:
+#            return not same
+#
+#        return False
 
 
     def vector_presentation(self):
@@ -406,7 +425,7 @@ class FP_Element(SageModuleElement):
         return F_n.quotient_map()(self.free_element.vector_presentation())
 
 
-    def _nonzero_(self):
+    def nonzero(self):
         r"""
         Determine if this element is non-zero.
 
@@ -433,6 +452,10 @@ class FP_Element(SageModuleElement):
         """
         pres = self.vector_presentation()
         return False if pres is None else (pres != 0)
+
+
+    def is_zero(self):
+        return not self.nonzero()
 
 
     def normalize(self):
@@ -462,7 +485,7 @@ class FP_Element(SageModuleElement):
             True
 
         """
-        if not self._nonzero_():
+        if not self.nonzero():
             return self.parent().zero()
 
         v = self.vector_presentation()
