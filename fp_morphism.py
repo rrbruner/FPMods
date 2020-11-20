@@ -208,7 +208,7 @@ class FP_ModuleMorphism(SageMorphism):
         if not is_FP_ModuleHomspace(parent):
             raise TypeError("parent (=%s) must be a fp module hom space" % parent)
 
-        self.free_morphism = FreeModuleHomspace(parent.domain().j.codomain(), parent.codomain().j.codomain())([v.free_element for v in values])
+        self.free_morphism = FreeModuleHomspace(parent.domain().j.codomain(), parent.codomain().j.codomain())([v.free_element() for v in values])
         self._values = values
 
         # Call the base class constructor.
@@ -596,7 +596,7 @@ class FP_ModuleMorphism(SageMorphism):
         if x.parent() != self.domain():
             raise ValueError("Cannot evaluate morphism on element not in domain.")
 
-        return self.codomain().element_class(self.codomain(), self.free_morphism(x.free_element))
+        return self.codomain().element_class(self.codomain(), self.free_morphism(x.free_element()))
 
 
     def _repr_(self):
@@ -1222,7 +1222,7 @@ class FP_ModuleMorphism(SageMorphism):
         else:
             D = self.domain().suspension(t)
             C = self.codomain().suspension(t)
-            return Hom(D, C)([C(x.free_element.coefficients()) for x in self._values])
+            return Hom(D, C)([C(x.free_element().coefficients()) for x in self._values])
 
 
     def cokernel(self):

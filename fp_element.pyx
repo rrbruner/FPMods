@@ -37,7 +37,7 @@ from .free_element import FreeModuleElement
 
 cdef class FP_Element():
 
-    cdef object free_element
+    cdef object _free_element
     cdef object _parent
 
     def __init__(self, module, coefficients):
@@ -68,7 +68,7 @@ cdef class FP_Element():
 
         """
         # Store the free representation of the element.
-        self.free_element = FreeModuleElement(module.j.codomain(), coefficients)
+        self._free_element = FreeModuleElement(module.j.codomain(), coefficients)
 
         self._parent = module
 
@@ -76,6 +76,11 @@ cdef class FP_Element():
 
     def parent(self):
         return self._parent
+
+
+    def free_element(self):
+        return self._free_element
+
 
     def coefficients(self):
         r"""
@@ -102,7 +107,7 @@ cdef class FP_Element():
             (0, 0)
 
         """
-        return self.free_element.coefficients()
+        return self._free_element.coefficients()
 
 
     @cached_method
@@ -138,7 +143,7 @@ cdef class FP_Element():
             True
 
         """
-        return self.free_element.degree() if self.nonzero() else None
+        return self._free_element.degree() if self.nonzero() else None
 
 
     def __repr__(self):
@@ -161,7 +166,7 @@ cdef class FP_Element():
              <Sq(2,0,1), Sq(2,2)>]
 
         """
-        return self.free_element.__repr__()
+        return self._free_element.__repr__()
 
 
     def _lmul_(self, a):
@@ -200,7 +205,7 @@ cdef class FP_Element():
              <0, Sq(3,2)>]
 
         """
-        return self.parent()(self.free_element._lmul_(a))
+        return self.parent()(self._free_element._lmul_(a))
 
 
     def __neg__(self):
@@ -223,7 +228,7 @@ cdef class FP_Element():
             True
 
         """
-        return self.parent()(-self.free_element)
+        return self.parent()(-self._free_element)
 
 
     def __add__(self, other):
@@ -272,10 +277,8 @@ cdef class FP_Element():
             <Sq(2,1)>
 
         """
-        return self.parent()(self.free_element + other._free_element())
+        return self.parent()(self._free_element + other.free_element())
 
-    def _free_element(self):
-        return self.free_element
 
     def __eq__(self, other):
         r"""
@@ -418,11 +421,11 @@ cdef class FP_Element():
         # In this case, we could return the integer value 0 since coercion would
         # place it inside any vectorspace.  However, this will not work for
         # homomorphisms, so we we return None to be consistent.
-        if self.free_element.degree() is None:
+        if self._free_element.degree() is None:
             return None
 
-        F_n = self.parent().vector_presentation(self.free_element.degree())
-        return F_n.quotient_map()(self.free_element.vector_presentation())
+        F_n = self.parent().vector_presentation(self._free_element.degree())
+        return F_n.quotient_map()(self._free_element.vector_presentation())
 
 
     def nonzero(self):

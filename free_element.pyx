@@ -79,7 +79,7 @@ cdef class FreeModuleElement():
 
         """
         if isinstance(coefficients, FreeModuleElement):
-            self._coefficients = coefficients._coefficients
+            self._coefficients = coefficients.coefficients()
         else:
             self._coefficients = tuple([module.base_ring()(x) for x in coefficients])
 
@@ -364,16 +364,16 @@ cdef class FreeModuleElement():
 
         if self.parent() != other.parent():
             raise TypeError("Can't add element in different modules")
-        elif self._degree == None: # if self = 0, degree is None
-            return self.parent()(other._coefficients)
-        elif other._degree == None:   # if other = 0, degree is None
-            return self.parent()(self._coefficients)
-        elif self._degree != other._degree:
+        elif self.degree() is None: # if self = 0, degree is None
+            return self.parent()(other.coefficients())
+        elif other.degree() == None:   # if other = 0, degree is None
+            return self.parent()(self.coefficients())
+        elif self.degree() != other.degree():
             raise ValueError("Can't add element of degree %s and %s"\
-                  %(self._degree, other._degree))
+                  %(self.degree(), other.degree()))
         else:
             return self.parent()(
-                (x + y for x,y in zip(self._coefficients, other._coefficients)))
+                (x + y for x,y in zip(self.coefficients(), other.coefficients())))
 
     @cached_method
     def vector_presentation(self):

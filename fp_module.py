@@ -321,6 +321,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         else:
             return self.element_class(self, x)
 
+    def __call__(self, c):
+        return self._element_constructor_(c)
 
     def _repr_(self):
         r"""
@@ -660,7 +662,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         return self.basis_elements(n)
 
 
-    #@cached_method
+    @cached_method
     def vector_presentation(self, n, verbose=False):
         r"""
         A vectorspace isomorphic to the vectorspace of module elements of
@@ -716,8 +718,6 @@ class FP_Module(UniqueRepresentation, SageModule):
                 if not v is None:
                     spanning_set.append(v)
 
-        print(f'Spanning set contains {len(spanning_set)} elements belonging to the vectorspace {F_n}.')
-
         subspace_time = time.time()
         R_n = F_n.subspace(spanning_set)
         subspace_time = round(time.time() - subspace_time, 2)
@@ -731,12 +731,14 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         fp_element_vp_time = round(fp_element_vp_time)
 
-        print(f'Total time spent in fp_module.vector_presentation(): {total} s:')
-        print(f'  Accumulated time spent in fp_element.vector_presentation(): {fp_element_vp_time}s. ({int(100*fp_element_vp_time/total)}%)')
-        print(f'  F_n.subspace(spanning_set): {subspace_time}s. ({int(100*subspace_time/total)}%)')
-        print(f'  Q_n = F_n/R_n: {quotient_time}s. ({int(100*quotient_time/total)}%)')
-        remaining_time = round(total - quotient_time - subspace_time - fp_element_vp_time, 2)
-        print(f'  Remaining: {remaining_time}s. ({int(100*remaining_time/total)}%)')
+        if False and total > 0.0:
+            print(f'Spanning set contains {len(spanning_set)} elements belonging to the vectorspace {F_n}.')
+            print(f'Total time spent in fp_module.vector_presentation(): {total} s:')
+            print(f'  Accumulated time spent in fp_element.vector_presentation(): {fp_element_vp_time}s. ({int(100*fp_element_vp_time/total)}%)')
+            print(f'  F_n.subspace(spanning_set): {subspace_time}s. ({int(100*subspace_time/total)}%)')
+            print(f'  Q_n = F_n/R_n: {quotient_time}s. ({int(100*quotient_time/total)}%)')
+            remaining_time = round(total - quotient_time - subspace_time - fp_element_vp_time, 2)
+            print(f'  Remaining: {remaining_time}s. ({int(100*remaining_time/total)}%)')
 
         return Q_n
 

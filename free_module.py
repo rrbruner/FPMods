@@ -589,7 +589,7 @@ class FreeModule(UniqueRepresentation):
         # 57 to 21 seconds by adding the optimization.
         #
         element = sum([element._lmul_(c) for c, element in zip(coordinates, basis_elements) if c != 0], self._element_constructor_(0))
-        if element.__nonzero__():
+        if element.non_zero():
             # The sum defining element is of the correct type. We avoid
             # calling the constructor unnecessarily, which seems to
             # save time.
