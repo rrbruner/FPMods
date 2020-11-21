@@ -45,6 +45,9 @@ from sage.rings.infinity import PlusInfinity
 from .free_homspace import FreeModuleHomspace
 from .fp_element import FP_Element
 
+import time
+
+from .fp_module import g_timings
 
 def _CreateRelationsMatrix(module, relations, source_degs, target_degs):
     r"""
@@ -722,19 +725,24 @@ class FP_ModuleMorphism(SageMorphism):
 
         """
 
+#        t = time.time()
+
+        f = None
         # The trivial map has no degree, so we can not create the codomain
         # of the linear transformation.
-        if self.is_zero():
-            return None
+        if not self.is_zero():
 
-        D_n = self.domain().vector_presentation(n)
-        C_n = self.codomain().vector_presentation(self.degree() + n)
+            D_n = self.domain().vector_presentation(n)
+            C_n = self.codomain().vector_presentation(self.degree() + n)
 
-        values = [self(e) for e in self.domain().basis_elements(n)]
+            values = [self(e) for e in self.domain().basis_elements(n)]
 
-        return Hom(D_n, C_n)([
-            C_n.zero() if e.is_zero() else e.vector_presentation() for e in values])
+            f = Hom(D_n, C_n)([
+                C_n.zero() if e.is_zero() else e.vector_presentation() for e in values])
 
+#        g_timings['fp_morphism.vp'] += time.time() - t
+
+        return f
 
     def solve(self, x):
         r"""
@@ -1564,6 +1572,25 @@ class FP_ModuleMorphism(SageMorphism):
             else:
                 print('Resolving the kernel in the range of dimensions [%d, %d]:' % (dim, limit), end='')
 
+        total_time = 0
+        def _clear_timings():
+            g_timings['self_n'] = 0.0
+            g_timings['self_n.kernel'] = 0.0
+            g_timings['__class__'] = 0.0
+            g_timings['new_values'] = 0.0
+            g_timings['Q_n'] = 0.0
+            g_timings['F_n'] = 0.0
+            g_timings['new_values2'] = 0.0
+            g_timings['j'] = 0.0
+            g_timings['j.vector_presentation(n)'] = 0.0
+            g_timings['pres.image'] = 0.0
+            g_timings['is_zero'] = 0.0
+
+        _clear_timings()
+        time_degree = 40
+
+        total_time = 0
+
         # The induction loop.
         for n in range(dim, limit+1):
 
@@ -1571,40 +1598,88 @@ class FP_ModuleMorphism(SageMorphism):
                 print(' %d' % n, end='')
                 sys.stdout.flush()
 
+            if n == time_degree:
+                total_time = time.time() - total_time
+                accounted_time = sum(g_timings.values())
+                print(f'\nTotal time: {total_time}s.')
+                print(f'\nTime accounted for: {accounted_time}s ({int(100*accounted_time/total_time)}%)')
+
+                if accounted_time > 0.0:
+                    for k, v in g_timings.items():
+                        tim = str(round(v, 3))
+                        print(f'{(35-len(k))*" "}{k}: {(8-len(tim))*" "}{tim}s  {int(100*v/accounted_time)}% of accounted time.')
+                print('\n')
+
+            if n == time_degree-1:
+                _clear_timings()
+                total_time = time.time()
+
             # We have taken care of the case when self is zero, so the
             # vector presentation exists.
+            dt = time.time()
             self_n = self.vector_presentation(n)
+            g_timings['self_n'] += time.time() - dt
+
+            dt = time.time()
             kernel_n = self_n.kernel()
+            g_timings['self_n.kernel'] += time.time() - dt
 
             if kernel_n.dimension() == 0:
                 continue
 
             generator_degrees = tuple((x.degree() for x in F_.generators()))
 
-            if j.is_zero():
+            dt = time.time()
+            is_zero = j.is_zero()
+            g_timings['is_zero'] += time.time() - dt
+
+            if is_zero:
                 # The map j is not onto in degree `n` of the kernel.
                 new_generator_degrees = tuple(kernel_n.dimension()*(n,))
-                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
 
+                dt = time.time()
+                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
+                g_timings['__class__'] += time.time() - dt
+
+                dt = time.time()
                 new_values = tuple([
                     self.domain().element_from_coordinates(q, n) for q in kernel_n.basis()])
+                g_timings['new_values'] += time.time() - dt
 
             else:
-                Q_n = kernel_n.quotient(j.vector_presentation(n).image())
+                dt = time.time()
+                pres = j.vector_presentation(n)
+                g_timings['j.vector_presentation(n)'] += time.time() - dt
+
+                dt = time.time()
+                im = pres.image()
+                g_timings['pres.image'] += time.time() - dt
+
+                dt = time.time()
+                Q_n = kernel_n.quotient(im)
+                g_timings['Q_n'] += time.time() - dt
 
                 if Q_n.dimension() == 0:
                     continue
 
                 # The map j is not onto in degree `n` of the kernel.
                 new_generator_degrees = tuple(Q_n.dimension()*(n,))
-                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
 
+                dt = time.time()
+                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
+                g_timings['F_n'] += time.time() - dt
+
+                dt = time.time()
                 new_values = tuple([
                     self.domain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
+                g_timings['new_values2'] += time.time() - dt
 
             # Create a new homomorphism which is surjective onto the kernel
             # in all degrees less than, and including `n`.
+            dt = time.time()
             j = Hom(F_, self.domain()) (j.values() + new_values)
+            g_timings['j'] += time.time() - dt
+
 
         if verbose:
             print('.')
