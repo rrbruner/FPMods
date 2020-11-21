@@ -64,6 +64,11 @@ from sage.structure.unique_representation import UniqueRepresentation
 from .free_module import FreeModule
 from .free_element import FreeModuleElement
 
+import time
+
+
+g_timings = {
+}
 
 class FP_Module(UniqueRepresentation, SageModule):
     # In the category framework, Elements of the class FP_Module are of the
