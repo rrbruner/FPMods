@@ -1569,22 +1569,17 @@ class FP_ModuleMorphism(SageMorphism):
 
         total_time = 0
         def _clear_timings():
-            g_timings['self_n'] = 0.0
-            g_timings['self_n.kernel'] = 0.0
-            g_timings['__class__'] = 0.0
-            g_timings['new_values'] = 0.0
-            g_timings['Q_n'] = 0.0
-            g_timings['F_n'] = 0.0
-            g_timings['new_values2'] = 0.0
-            g_timings['j'] = 0.0
+            g_timings['lin_alg'] = 0.0
+            g_timings['self.vector_presentation(n)'] = 0.0
+            g_timings['element_from_coordinates'] = 0.0
             g_timings['j.vector_presentation(n)'] = 0.0
-            g_timings['pres.image'] = 0.0
-            g_timings['is_zero'] = 0.0
 
         _clear_timings()
         time_degree = 40
 
         total_time = 0
+
+
 
         # The induction loop.
         for n in range(dim, limit+1):
@@ -1613,33 +1608,31 @@ class FP_ModuleMorphism(SageMorphism):
             # vector presentation exists.
             dt = time.time()
             self_n = self.vector_presentation(n)
-            g_timings['self_n'] += time.time() - dt
+            g_timings['self.vector_presentation(n)'] += time.time() - dt
 
             dt = time.time()
             kernel_n = self_n.kernel()
-            g_timings['self_n.kernel'] += time.time() - dt
+            g_timings['lin_alg'] += time.time() - dt
 
             if kernel_n.dimension() == 0:
                 continue
 
             generator_degrees = tuple((x.degree() for x in F_.generators()))
 
-            dt = time.time()
-            is_zero = j.is_zero()
-            g_timings['is_zero'] += time.time() - dt
-
-            if is_zero:
+            if j.is_zero():
                 # The map j is not onto in degree `n` of the kernel.
                 new_generator_degrees = tuple(kernel_n.dimension()*(n,))
 
-                dt = time.time()
                 F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
-                g_timings['__class__'] += time.time() - dt
+
+                dt = time.time()
+                basz = kernel_n.basis()
+                g_timings['lin_alg'] += time.time() - dt
 
                 dt = time.time()
                 new_values = tuple([
-                    self.domain().element_from_coordinates(q, n) for q in kernel_n.basis()])
-                g_timings['new_values'] += time.time() - dt
+                    self.domain().element_from_coordinates(q, n) for q in basz])
+                g_timings['element_from_coordinates'] += time.time() - dt
 
             else:
                 dt = time.time()
@@ -1647,33 +1640,28 @@ class FP_ModuleMorphism(SageMorphism):
                 g_timings['j.vector_presentation(n)'] += time.time() - dt
 
                 dt = time.time()
-                im = pres.image()
-                g_timings['pres.image'] += time.time() - dt
-
-                dt = time.time()
-                Q_n = kernel_n.quotient(im)
-                g_timings['Q_n'] += time.time() - dt
+                Q_n = kernel_n.quotient(pres.image())
+                g_timings['lin_alg'] += time.time() - dt
 
                 if Q_n.dimension() == 0:
                     continue
 
                 # The map j is not onto in degree `n` of the kernel.
                 new_generator_degrees = tuple(Q_n.dimension()*(n,))
+                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
 
                 dt = time.time()
-                F_ = self.domain().__class__(generator_degrees + new_generator_degrees, algebra=self.base_ring())
-                g_timings['F_n'] += time.time() - dt
+                lifts = [Q_n.lift(q) for q in Q_n.basis()]
+                g_timings['lin_alg'] += time.time() - dt
 
                 dt = time.time()
                 new_values = tuple([
-                    self.domain().element_from_coordinates(Q_n.lift(q), n) for q in Q_n.basis()])
-                g_timings['new_values2'] += time.time() - dt
+                    self.domain().element_from_coordinates(v, n) for v in lifts])
+                g_timings['element_from_coordinates'] += time.time() - dt
 
             # Create a new homomorphism which is surjective onto the kernel
             # in all degrees less than, and including `n`.
-            dt = time.time()
             j = Hom(F_, self.domain()) (j.values() + new_values)
-            g_timings['j'] += time.time() - dt
 
 
         if verbose:
