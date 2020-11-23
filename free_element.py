@@ -35,6 +35,7 @@ AUTHORS:
 from sage.misc.cachefunc import cached_method
 from sage.structure.element import ModuleElement as SageModuleElement
 
+import time
 
 class FreeModuleElement(SageModuleElement):
 
@@ -374,8 +375,8 @@ class FreeModuleElement(SageModuleElement):
 
         return False
 
-    @cached_method
-    def vector_presentation(self):
+    @cached_method(key = lambda self, timings: (self))
+    def vector_presentation(self, timings=None):
         r"""
         A coordinate vector representing this module element when it is non-zero.
 
@@ -447,8 +448,15 @@ class FreeModuleElement(SageModuleElement):
 
         vector = base_vec.zero()
         for summand_index, algebra_element in sparse_coeffs:
+
+            generator = self.parent().generator(summand_index)
+
+            dt = time.time()
             for scalar_coefficient, monomial in zip(algebra_element.coefficients(), algebra_element.monomials()):
-                vector += scalar_coefficient*base_dict[monomial*self.parent().generator(summand_index)]
+                vector += scalar_coefficient*base_dict[monomial*generator]
+            if not timings is None:
+                timings['SteenrodAlgebra'] += time.time() - dt
+
 
         return vector
 

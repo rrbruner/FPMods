@@ -47,7 +47,10 @@ from .fp_element import FP_Element
 
 import time
 
-from .fp_module import g_timings
+g_timings = {}
+g_vp_timings = {}
+g_fp_module_vp_timings = {}
+
 
 def _CreateRelationsMatrix(module, relations, source_degs, target_degs):
     r"""
@@ -631,8 +634,8 @@ class FP_ModuleMorphism(SageMorphism):
                 "the generators\n  %s\nto\n  %s" % (self.degree(), self.domain().generators(), self._values)
 
 
-    @cached_method
-    def vector_presentation(self, n):
+#    @cached_method
+    def vector_presentation(self, n, timings=None, fpmod_timings=None):
         r"""
         The restriction of this homomorphism to the domain module elements of
         degree ``n``.
@@ -725,19 +728,70 @@ class FP_ModuleMorphism(SageMorphism):
 
         """
 
+
         # The trivial map has no degree, so we can not create the codomain
         # of the linear transformation.
-        if self.is_zero():
+        iszero = self.is_zero()
+
+        if iszero:
             return None
 
+
+#       Total time: 12.454023838043213s.
+#
+#       Time accounted for: 12.434347867965698s (99%)
+#                                   lin_alg:    3.675s  29% of accounted time.
+#         fp_morphism.vector_presentation():    8.297s  66% of accounted time.
+#                  element_from_coordinates:    0.463s  3% of accounted time.
+#
+#       Time spent in self_morphism.vector_presentation(): 8.296087980270386s)
+#                                      FF_0:    0.351s  4% of accounted time.
+#                                      FF_1:    1.562s  18% of accounted time.
+#                                      FF_2:    1.893s  22% of accounted time.
+#                                      FF_3:    4.348s  52% of accounted time.
+#                                      FF_4:    0.142s  1% of accounted time.
+#                             self._is_zero:      0.0s  0% of accounted time.
+
+        dt = time.time()
         D_n = self.domain().vector_presentation(n)
         C_n = self.codomain().vector_presentation(self.degree() + n)
+        if not timings is None:
+            timings['FF_0'] += time.time() - dt
 
-        values = [self(e) for e in self.domain().basis_elements(n)]
+        dt = time.time()
+        domain_basis = self.domain().basis_elements(n, fpmod_timings)
+        if not timings is None:
+            timings['FF_1'] += time.time() - dt
 
-        return Hom(D_n, C_n)([
-            C_n.zero() if e.is_zero() else e.vector_presentation() for e in values])
+        dt = time.time()
 
+#        basis_values = self.free_morphism.values()
+#
+#       for x in domain_basis:
+#           v = self.codomain()(0)
+#           for a,b in zip(x.free_element.coefficients(), domain_basis):
+#       value = sum([c*v for c, v in  for x in basiselemts]], )
+#
+#        values = [self.codomain().element_class(
+#            self.codomain(), self.free_morphism(x.free_element))
+#
+#
+        values = [self(e) for e in domain_basis]
+
+        if not timings is None:
+            timings['FF_2'] += time.time() - dt
+
+        dt = time.time()
+        vps_ = [e.vector_presentation(fpmod_timings=None) for e in values]
+        if not timings is None:
+            timings['FF_3'] += time.time() - dt
+
+        _vals = [C_n.zero() if v is None else v for v in vps_]
+
+        FF = Hom(D_n, C_n)(_vals)
+
+        return FF
+    
 
     def solve(self, x):
         r"""
@@ -805,7 +859,7 @@ class FP_ModuleMorphism(SageMorphism):
         return self.domain().element_from_coordinates(u, n)
 
 
-    def lift(self, f, verbose=False):
+    def lift(self, f):
         r"""
         A lift of this homomorphism over the given homomorphism ``f``.
 
@@ -983,8 +1037,8 @@ class FP_ModuleMorphism(SageMorphism):
 
         # A non-trivial map never lifts over the trivial map.
         if f.is_zero():
-            if verbose:
-                print('This homomorphism cannot lift over a trivial homomorphism since it is non-trivial.')
+#            if verbose:
+#                print('This homomorphism cannot lift over a trivial homomorphism since it is non-trivial.')
             return None
 
         xs = [f.solve(self(g)) for g in L.generators()]
@@ -992,9 +1046,9 @@ class FP_ModuleMorphism(SageMorphism):
         # If some of the generators are not in the image of f, there is no
         # hope finding a lift.
         if None in xs:
-            if verbose:
-                print('The generators of the domain of this homomorphism does '\
-                      'not map into the image of the homomorphism we are lifting over.')
+#            if verbose:
+#                print('The generators of the domain of this homomorphism does '\
+#                      'not map into the image of the homomorphism we are lifting over.')
             return None
 
         # If L is free there are no relations to take into consideration.
@@ -1021,10 +1075,10 @@ class FP_ModuleMorphism(SageMorphism):
 
             y = iK.solve(sum([c*x for c,x in zip(r.coefficients(), xs)]))
             if y is None:
-                if verbose:
-                    print('The homomorphism cannot be lifted in any '
-                         'way such that the relations of the domain are '
-                         'respected.')
+#                if verbose:
+#                    print('The homomorphism cannot be lifted in any '
+#                         'way such that the relations of the domain are '
+#                         'respected.')
                 return None
 
             if y.is_zero():
@@ -1045,10 +1099,10 @@ class FP_ModuleMorphism(SageMorphism):
             solution = R.solve_right(vector(ys))
         except ValueError as error:
             if str(error) == 'matrix equation has no solutions':
-                if verbose:
-                    print('The homomorphism cannot be lifted in any '
-                          'way such that the relations of the domain '
-                          'are respected: %s' % error)
+#                if verbose:
+#                    print('The homomorphism cannot be lifted in any '
+#                          'way such that the relations of the domain '
+#                          'are respected: %s' % error)
 
                 return None
             else:
@@ -1073,7 +1127,7 @@ class FP_ModuleMorphism(SageMorphism):
         return Hom(L, M)(xs)
 
 
-    def split(self, verbose=False):
+    def split(self):
         r"""
         A split of this homomorphism.
 
@@ -1117,10 +1171,10 @@ class FP_ModuleMorphism(SageMorphism):
         """
 
         id = End(self.codomain()).identity()
-        return id.lift(self, verbose)
+        return id.lift(self)
 
 
-    def homology(self, f, top_dim=None, verbose=False):
+    def homology(self, f, top_dim=None):
         r"""
         Compute the sub-quotient module `H(self, f) = \ker(self)/\operatorname{im}(f)`, in
         a range of degrees.
@@ -1165,7 +1219,7 @@ class FP_ModuleMorphism(SageMorphism):
             False
 
         """
-        k = self.kernel(top_dim, verbose)
+        k = self.kernel(top_dim)
         f_ = f.lift(k)
         if f_ is None:
             raise ValueError('The image of the given homomorphism is not contained '
@@ -1267,7 +1321,7 @@ class FP_ModuleMorphism(SageMorphism):
         return projection
 
 
-    def kernel(self, top_dim=None, verbose=False):
+    def kernel(self, top_dim=None):
         r"""
         Compute the kernel of this homomorphism.
 
@@ -1329,12 +1383,12 @@ class FP_ModuleMorphism(SageMorphism):
 
         """
 
-        if verbose:
-            print('1. Computing the generators of the kernel presentation:')
-        j0 = self._resolve_kernel(top_dim, verbose)
-        if verbose:
-            print('2. Computing the relations of the kernel presentation:')
-        j1 = j0._resolve_kernel(top_dim, verbose)
+#        if verbose:
+#            print('1. Computing the generators of the kernel presentation:')
+        j0 = self._resolve_kernel(top_dim)
+#        if verbose:
+#            print('2. Computing the relations of the kernel presentation:')
+        j1 = j0._resolve_kernel(top_dim)
 
         # Create a module isomorphic to the ker(self).
         K = self.domain().ModuleClass.from_free_module_morphism(j1)
@@ -1344,7 +1398,7 @@ class FP_ModuleMorphism(SageMorphism):
         return Hom(K, j0.codomain())(j0.values())
 
 
-    def image(self, top_dim=None, verbose=False):
+    def image(self, top_dim=None):
         r"""
         Compute the image of this homomorphism.
 
@@ -1400,12 +1454,12 @@ class FP_ModuleMorphism(SageMorphism):
             False
 
         """
-        if verbose:
-            print('1. Computing the generators of the image presentation:')
-        j0 = self._resolve_image(top_dim, verbose)
-        if verbose:
-            print('2. Computing the relations of the image presentation:')
-        j1 = j0._resolve_kernel(top_dim, verbose)
+#        if verbose:
+#            print('1. Computing the generators of the image presentation:')
+        j0 = self._resolve_image(top_dim)
+#        if verbose:
+#            print('2. Computing the relations of the image presentation:')
+        j1 = j0._resolve_kernel(top_dim)
 
         # Create a module isomorphic to the im(self).
         I = self.domain().ModuleClass.from_free_module_morphism(j1)
@@ -1415,7 +1469,7 @@ class FP_ModuleMorphism(SageMorphism):
         return Hom(I, j0.codomain())(j0.values())
 
 
-    def is_injective(self, top_dim=None, verbose=False):
+    def is_injective(self, top_dim=None):
         r"""
         Return ``True`` if and only if this homomorphism has a trivial kernel.
 
@@ -1447,7 +1501,7 @@ class FP_ModuleMorphism(SageMorphism):
             True
 
         """
-        j0 = self._resolve_kernel(top_dim, verbose)
+        j0 = self._resolve_kernel(top_dim)
         return j0.domain().is_trivial()
 
 
@@ -1475,7 +1529,7 @@ class FP_ModuleMorphism(SageMorphism):
         return self.cokernel().is_zero()
 
 
-    def _resolve_kernel(self, top_dim=None, verbose=False):
+    def _resolve_kernel(self, top_dim=None):
         r"""
         Resolve the kernel of this homomorphism by a free module.
 
@@ -1548,8 +1602,8 @@ class FP_ModuleMorphism(SageMorphism):
 
         dim = self.domain().connectivity()
         if dim == PlusInfinity():
-            if verbose:
-                print ('The domain of the morphism is trivial, so there is nothing to resolve.')
+#            if verbose:
+#                print ('The domain of the morphism is trivial, so there is nothing to resolve.')
             return j
 
         limit = PlusInfinity() if not self.base_ring().is_finite() else\
@@ -1561,32 +1615,39 @@ class FP_ModuleMorphism(SageMorphism):
         if limit == PlusInfinity():
             raise ValueError('A top dimension must be specified for this calculation to terminate.')
 
-        if verbose:
-            if dim > limit:
-                print('The dimension range is empty: [%d, %d]' % (dim, limit))
-            else:
-                print('Resolving the kernel in the range of dimensions [%d, %d]:' % (dim, limit), end='')
+#        if verbose:
+#            if dim > limit:
+#                print('The dimension range is empty: [%d, %d]' % (dim, limit))
+#            else:
+#                print('Resolving the kernel in the range of dimensions [%d, %d]:' % (dim, limit), end='')
 
         total_time = 0
         def _clear_timings():
             g_timings['lin_alg'] = 0.0
-            g_timings['self.vector_presentation(n)'] = 0.0
+            g_timings['fp_morphism.vector_presentation()'] = 0.0
             g_timings['element_from_coordinates'] = 0.0
-            g_timings['j.vector_presentation(n)'] = 0.0
+
+            g_vp_timings['FF_0'] = 0.0
+            g_vp_timings['FF_1'] = 0.0
+            g_vp_timings['FF_2'] = 0.0
+            g_vp_timings['FF_3'] = 0.0
+
+            g_fp_module_vp_timings['lin_alg'] = 0.0
+            g_fp_module_vp_timings['vector_presentation'] = 0.0
+            g_fp_module_vp_timings['SteenrodAlgebra'] = 0.0
+
 
         _clear_timings()
         time_degree = 40
 
         total_time = 0
 
-
-
         # The induction loop.
         for n in range(dim, limit+1):
 
-            if verbose:
-                print(' %d' % n, end='')
-                sys.stdout.flush()
+#            if verbose:
+#                print(' %d' % n, end='')
+#                sys.stdout.flush()
 
             if n == time_degree:
                 total_time = time.time() - total_time
@@ -1600,6 +1661,27 @@ class FP_ModuleMorphism(SageMorphism):
                         print(f'{(35-len(k))*" "}{k}: {(8-len(tim))*" "}{tim}s  {int(100*v/accounted_time)}% of accounted time.')
                 print('\n')
 
+                # VP time
+                accounted_time = sum(g_vp_timings.values())
+                print(f'\nTime spent in self_morphism.vector_presentation(): {accounted_time}s')
+
+                if accounted_time > 0.0:
+                    for k, v in g_vp_timings.items():
+                        tim = str(round(v, 3))
+                        print(f'{(35-len(k))*" "}{k}: {(8-len(tim))*" "}{tim}s  {int(100*v/accounted_time)}% of accounted time.')
+                print('\n')
+
+                # fp_module VP time
+                accounted_time = sum(g_fp_module_vp_timings.values())
+                print(f'\nTime spent in self_morphism.vector_presentation(): {accounted_time}s')
+
+                if accounted_time > 0.0:
+                    for k, v in g_fp_module_vp_timings.items():
+                        tim = str(round(v, 3))
+                        print(f'{(35-len(k))*" "}{k}: {(8-len(tim))*" "}{tim}s  {int(100*v/accounted_time)}% of accounted time.')
+                print('\n')
+
+
             if n == time_degree-1:
                 _clear_timings()
                 total_time = time.time()
@@ -1607,8 +1689,8 @@ class FP_ModuleMorphism(SageMorphism):
             # We have taken care of the case when self is zero, so the
             # vector presentation exists.
             dt = time.time()
-            self_n = self.vector_presentation(n)
-            g_timings['self.vector_presentation(n)'] += time.time() - dt
+            self_n = self.vector_presentation(n, g_vp_timings, g_fp_module_vp_timings)
+            g_timings['fp_morphism.vector_presentation()'] += time.time() - dt
 
             dt = time.time()
             kernel_n = self_n.kernel()
@@ -1629,15 +1711,13 @@ class FP_ModuleMorphism(SageMorphism):
                 basz = kernel_n.basis()
                 g_timings['lin_alg'] += time.time() - dt
 
-                dt = time.time()
                 new_values = tuple([
                     self.domain().element_from_coordinates(q, n) for q in basz])
-                g_timings['element_from_coordinates'] += time.time() - dt
 
             else:
                 dt = time.time()
-                pres = j.vector_presentation(n)
-                g_timings['j.vector_presentation(n)'] += time.time() - dt
+                pres = j.vector_presentation(n, g_vp_timings, g_fp_module_vp_timings)
+                g_timings['fp_morphism.vector_presentation()'] += time.time() - dt
 
                 dt = time.time()
                 Q_n = kernel_n.quotient(pres.image())
@@ -1654,22 +1734,20 @@ class FP_ModuleMorphism(SageMorphism):
                 lifts = [Q_n.lift(q) for q in Q_n.basis()]
                 g_timings['lin_alg'] += time.time() - dt
 
-                dt = time.time()
                 new_values = tuple([
                     self.domain().element_from_coordinates(v, n) for v in lifts])
-                g_timings['element_from_coordinates'] += time.time() - dt
 
             # Create a new homomorphism which is surjective onto the kernel
             # in all degrees less than, and including `n`.
             j = Hom(F_, self.domain()) (j.values() + new_values)
 
 
-        if verbose:
-            print('.')
+#        if verbose:
+#            print('.')
         return j
 
 
-    def _resolve_image(self, top_dim=None, verbose=False):
+    def _resolve_image(self, top_dim=None):
         r"""
         Resolve the image of this homomorphism by a free module.
 
@@ -1736,14 +1814,14 @@ class FP_ModuleMorphism(SageMorphism):
 
         dim = self.codomain().connectivity()
         if dim == PlusInfinity():
-            if verbose:
-                print ('The codomain of the morphism is trivial, so there is nothing to resolve.')
+#            if verbose:
+#                print ('The codomain of the morphism is trivial, so there is nothing to resolve.')
             return j
 
         self_degree = self.degree()
         if self_degree is None:
-            if verbose:
-                print ('The homomorphism is trivial, so there is nothing to resolve.')
+#            if verbose:
+#                print ('The homomorphism is trivial, so there is nothing to resolve.')
             return j
 
         degree_values = [0] + [v.degree() for v in self.values() if v.degree() != None]
@@ -1756,18 +1834,18 @@ class FP_ModuleMorphism(SageMorphism):
         if limit == PlusInfinity():
             raise ValueError('A top dimension must be specified for this calculation to terminate.')
 
-        if verbose:
-            if dim > limit:
-                print('The dimension range is empty: [%d, %d]' % (dim, limit))
-            else:
-                print('Resolving the image in the range of dimensions [%d, %d]:' % (dim, limit), end='')
+#        if verbose:
+#            if dim > limit:
+#                print('The dimension range is empty: [%d, %d]' % (dim, limit))
+#            else:
+#                print('Resolving the image in the range of dimensions [%d, %d]:' % (dim, limit), end='')
 
         for n in range(dim, limit+1):
 
-            if verbose:
-                print(' %d' % n, end='')
-                sys.stdout.flush()
-
+#            if verbose:
+#                print(' %d' % n, end='')
+#                sys.stdout.flush()
+#
             self_n = self.vector_presentation(n - self_degree)
             image_n = self_n.image()
 
@@ -1803,8 +1881,8 @@ class FP_ModuleMorphism(SageMorphism):
             # in all degrees less than, and including `n`.
             j = Hom(F_, self.codomain()) (j.values() + new_values)
 
-        if verbose:
-            print('.')
+#        if verbose:
+#            print('.')
         return j
 
 

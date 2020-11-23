@@ -34,6 +34,7 @@ from sage.structure.element import ModuleElement as SageModuleElement
 
 from .free_element import FreeModuleElement
 
+import time
 
 class FP_Element(SageModuleElement):
 
@@ -339,7 +340,7 @@ class FP_Element(SageModuleElement):
         return False
 
 
-    def vector_presentation(self):
+    def vector_presentation(self, fpmod_timings=None):
         r"""
         A coordinate vector representing this module element when it is non-zero.
 
@@ -402,8 +403,20 @@ class FP_Element(SageModuleElement):
         if self.free_element.degree() is None:
             return None
 
-        F_n = self.parent().vector_presentation(self.free_element.degree())
-        return F_n.quotient_map()(self.free_element.vector_presentation())
+#        dt = time.time()
+        F_n = self.parent().vector_presentation(self.free_element.degree(), fpmod_timings)
+#        g_fp_element_vp_timings['A1'] += time.time() - dt
+#
+
+        v = self.free_element.vector_presentation(fpmod_timings)
+
+
+        dt = time.time()
+        qv = F_n.quotient_map()(v)
+        if not fpmod_timings is None:
+            fpmod_timings['lin_alg'] += time.time() - dt
+
+        return qv
 
 
     def _nonzero_(self):
