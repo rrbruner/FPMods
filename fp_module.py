@@ -64,7 +64,7 @@ from sage.structure.unique_representation import UniqueRepresentation
 from .free_module import FreeModule
 from .free_element import FreeModuleElement
 
-import time
+from .timing import g_timings
 
 
 
@@ -143,6 +143,10 @@ class FP_Module(UniqueRepresentation, SageModule):
             True
 
         """
+
+        global g_timings
+        g_timings.Start('fp_module.__init__')
+
         if None in generator_degrees:
             raise ValueError("generators are not all integers: %s" % str(generator_degrees))
 
@@ -155,18 +159,24 @@ class FP_Module(UniqueRepresentation, SageModule):
         generatorModule = FreeModule(
             generator_degrees, algebra=algebra)
 
+        g_timings.End()
+
         # Use the coefficients given for the relations and make module elements
         # from them.  Filter out the zero elements, as they are redundant.
         rels = [v for v in [generatorModule(r) for r in relations] if not v.is_zero()]
+
+        g_timings.Start('fp_module.__init__')
 
         # The free module for the relations of the module.
         relationsModule = FreeModule(
             tuple([r.degree() for r in rels]), algebra=algebra)
 
+        g_timings.End()
         # The module we want to model is the cokernel of the
         # following morphism.
         self.j = Hom(relationsModule, generatorModule)(rels)
 
+        g_timings.Start('fp_module.__init__')
         # Call the base class constructor.
         SageModule.__init__(self, algebra)
         self._populate_coercion_lists_()
@@ -180,6 +190,7 @@ class FP_Module(UniqueRepresentation, SageModule):
         self.HomSpaceClass = FP_ModuleHomspace
         self.ModuleClass = FP_Module
 
+        g_timings.End()
 
     @classmethod
     def from_free_module(cls, free_module):
@@ -312,14 +323,25 @@ class FP_Module(UniqueRepresentation, SageModule):
             True
 
         """
+
+        res = None
+
+        global g_timings
+                 
+        g_timings.Start('fp_el_constructor')
+
         if isinstance(x, self.element_class):
-            return x
+            res = x
         if isinstance(x, FreeModuleElement):
-            return self.element_class(self, x.coefficients())
+            res = self.element_class(self, x.coefficients())
         elif x == 0:
-            return self.element_class(self, len(self.j.codomain().generator_degrees())*(0,))
+            res = self.element_class(self, len(self.j.codomain().generator_degrees())*(0,))
         else:
-            return self.element_class(self, x)
+            res = self.element_class(self, x)
+
+        g_timings.End()
+
+        return res
 
 
     def _repr_(self):
@@ -519,9 +541,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         return self._element_constructor_(a_free_element)
 
 
-#    @cached_method
-    @cached_method(key=lambda self, n, fpmod_timings: (self,n))
-    def basis_elements(self, n, fpmod_timings=None):
+    @cached_method
+    def basis_elements(self, n):
         r"""
         A basis for the vectorspace of degree ``n`` module elements.
 
@@ -571,23 +592,21 @@ class FP_Module(UniqueRepresentation, SageModule):
             []
 
         """
+        global g_timings
 
-        selfpres = self.vector_presentation(n, fpmod_timings)
+        selfpres = self.vector_presentation(n)
 
-        dt = time.time()
-
+        g_timings.Start('basis_elements')
         basis = selfpres.basis()
+        g_timings.End()
 
-        if not fpmod_timings is None:
-            fpmod_timings['lin_alg'] += time.time() - dt
-
-        els = [self.element_from_coordinates(x, n, fpmod_timings) for x in basis]
+        els = [self.element_from_coordinates(x, n) for x in basis]
 
         return els
 
 
-    @cached_method(key=lambda self, coordinates, n, fpmod_timings: (self,n,coordinates))
-    def element_from_coordinates(self, coordinates, n, fpmod_timings=None):
+    @cached_method
+    def element_from_coordinates(self, coordinates, n):
         r"""
         The module element in degree ``n`` having the given coordinates with
         respect to the basis returned by :meth:`basis_elements`.
@@ -632,7 +651,7 @@ class FP_Module(UniqueRepresentation, SageModule):
             :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.vector_presentation`
 
         """
-        M_n = self.vector_presentation(n,fpmod_timings)
+        M_n = self.vector_presentation(n)
 
         if len(coordinates) != M_n.dimension():
             raise ValueError('The given coordinate vector has incorrect length: %d.  '
@@ -641,8 +660,9 @@ class FP_Module(UniqueRepresentation, SageModule):
         free_element = self.j.codomain().element_from_coordinates(
             M_n.lift(coordinates), n)
 
-        return self._element_constructor_(free_element.coefficients())
+        res = self._element_constructor_(free_element.coefficients())
 
+        return res
 
     def __getitem__(self, n):
         r"""
@@ -672,8 +692,8 @@ class FP_Module(UniqueRepresentation, SageModule):
         return self.basis_elements(n)
 
 
-    @cached_method(key=lambda self,n, fpmod_timings: (self,n))
-    def vector_presentation(self, n, fpmod_timings=None):
+    @cached_method
+    def vector_presentation(self, n):
         r"""
         A vectorspace isomorphic to the vectorspace of module elements of
         degree ``n``.
@@ -703,7 +723,7 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         """
 
-        dt = time.time()
+        global g_timings
 
         # Get the vector space presentation of the free module on the
         # module generators.
@@ -723,14 +743,13 @@ class FP_Module(UniqueRepresentation, SageModule):
                 if not v is None:
                     spanning_set.append(v)
 
+        g_timings.Start('lin_alg')
         R_n = F_n.subspace(spanning_set)
 
         # Return the quotient of the free part by the relations.
         quo = F_n/R_n
 
-        if not fpmod_timings is None:
-            fpmod_timings['vector_presentationzzz'] += time.time() - dt
-
+        g_timings.End()
 
         return quo
 
@@ -753,13 +772,20 @@ class FP_Module(UniqueRepresentation, SageModule):
             Set of Morphisms from Finitely presented module on 2 generators ...
 
         """
+        global g_timings
+
+        g_timings.Start('fp_module._Hom_')
+
         if not isinstance(Y, self.__class__):
             raise ValueError('Cannot create homspace between incompatible types:\n%s  ->\n%s' % (self.__class__, type(Y)))
         if Y.base_ring() != self.base_ring():
             raise ValueError('The modules are not defined over the same base ring.')
 
-        return self.HomSpaceClass(self, Y, category)
+        res = self.HomSpaceClass(self, Y, category)
 
+        g_timings.End()
+
+        return res
 
     def generator_degrees(self):
         r"""

@@ -35,7 +35,7 @@ AUTHORS:
 from sage.misc.cachefunc import cached_method
 from sage.structure.element import ModuleElement as SageModuleElement
 
-import time
+from .timing import g_timings
 
 class FreeModuleElement(SageModuleElement):
 
@@ -75,6 +75,7 @@ class FreeModuleElement(SageModuleElement):
             <Sq(1), 1>
 
         """
+
         if isinstance(coefficients, FreeModuleElement):
             self._coefficients = coefficients._coefficients
         else:
@@ -97,8 +98,8 @@ class FreeModuleElement(SageModuleElement):
                 #           test.  Since this class constructor is for internal
                 #           use only, we could justify commenting in the
                 #           following break statement:
-                # self._degree = d
-                # break
+                self._degree = d
+                break
 
                 if self._degree == None:
                     self._degree = d
@@ -107,6 +108,7 @@ class FreeModuleElement(SageModuleElement):
                         raise ValueError('Non-homogeneous element defined.')
 
         SageModuleElement.__init__(self, parent=module)
+
 
 
     def coefficients(self):
@@ -221,8 +223,15 @@ class FreeModuleElement(SageModuleElement):
 
         """
 
-        return self.parent()((a*c for c in self._coefficients))
+        global g_timings
 
+        g_timings.Start('SteenrodAlgebra')
+        xxx = (a*c for c in self._coefficients)
+        g_timings.End()
+
+        res = self.parent()(xxx)
+
+        return res
 
     def _neg_(self):
         r"""
@@ -241,7 +250,16 @@ class FreeModuleElement(SageModuleElement):
             True
 
         """
-        return self.parent()([-c for c in self._coefficients])
+
+        global g_timings
+
+        g_timings.Start('SteenrodAlgebra')
+        xxx = [-c for c in self._coefficients]
+        g_timings.End()
+
+        res = self.parent()(xxx)
+
+        return res
 
 
     def _add_(self, other):
@@ -298,8 +316,16 @@ class FreeModuleElement(SageModuleElement):
             raise ValueError("Can't add element of degree %s and %s"\
                   %(self._degree, other._degree))
         else:
-            return self.parent()(
-                [x + y for x,y in zip(self._coefficients, other.coefficients())])
+
+            global g_timings
+
+            g_timings.Start('SteenrodAlgebra')
+            xxx = [x + y for x,y in zip(self._coefficients, other.coefficients())]
+            g_timings.End()
+
+            res = self.parent()(xxx)
+
+            return res
 
 
     def _richcmp_(self, other, op):
@@ -375,8 +401,8 @@ class FreeModuleElement(SageModuleElement):
 
         return False
 
-    @cached_method(key = lambda self, timings: (self))
-    def vector_presentation(self, timings=None):
+    @cached_method
+    def vector_presentation(self):
         r"""
         A coordinate vector representing this module element when it is non-zero.
 
@@ -427,8 +453,8 @@ class FreeModuleElement(SageModuleElement):
             sage: M.zero().vector_presentation() is None
             True
 
-        """        
-
+        """   
+        
         # We cannot represent the zero element since it does not have a degree,
         # and we therefore do not know which vectorspace it belongs to.
         # 
@@ -444,19 +470,15 @@ class FreeModuleElement(SageModuleElement):
         base_dict = dict(zip(bas_gen, base_vec.basis()))
 
         # Create a sparse representation of the element.
-        sparse_coeffs = [x for x in enumerate(self._coefficients) if not x[1].is_zero()]
+        sparse_coeffs = [(n, c) for n,c in enumerate(self._coefficients) if not c.is_zero()]
 
         vector = base_vec.zero()
         for summand_index, algebra_element in sparse_coeffs:
 
             generator = self.parent().generator(summand_index)
 
-            dt = time.time()
             for scalar_coefficient, monomial in zip(algebra_element.coefficients(), algebra_element.monomials()):
                 vector += scalar_coefficient*base_dict[monomial*generator]
-            if not timings is None:
-                timings['SteenrodAlgebra'] += time.time() - dt
-
 
         return vector
 
@@ -484,11 +506,16 @@ class FreeModuleElement(SageModuleElement):
             False
 
         """
+        global g_timings
 
         if self._degree == None:
             return False
 
-        return not all(c == 0 for c in self._coefficients)
+        g_timings.Start('SteenrodAlgebra')
+        xxx = not all(c == 0 for c in self._coefficients)
+        g_timings.End()
+
+        return xxx
 
 
     def __hash__(self):
