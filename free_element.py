@@ -75,6 +75,9 @@ class FreeModuleElement(SageModuleElement):
             <Sq(1), 1>
 
         """
+        global g_timings
+
+        g_timings.Start('free_el_constructor')
 
         if isinstance(coefficients, FreeModuleElement):
             self._coefficients = coefficients._coefficients
@@ -109,6 +112,7 @@ class FreeModuleElement(SageModuleElement):
 
         SageModuleElement.__init__(self, parent=module)
 
+        g_timings.End()
 
 
     def coefficients(self):

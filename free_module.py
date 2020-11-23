@@ -423,9 +423,9 @@ class FreeModule(UniqueRepresentation, SageModule):
             True
 
         """
-        global g_timings
-
-        g_timings.Start('free_el_constructor')
+#        global g_timings
+#
+#        g_timings.Start('free_el_constructor')
 
         res = None
         if isinstance(coefficients, self.element_class):
@@ -435,7 +435,7 @@ class FreeModule(UniqueRepresentation, SageModule):
         else:
             res = self.element_class(self, coefficients)
 
-        g_timings.End()
+#        g_timings.End()
 
         return res
 

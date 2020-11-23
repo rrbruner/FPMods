@@ -198,7 +198,7 @@ class FP_Element(SageModuleElement):
 
         xxx = a*self.free_element
 
-        g_timings.Start('timtim')
+        g_timings.Start('fp_element_arithmetic_')
         res = self.parent()(xxx)
         g_timings.End()
 
@@ -229,7 +229,7 @@ class FP_Element(SageModuleElement):
 
         xxx = -self.free_element
 
-        g_timings.Start('timtim')
+        g_timings.Start('fp_element_arithmetic_')
         res = self.parent()(xxx)
         g_timings.End()
 
@@ -285,7 +285,7 @@ class FP_Element(SageModuleElement):
         global g_timings
         xxx = self.free_element + other.free_element
 
-        g_timings.Start('timtim')
+        g_timings.Start('fp_element_arithmetic_')
         res = self.parent()(xxx)
         g_timings.End()
 

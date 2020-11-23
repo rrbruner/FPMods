@@ -599,10 +599,7 @@ class FP_ModuleMorphism(SageMorphism):
             raise ValueError("Cannot evaluate morphism on element not in domain.")
 
         ff = self.free_morphism(x.free_element)
-        global g_timings
-        g_timings.Start('fp_morphism_call')
         res = self.codomain().element_class(self.codomain(), ff)
-        g_timings.End()
         return res
 
     def _repr_(self):

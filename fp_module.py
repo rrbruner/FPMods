@@ -326,9 +326,6 @@ class FP_Module(UniqueRepresentation, SageModule):
 
         res = None
 
-        global g_timings
-                 
-        g_timings.Start('fp_el_constructor')
 
         if isinstance(x, self.element_class):
             res = x
@@ -338,8 +335,6 @@ class FP_Module(UniqueRepresentation, SageModule):
             res = self.element_class(self, len(self.j.codomain().generator_degrees())*(0,))
         else:
             res = self.element_class(self, x)
-
-        g_timings.End()
 
         return res
 
