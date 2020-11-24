@@ -44,7 +44,7 @@ class Timing:
 
     def PrintCSV(self, n, total, names):
         accounted_time = sum(self._timings.values())
-        line = f'{n},{total},{accounted_time}' + ','.join([str(self._timings[name]) for name in names])
+        line = f'{n},{total},{accounted_time},' + ','.join([str(self._timings[name]) for name in names])
         print(line)
 
 g_timings = Timing()

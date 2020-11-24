@@ -1590,9 +1590,9 @@ class FP_ModuleMorphism(SageMorphism):
         # The induction loop.
         for n in range(dim, limit+1):
 
-            if verbose:
-                print(' %d' % n, end='')
-                sys.stdout.flush()
+#            if verbose:
+#                print(' %d' % n, end='')
+#                sys.stdout.flush()
 
             if n >= time_degree:
                 total_time = time.time() - total_time
