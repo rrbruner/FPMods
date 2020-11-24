@@ -42,5 +42,10 @@ class Timing:
                 tim = str(round(v, 5)) if v > 0.0 else '-.-----'
                 print(f'{(35-len(k))*" "}{k}: {(8-len(tim))*" "}{tim}s  {int(100*v/accounted_time)}% of accounted time.')
 
+    def PrintCSV(self, n, total, names):
+        accounted_time = sum(self._timings.values())
+        line = f'{n},{total},{accounted_time}' + ','.join([str(self._timings[name]) for name in names])
+        print(line)
+
 g_timings = Timing()
 
