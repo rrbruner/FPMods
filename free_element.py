@@ -77,12 +77,13 @@ class FreeModuleElement(SageModuleElement):
         """
         global g_timings
 
-        g_timings.Start('free_el_constructor')
-
         if isinstance(coefficients, FreeModuleElement):
             self._coefficients = coefficients._coefficients
         else:
-            self._coefficients = tuple([module.base_ring()(x) for x in coefficients])
+            alg = module.base_ring()
+            g_timings.Start('SteenrodAlgebra')
+            self._coefficients = tuple([alg(x) for x in coefficients])
+            g_timings.End()
 
         if len(self._coefficients) != len(module.generator_degrees()):
             raise ValueError('The number of coefficients must match the '
@@ -91,7 +92,10 @@ class FreeModuleElement(SageModuleElement):
         # Check homogenity and store the degree of the element.
         self._degree = None
         for g, c in zip(module.generator_degrees(), self._coefficients):
-            if not c.is_zero():
+            g_timings.Start('SteenrodAlgebra')
+            xxx = not c.is_zero()
+            g_timings.End()
+            if xxx:
                 d = g + c.degree()
 
                 # XXX todo: Measure how much time is spent in this loop.  Since
@@ -111,8 +115,6 @@ class FreeModuleElement(SageModuleElement):
                         raise ValueError('Non-homogeneous element defined.')
 
         SageModuleElement.__init__(self, parent=module)
-
-        g_timings.End()
 
 
     def coefficients(self):
@@ -466,7 +468,9 @@ class FreeModuleElement(SageModuleElement):
         # place it inside any vectorspace.  However, this will not work for
         # homomorphisms, so we we return None to be consistent.
         if self._degree is None:
-             return None
+            return None
+
+        global g_timings
 
         bas_gen = self.parent().basis_elements(self._degree)
         base_vec = self.parent().vector_presentation(self._degree)
@@ -474,14 +478,27 @@ class FreeModuleElement(SageModuleElement):
         base_dict = dict(zip(bas_gen, base_vec.basis()))
 
         # Create a sparse representation of the element.
-        sparse_coeffs = [(n, c) for n,c in enumerate(self._coefficients) if not c.is_zero()]
+        sparse_coeffs = []
+        for n,c in enumerate(self._coefficients):
+
+            g_timings.Start('SteenrodAlgebra')
+            xxx = c.is_zero()
+            g_timings.End()
+
+            if not xxx:
+                sparse_coeffs.append((n,c))
 
         vector = base_vec.zero()
         for summand_index, algebra_element in sparse_coeffs:
 
             generator = self.parent().generator(summand_index)
 
-            for scalar_coefficient, monomial in zip(algebra_element.coefficients(), algebra_element.monomials()):
+            g_timings.Start('SteenrodAlgebra')
+            AAA = algebra_element.coefficients()
+            BBB = algebra_element.monomials()
+            g_timings.End()
+
+            for scalar_coefficient, monomial in zip(AAA, BBB):
                 vector += scalar_coefficient*base_dict[monomial*generator]
 
         return vector
