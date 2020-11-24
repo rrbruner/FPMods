@@ -42,6 +42,9 @@ from sage.misc.cachefunc import cached_method
 from .free_homspace import is_FreeModuleHomspace
 
 
+from .timing import g_timings
+
+
 class FreeModuleMorphism():
 
     def __init__(self, parent, values):
@@ -77,6 +80,8 @@ class FreeModuleMorphism():
               [<Sq(0,2) + Sq(3,1) + Sq(6), 0>, <Sq(1,2) + Sq(7), Sq(0,2) + Sq(3,1) + Sq(6)>]
 
         """
+        global g_timigs
+
 
         if not is_FreeModuleHomspace(parent):
             raise TypeError("The parent (%s) must be a f.p. free module homset." % parent)
@@ -132,6 +137,8 @@ class FreeModuleMorphism():
 
     def base_ring(self):
         return self._parent.base_ring()
+
+        g_timings.End()
 
 
     def degree(self):

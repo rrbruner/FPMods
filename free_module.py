@@ -275,7 +275,7 @@ from sage.structure.unique_representation import UniqueRepresentation
 
 from .free_element import FreeModuleElement
 from .free_homspace import FreeModuleHomspace
-
+from .timing import g_timings
 
 class FreeModule(UniqueRepresentation):
 #   # To accomodate Sage's category framework, we must specify what the
@@ -433,6 +433,9 @@ class FreeModule(UniqueRepresentation):
         else:
             return FreeModuleElement(self, coefficients)
 
+#        g_timings.End()
+
+        return res
 
     def an_element(self, n=None):
         r"""
@@ -528,10 +531,17 @@ class FreeModule(UniqueRepresentation):
              <0, 0, Sq(4)>]
 
         """
+        global g_timings
+
         basis_n = []
         for i, generator_degree in enumerate(self._generator_degrees):
             l = n - generator_degree
-            basis_n += [self.generator(i)._lmul_(a) for a in self.base_ring().basis(l)]
+
+            g_timings.Start('SteenrodAlgebra')
+            bas = self.base_ring().basis(l)
+            g_timings.End()
+
+            basis_n += [self.generator(i)._lmul_(a) for a in bas]
 
         return basis_n
 
@@ -566,6 +576,8 @@ class FreeModule(UniqueRepresentation):
             True
 
         """
+        global g_timings
+
         basis_elements = self.basis_elements(n)
 
         if len(coordinates) != len(basis_elements):
@@ -686,6 +698,7 @@ class FreeModule(UniqueRepresentation):
             <0, 0, 1>
 
         """
+
         if index < 0 or index >= len(self._generator_degrees):
             raise ValueError('The parent module has generators in the index '\
                 'range [0, %s]; generator %s does not exist' %\
