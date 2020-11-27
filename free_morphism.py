@@ -3,11 +3,11 @@ Homomorphisms of finitely generated free graded modules
 
 This class implements construction and basic manipulation of
 elements of the Sage parent
-:class:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_homspace.FreeModuleHomspace`, which models
+:class:`sage.modules.fp_over_steenrod_algebra.free_homspace.FreeModuleHomspace`, which models
 homomorphisms of free graded modules over connected algebras.
 
 .. NOTE:: This class is intended for private use by
-    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_morphism.FP_ModuleMorphism`.
+    :class:`sage.modules.fp_over_steenrod_algebra.fp_morphism.FP_ModuleMorphism`.
 
 For an overview of the free module API, see :doc:`free_module`.
 
@@ -47,45 +47,49 @@ from .timing import g_timings
 
 
 class FreeModuleMorphism(SageMorphism):
+    r"""
+    Create a homomorphism between finitely generated free graded modules.
+
+    INPUT::
+
+    - ``parent`` -- A homspace in the category of finitely generated free
+        modules.
+
+    - ``values`` -- A list of elements in the codomain.  Each element
+        corresponds (by their ordering) to a module generator in the domain.
+
+    OUTPUT:: A module homomorphism defined by sending each generator to its
+    corresponding value.
+
+    EXAMPLES::
+
+        sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
+        sage: A = SteenrodAlgebra(2)
+        sage: F1 = FreeModule((4,5), A)
+        sage: F2 = FreeModule((3,4), A)
+        sage: F3 = FreeModule((2,3), A)
+        sage: H1 = Hom(F1, F2)
+        sage: H2 = Hom(F2, F3)
+        sage: f = H1( ( F2((Sq(4), 0)), F2((0, Sq(4))) ) )
+        sage: g = H2( ( F3((Sq(2), 0)), F3((Sq(3), Sq(2))) ) )
+        sage: g*f
+        Module homomorphism of degree 4 defined by sending the generators
+          [<1, 0>, <0, 1>]
+        to
+          [<Sq(0,2) + Sq(3,1) + Sq(6), 0>, <Sq(1,2) + Sq(7), Sq(0,2) + Sq(3,1) + Sq(6)>]
+
+    """
 
     def __init__(self, parent, values):
         r"""
         Create a homomorphism between finitely generated free graded modules.
-
-        INPUT:
-
-        - ``parent`` -- A homspace in the category of finitely generated free
-            modules.
-
-        - ``values`` -- A list of elements in the codomain.  Each element
-            corresponds (by their ordering) to a module generator in the domain.
-
-        OUTPUT: A module homomorphism defined by sending each generator to its
-        corresponding value.
-
-        EXAMPLES::
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-            sage: A = SteenrodAlgebra(2)
-            sage: F1 = FreeModule((4,5), A)
-            sage: F2 = FreeModule((3,4), A)
-            sage: F3 = FreeModule((2,3), A)
-            sage: H1 = Hom(F1, F2)
-            sage: H2 = Hom(F2, F3)
-            sage: f = H1( ( F2((Sq(4), 0)), F2((0, Sq(4))) ) )
-            sage: g = H2( ( F3((Sq(2), 0)), F3((Sq(3), Sq(2))) ) )
-            sage: g*f
-            Module homomorphism of degree 4 defined by sending the generators
-              [<1, 0>, <0, 1>]
-            to
-              [<Sq(0,2) + Sq(3,1) + Sq(6), 0>, <Sq(1,2) + Sq(7), Sq(0,2) + Sq(3,1) + Sq(6)>]
 
         """
         global g_timigs
 
 
         if not is_FreeModuleHomspace(parent):
-            raise TypeError("The parent (%s) must be a f.p. free module homset." % parent)
+            raise TypeError('the parent (%s) must be a f.p. free module homset' % parent)
 
         # Get the values.
         C = parent.codomain()
@@ -99,8 +103,8 @@ class FreeModuleMorphism(SageMorphism):
 
         # Check the homomorphism is well defined.
         if len(D.generator_degrees()) != len(_values):
-            raise ValueError("The number of values must equal the number of " \
-                "generators in the domain.  Invalid argument: %s." % _values)
+            raise ValueError('the number of values must equal the number of '\
+                'generators in the domain.  Invalid argument: %s' % _values)
 
         if all(v.is_zero() for v in _values):
             # The zero homomorphism does not get a degree.
@@ -139,12 +143,12 @@ class FreeModuleMorphism(SageMorphism):
         r"""
         The degree of this homomorphism.
 
-        OUTPUT: The integer degree of this homomorphism, or ``None`` if this is
+        OUTPUT:: The integer degree of this homomorphism, or ``None`` if this is
         the trivial homomorphism.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((0,), A))
             sage: N = homspace.codomain()
@@ -167,11 +171,11 @@ class FreeModuleMorphism(SageMorphism):
         The values under this homomorphism corresponding to the generators of
         the domain module.
 
-        OUTPUT: A sequence of elements of the codomain module.
+        OUTPUT:: A sequence of elements of the codomain module.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -190,7 +194,7 @@ class FreeModuleMorphism(SageMorphism):
         r"""
         Compare this homomorphism to the given homomorphism.
 
-        INPUT:
+        INPUT::
 
         - ``other`` -- An instance of this class.
 
@@ -200,11 +204,11 @@ class FreeModuleMorphism(SageMorphism):
           and only if the homomorphisms are not equal.  Otherwise,
           return ``False``.
 
-        OUTPUT: A Boolean.
+        OUTPUT:: A boolean.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -241,17 +245,17 @@ class FreeModuleMorphism(SageMorphism):
         and codomain is given by the formula `(f+g)(x) = f(x) + g(x)` for
         every `x` in the domain of `f`.
 
-        INPUT:
+        INPUT::
 
         - ``g`` -- A homomorphism with the same domain and codomain as this
           homomorphism.
 
-        OUTPUT: The pointwise sum homomorphism of this and the given
+        OUTPUT:: The pointwise sum homomorphism of this and the given
         homomorphism.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -266,11 +270,11 @@ class FreeModuleMorphism(SageMorphism):
         """
 
         if self.domain() != g.domain():
-            raise ValueError("Morphisms do not have the same domain.")
+            raise ValueError('morphisms do not have the same domain')
         elif self.codomain() != g.codomain():
-            raise ValueError("Morphisms do not have the same codomain.")
+            raise ValueError('morphisms do not have the same codomain')
         elif self._degree and g.degree() and self._degree != g.degree():
-            raise ValueError("Morphisms do not have the same degree.")
+            raise ValueError('morphisms do not have the same degree')
 
         v = [self(x) + g(x) for x in self.domain().generators()]
 
@@ -282,11 +286,11 @@ class FreeModuleMorphism(SageMorphism):
         The additive inverse of this homomorphism with respect to the group
         structure given by pointwise sum.
 
-        OUTPUT: An instance of this class.
+        OUTPUT:: An instance of this class.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -309,11 +313,11 @@ class FreeModuleMorphism(SageMorphism):
         r"""
         The pointwise difference between this and the given homomorphism.
 
-        OUTPUT: An instance of this class.
+        OUTPUT:: An instance of this class.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: homspace = Hom(FreeModule((0,1), A), FreeModule((2,), A))
             sage: N = homspace.codomain()
@@ -334,12 +338,12 @@ class FreeModuleMorphism(SageMorphism):
         The composition of the given homomorphism ``g``, followed by this
         homomorphisms.
 
-        OUTPUT: A homomorphism from the domain of this homomorphism, into the
+        OUTPUT:: A homomorphism from the domain of this homomorphism, into the
         codomain of the homomorphism ``g``.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -357,7 +361,7 @@ class FreeModuleMorphism(SageMorphism):
 
         TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: values = [Sq(5)*N.generator(0), Sq(3,1)*N.generator(0)]
@@ -365,12 +369,12 @@ class FreeModuleMorphism(SageMorphism):
             sage: f.__mul__(f)
             Traceback (most recent call last):
             ...
-            ValueError: Morphisms are not composable.
+            ValueError: morphisms are not composable
 
         """
 
         if self.parent().domain() != g.parent().codomain():
-            raise ValueError("Morphisms are not composable.")
+            raise ValueError('morphisms are not composable')
         homset = Hom(g.parent().domain(), self.parent().codomain())
         return homset([self(g(x)) for x in g.domain().generators()])
 
@@ -379,12 +383,12 @@ class FreeModuleMorphism(SageMorphism):
         r"""
         Decide if this homomomorphism is trivial.
 
-        OUTPUT: The boolean value ``True`` if this homomorphism is trivial, and
+        OUTPUT:: The boolean value ``True`` if this homomorphism is trivial, and
         ``False`` otherwise.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -403,12 +407,12 @@ class FreeModuleMorphism(SageMorphism):
         r"""
         Decide if this homomomorphism is the identity endomorphism.
 
-        OUTPUT: The boolean value ``True`` if this homomorphism is the
+        OUTPUT:: The boolean value ``True`` if this homomorphism is the
         identity, and ``False`` otherwise.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -432,16 +436,16 @@ class FreeModuleMorphism(SageMorphism):
         r"""
         Evaluate the homomorphism at the given domain element ``x``.
 
-        INPUT:
+        INPUT::
 
         - ``x`` -- An element of the domain of this morphism.
 
-        OUTPUT: The module element of the codomain which is the value of ``x``
+        OUTPUT:: The module element of the codomain which is the value of ``x``
         under this homomorphism.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -455,7 +459,7 @@ class FreeModuleMorphism(SageMorphism):
         """
 
         if x.parent() != self.domain():
-            raise ValueError("Cannot evaluate morphism on element not in the domain.")
+            raise ValueError('cannot evaluate morphism on element not in the domain')
 
         value = sum([c*v for c, v in zip(
             x.coefficients(), self._values)], self.codomain()(0))
@@ -469,7 +473,7 @@ class FreeModuleMorphism(SageMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)
@@ -510,25 +514,25 @@ class FreeModuleMorphism(SageMorphism):
         function cannot be presented since we do not know the degree of its
         codomain.  In this case, the return value is ``None``.
 
-        INPUT:
+        INPUT::
 
         - ``n`` -- An integer degree.
 
-        OUTPUT: A linear function of finite dimensional vectorspaces over the
+        OUTPUT:: A linear function of finite dimensional vectorspaces over the
         ground field of the algebra for this module.  The domain is isomorphic
         to the vectorspace of domain elements of degree ``n`` of this free
         module, via the choice of basis given by
-        :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`.
+        :meth:`sage.modules.fp_over_steenrod_algebra.free_module.FreeModule.basis_elements`.
         If the morphism is zero, the value ``None`` is returned.
 
         .. SEEALSO::
 
-            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.vector_presentation`,
-            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`.
+            :meth:`sage.modules.fp_over_steenrod_algebra.free_module.FreeModule.vector_presentation`,
+            :meth:`sage.modules.fp_over_steenrod_algebra.free_module.FreeModule.basis_elements`.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: N = FreeModule((2,), A)

@@ -30,53 +30,58 @@ AUTHORS:
 
 from __future__ import absolute_import
 
-from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_morphism import FP_ModuleMorphism
-from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import enveloping_profile_elements
+from sage.modules.fp_over_steenrod_algebra.fp_morphism import FP_ModuleMorphism
+from sage.modules.fp_over_steenrod_algebra.profile import enveloping_profile_elements
 
 
 class FPA_ModuleMorphism(FP_ModuleMorphism):
+    r"""
+    Create a homomorphism between finitely presented graded modules over
+    the `\operatorname{mod} p` Steenrod algebra.
+
+    INPUT::
+
+    - ``parent`` -- A homspace object.
+
+    - ``values`` -- A list of elements in the codomain.  Each element
+      corresponds to a module generator in the domain.
+
+    OUTPUT:: A module homomorphism defined by sending the generator with
+    index `i` to the corresponding element in ``values``.
+
+    .. NOTE:: Never use this constructor explicitly, but rather the parent's
+        call method, or this class' __call__ method.  The reason for this
+        is that the dynamic type of the element class changes as a
+        consequence of the category system.
+
+    TESTS:
+
+        sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
+        sage: # Trying to map the generators of a non-free module into a
+        sage: # free module:
+        sage: A = SteenrodAlgebra(2)
+        sage: F = FPA_Module([2,3], A)
+        sage: Q = FPA_Module([2,3], A, relations=[[Sq(6), Sq(5)]])
+        sage: m = Hom(F, Q)( (F((Sq(1), 0)), F((0, 1))) )
+        Traceback (most recent call last):
+         ...
+        ValueError: Ill defined homomorphism (degrees do not match)
+              Generator #0 (degree 2) -> <Sq(1), 0> (degree 3) shifts degrees by 1
+              Generator #1 (degree 3) -> <0, 1> (degree 3) shifts degrees by 0
+
+        sage: # Trying to map the generators of a non-free module into a
+        sage: # free module:
+        sage: w = Hom(Q, F)( (F((1, 0)), F((0, 1))) )
+        Traceback (most recent call last):
+         ...
+        ValueError: relation <Sq(6), Sq(5)> is not sent to zero
+
+    """
 
     def __init__(self, parent, values):
         r"""
         Create a homomorphism between finitely presented graded modules over
         the `\operatorname{mod} p` Steenrod algebra.
-
-        INPUT:
-
-        - ``parent`` -- A homspace object.
-
-        - ``values`` -- A list of elements in the codomain.  Each element
-          corresponds to a module generator in the domain.
-
-        OUTPUT: A module homomorphism defined by sending the generator with
-        index `i` to the corresponding element in ``values``.
-
-        .. NOTE:: Never use this constructor explicitly, but rather the parent's
-            call method, or this class' __call__ method.  The reason for this
-            is that the dynamic type of the element class changes as a
-            consequence of the category system.
-
-        TESTS:
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
-            sage: # Trying to map the generators of a non-free module into a
-            sage: # free module:
-            sage: A = SteenrodAlgebra(2)
-            sage: F = FPA_Module([2,3], A)
-            sage: Q = FPA_Module([2,3], A, relations=[[Sq(6), Sq(5)]])
-            sage: m = Hom(F, Q)( (F((Sq(1), 0)), F((0, 1))) )
-            Traceback (most recent call last):
-             ...
-            ValueError: Ill defined homomorphism (degrees do not match)
-                  Generator #0 (degree 2) -> <Sq(1), 0> (degree 3) shifts degrees by 1
-                  Generator #1 (degree 3) -> <0, 1> (degree 3) shifts degrees by 0
-
-            sage: # Trying to map the generators of a non-free module into a
-            sage: # free module:
-            sage: w = Hom(Q, F)( (F((1, 0)), F((0, 1))) )
-            Traceback (most recent call last):
-             ...
-            ValueError: Relation <Sq(6), Sq(5)> is not sent to zero.
 
         """
         # Call the base class constructor.
@@ -89,7 +94,7 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: id = Hom(M,M).identity()
@@ -144,17 +149,17 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         r"""
         Determine if this homomorphism is injective.
 
-        INPUT:
+        INPUT::
 
         - ``verbose`` -- A boolean to control if log messages should be emitted.
           (optional, default: ``False``)
 
-        OUTPUT: The boolean value ``True`` if this homomorphism has a trivial
+        OUTPUT:: The boolean value ``True`` if this homomorphism has a trivial
         kernel, and ``False`` otherwise.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])
@@ -184,17 +189,17 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         r"""
         The kernel of this homomorphism.
 
-        INPUT:
+        INPUT::
 
         - ``verbose`` -- A boolean to control if log messages should be emitted.
           (optional, default: ``False``)
 
-        OUTPUT: An injective homomorphism into the domain ``self`` which is
+        OUTPUT:: An injective homomorphism into the domain ``self`` which is
         onto the kernel of this homomorphism.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])
@@ -230,17 +235,17 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         r"""
         Compute the image of this homomorphism.
 
-        INPUT:
+        INPUT::
 
         - ``verbose`` -- A boolean to control if log messages should be emitted.
           (optional, default: ``False``)
 
-        OUTPUT: An injective homomorphism into the codomain of ``self`` which is
+        OUTPUT:: An injective homomorphism into the codomain of ``self`` which is
         onto the image of this homomorphism.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)], [0,Sq(2)]])
             sage: S = FPA_Module([0], A, [[Sq(2)]])
@@ -280,17 +285,17 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         r"""
         Resolve the kernel of this homomorphism by a free module.
 
-        INPUT:
+        INPUT::
 
         - ``verbose`` -- A boolean to enable progress messages. (optional,
           default: ``False``)
 
-        OUTPUT: A homomorphism `j: F \rightarrow D` where `D` is the domain of
+        OUTPUT:: A homomorphism `j: F \rightarrow D` where `D` is the domain of
         this homomorphism, `F` is free and such that `\ker(self) = \operatorname{im}(j)`.
 
         TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: F = FPA_Module([0,0], A)
             sage: L = FPA_Module([0,0], A, [[Sq(3),Sq(0,1)], [0,Sq(2)]])
@@ -309,18 +314,18 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
         r"""
         Resolve the image of this homomorphism by a free module.
 
-        INPUT:
+        INPUT::
 
         - ``verbose`` -- A boolean to enable progress messages. (optional,
           default: ``False``)
 
-        OUTPUT: A homomorphism `j: F \rightarrow C` where `C` is the codomain
+        OUTPUT:: A homomorphism `j: F \rightarrow C` where `C` is the codomain
         of this homomorphism, `F` is free, and
         `\operatorname{im}(self) = \operatorname{im}(j)`.
 
         TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
             sage: A = SteenrodAlgebra(2)
             sage: F = FPA_Module([0,0], A)
             sage: L = FPA_Module([0,0], A, [[Sq(3),Sq(0,1)], [0,Sq(2)]])
@@ -342,8 +347,8 @@ class FPA_ModuleMorphism(FP_ModuleMorphism):
 
         TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_morphism import FP_ModuleMorphism
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_morphism import FP_ModuleMorphism
             sage: A = SteenrodAlgebra(2)
             sage: F = FPA_Module([0], A)
             sage: L = FPA_Module([0], A, [[Sq(3)]])

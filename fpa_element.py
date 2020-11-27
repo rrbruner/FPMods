@@ -2,7 +2,7 @@ r"""
 Elements of finitely presented modules over the Steenrod algebra
 
 This class implements construction and basic manipulation of elements of the
-Sage parent :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module.FPA_Module`, which models
+Sage parent :class:`sage.modules.fp_over_steenrod_algebra.fpa_module.FPA_Module`, which models
 finitely presented modules over the `\operatorname{mod} p` Steenrod algebra.
 
 For an overview of the API, see :doc:`fpa_module`.
@@ -32,33 +32,37 @@ from .fp_element import FP_Element
 
 
 class FPA_Element(FP_Element):
+    r"""
+    Create a module element of a finitely presented graded module over
+    the Steenrod algebra.
+
+    INPUT::
+
+    - ``module`` -- The parent instance of this module element.
+
+    - ``coefficients`` -- A tuple of homogeneous elements of the algebra
+      over which the module is defined.
+
+    OUTPUT:: The module element given by the coefficients.
+
+    .. NOTE:: Never use this constructor explicitly, but rather the parent's
+        call method, or this class' __call__ method.  The reason for this
+        is that the dynamic type of the element class changes as a
+        consequence of the category system.
+
+    TESTS:
+
+        sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
+        sage: from sage.modules.fp_over_steenrod_algebra.fpa_element import FPA_Element
+        sage: FPA_Element(FPA_Module([0], SteenrodAlgebra(2)), [Sq(2)])
+        <Sq(2)>
+
+    """
 
     def __init__(self, module, coefficients):
         r"""
         Create a module element of a finitely presented graded module over
         the Steenrod algebra.
-
-        INPUT:
-
-        - ``module`` -- The parent instance of this module element.
-
-        - ``coefficients`` -- A tuple of homogeneous elements of the algebra
-          over which the module is defined.
-
-        OUTPUT: The module element given by the coefficients.
-
-        .. NOTE:: Never use this constructor explicitly, but rather the parent's
-            call method, or this class' __call__ method.  The reason for this
-            is that the dynamic type of the element class changes as a
-            consequence of the category system.
-
-        TESTS:
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_element import FPA_Element
-            sage: FPA_Element(FPA_Module([0], SteenrodAlgebra(2)), [Sq(2)])
-            <Sq(2)>
-
         """
         FP_Element.__init__(self, module, coefficients)
 

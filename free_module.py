@@ -5,8 +5,8 @@ This class implements methods for construction and basic manipulation of
 finitely generated free graded modules over connected graded algebras.
 
 .. NOTE:: This class is intended for private use by
-    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module` and its derived class
-    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module.FPA_Module`.
+    :class:`sage.modules.fp_over_steenrod_algebra.fp_module.FP_Module` and its derived class
+    :class:`sage.modules.fp_over_steenrod_algebra.fpa_module.FPA_Module`.
 
 ==========
 User guide
@@ -22,7 +22,7 @@ E.g.::
 The constructor of the module class takes as arguments an ordered tuple of
 degrees and the algebra over which the module is defined::
 
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
+    sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
     sage: M = FreeModule(generator_degrees=(0,1), algebra=A); M
     Finitely presented free module on 2 generators over mod 2 Steenrod algebra, milnor basis
 
@@ -280,6 +280,28 @@ from .timing import g_timings
  
  
 class FreeModule(UniqueRepresentation, SageModule):
+    r"""
+    Create a finitely generated free graded module over a connected graded
+    algebra.
+
+    INPUT::
+
+    - ``generator_degrees`` -- a tuple of integers defining
+      the number of generators of the module, and their degrees.
+
+    - ``algebra`` -- the connected algebra over which the module is defined.
+
+    OUTPUT:: The finitely generated free graded module on generators with
+    degrees given by ``generator_degrees``.
+
+    TESTS:
+
+        sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
+        sage: A = SteenrodAlgebra(2)
+        sage: FreeModule((-2,2,4), A)
+        Finitely presented free module on 3 generators over mod 2 Steenrod algebra, milnor basis
+
+    """
     # To accomodate Sage's category framework, we must specify what the
     # elements class is for this parent class.  See
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
@@ -290,30 +312,13 @@ class FreeModule(UniqueRepresentation, SageModule):
         Create a finitely generated free graded module over a connected graded
         algebra.
 
-        INPUT:
-
-        - ``generator_degrees`` -- a tuple of integers defining
-          the number of generators of the module, and their degrees.
-
-        - ``algebra`` -- the connected algebra over which the module is defined.
-
-        OUTPUT: The finitely generated free graded module on generators with
-        degrees given by ``generator_degrees``.
-
-        TESTS:
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-            sage: A = SteenrodAlgebra(2)
-            sage: FreeModule((-2,2,4), A)
-            Finitely presented free module on 3 generators over mod 2 Steenrod algebra, milnor basis
-
         """
         self._generator_degrees = generator_degrees
         if None in generator_degrees:
             raise ValueError('generator_degrees are not all integers: %s' % str(generator_degrees))
 
         if not algebra.base_ring().is_field():
-            raise NotImplementedError('The ground ring of the algebra must be a field.')
+            raise ValueError('the ground ring of the algebra must be a field')
 
         # Call the base class constructor.
         SageModule.__init__(self, algebra)
@@ -327,13 +332,13 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         The degrees of the module generators.
 
-        OUTPUT: A tuple containing the degrees of the generators for this
+        OUTPUT:: A tuple containing the degrees of the generators for this
         module, in the order that the generators were given when this module
         was constructed.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((-2,2,4), A)
             sage: M.generator_degrees()
@@ -347,12 +352,12 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         Decide if this module is trivial or not.
 
-        OUTPUT: The boolean value ``True`` if the module is trivial, and
+        OUTPUT:: The boolean value ``True`` if the module is trivial, and
         ``False`` otherwise.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: FreeModule((-2,2,4), A).is_trivial()
             False
@@ -367,18 +372,18 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         The connectivity of this module.
 
-        OUTPUT: An integer equal to the minimal degree of all the generators, if
+        OUTPUT:: An integer equal to the minimal degree of all the generators, if
         this module is non-trivial.  Otherwise, `+\infty`.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((-2,2,4), A)
             sage: M.connectivity()
             -2
 
-        TESTS::
+        TESTS:
 
             sage: M = FreeModule((), A)
             sage: M.is_trivial()
@@ -397,19 +402,19 @@ class FreeModule(UniqueRepresentation, SageModule):
         This function is used internally by the ()-method when creating
         module elements, and should not be called by the user explicitly.
 
-        INPUT:
+        INPUT::
 
         - ``coefficients`` -- A tuple of coefficient (i.e. elements of the
         algebra for this module), an element of FreeModule, or the zero integer
         constant.
 
-        OUTPUT: An instance of the element class with coefficients from
+        OUTPUT:: An instance of the element class with coefficients from
         ``coefficients``, the element ``coefficients`` if it already was an
         element, or the zero module element.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,2,4), A)
 
@@ -446,16 +451,16 @@ class FreeModule(UniqueRepresentation, SageModule):
         This function chooses deterministically an element of the module in the
         given degree.
 
-        INPUT:
+        INPUT::
 
         - ``n`` --  the degree of the element to construct.  If the default
           value ``None`` is given, a degree will be chosen by the function.
 
-        OUTPUT: An element of the given degree.
+        OUTPUT:: An element of the given degree.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,2,4), A)
             sage: M.an_element(172)
@@ -486,9 +491,9 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         Construct a string representation of the module.
 
-        TESTS::
+        TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,2,4), A)
             sage: M._repr_()
@@ -505,11 +510,11 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         A basis for the vectorspace of degree ``n`` module elements.
 
-        INPUT:
+        INPUT::
 
         - ``n`` -- an integer.
 
-        OUTPUT: A sequence of homogeneous module elements of degree ``n``
+        OUTPUT:: A sequence of homogeneous module elements of degree ``n``
         which is a basis for the vectorspace of all degree ``n`` module
         elements.
 
@@ -518,7 +523,7 @@ class FreeModule(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,2,4), A)
             sage: M.basis_elements(8)
@@ -555,19 +560,19 @@ class FreeModule(UniqueRepresentation, SageModule):
         with respect to the basis of module elements given by
         :meth:`basis_elements`.
 
-        INPUT:
+        INPUT::
 
         - ``coordinates`` -- a sequence of elements of the ground field.
         - ``n`` -- an integer.
 
-        OUTPUT: A module element of degree ``n``.
+        OUTPUT:: A module element of degree ``n``.
 
         .. SEEALSO::
             :meth:`vector_presentation`, and :meth:`basis_elements`.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: x = M.element_from_coordinates((0,1,0,1), 5); x
@@ -583,8 +588,8 @@ class FreeModule(UniqueRepresentation, SageModule):
         basis_elements = self.basis_elements(n)
 
         if len(coordinates) != len(basis_elements):
-            raise ValueError('The given coordinate vector has incorrect length: %d.  '
-                  'It should have length %d.' % (len(coordinates), len(basis_elements)))
+            raise ValueError('the given coordinate vector has incorrect length: %d.  '
+                  'It should have length %d' % (len(coordinates), len(basis_elements)))
 
 
         # Adding the condition `if c != 0` improved performance dramatically in this
@@ -623,7 +628,7 @@ class FreeModule(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,2,4), A)
             sage: V = M[4]; V
@@ -654,11 +659,11 @@ class FreeModule(UniqueRepresentation, SageModule):
         bijection taking the standard basis element `e_i` to the `i`-th
         element of the array returned by :meth:`basis_elements`.
 
-        INPUT:
+        INPUT::
 
         - ``n`` -- an integer degree.
 
-        OUTPUT: A vectorspace over the ground field of the algebra over which
+        OUTPUT:: A vectorspace over the ground field of the algebra over which
         this module is defined, isomorphic to the vectorspace of module
         elements of degree ``n``.
 
@@ -667,7 +672,7 @@ class FreeModule(UniqueRepresentation, SageModule):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A1 = SteenrodAlgebra(2, profile=[2,1])
             sage: M = FreeModule((0,), A1)
             sage: M.vector_presentation(3)
@@ -687,11 +692,11 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         Return the module generator with the given index.
 
-        OUTPUT: An instance of the element class of this parent.
+        OUTPUT:: An instance of the element class of this parent.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,2,4), A)
             sage: M.generator(0)
@@ -704,7 +709,7 @@ class FreeModule(UniqueRepresentation, SageModule):
         """
 
         if index < 0 or index >= len(self._generator_degrees):
-            raise ValueError('The parent module has generators in the index '\
+            raise ValueError('the parent module has generators in the index '\
                 'range [0, %s]; generator %s does not exist' %\
                 (len(self._generator_degrees) - 1, index))
 
@@ -720,12 +725,12 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         Return all the module generators.
 
-        OUTPUT: A list consisting instances of the element class of this
+        OUTPUT:: A list consisting instances of the element class of this
         parent.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: M.generators()
@@ -743,7 +748,7 @@ class FreeModule(UniqueRepresentation, SageModule):
 
         TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: M._Hom_(M, category=None)
@@ -757,16 +762,16 @@ class FreeModule(UniqueRepresentation, SageModule):
         r"""
         Suspend the module by the given integer degree.
 
-        INPUT:
+        INPUT::
 
         - ``t`` -- An integer.
 
-        OUTPUT: A module which is isomorphic to this module by a shift
+        OUTPUT:: A module which is isomorphic to this module by a shift
         of degrees by the integer ``t``.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,2,4), A)
             sage: M.suspension(4).generator_degrees()

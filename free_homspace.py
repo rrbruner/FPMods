@@ -6,13 +6,13 @@ manipulation of homsets of finitely generated free graded modules over a connect
 graded `k`-algebra, where `k` is a field.
 
 .. NOTE:: This class is intended for private use by
-    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_homspace.FP_ModuleHomspace`.
+    :class:`sage.modules.fp_over_steenrod_algebra.fp_homspace.FP_ModuleHomspace`.
 
 For an overview of the free module API, see :doc:`free_module`.
 
-TESTS::
+TESTS:
 
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
+    sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
     sage: from sage.misc.sage_unittest import TestSuite
     sage: A = SteenrodAlgebra(2)
     sage: F1 = FreeModule((1,3), A);
@@ -80,20 +80,20 @@ def is_FreeModuleHomspace(x):
     r"""
     Check if the given object is of type FreeModuleHomspace.
 
-    OUTPUT: The boolean ``True`` if and only if ``x`` is of type
+    OUTPUT:: The boolean ``True`` if and only if ``x`` is of type
     FreeModuleHomspace, and ``False`` otherwise.
 
     EXAMPLES::
 
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_homspace import is_FreeModuleHomspace
+        sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
+        sage: from sage.modules.fp_over_steenrod_algebra.free_homspace import is_FreeModuleHomspace
         sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
         sage: F = FreeModule((1,3), A2)
         sage: L = FreeModule((2,3), A2)
         sage: is_FreeModuleHomspace(Hom(F, L))
         True
 
-    TESTS::
+    TESTS:
 
         sage: is_FreeModuleHomspace(0)
         False
@@ -117,22 +117,22 @@ class FreeModuleHomspace(Homset):
         This function is used internally by the ()-method when creating
         homomorphisms.
 
-        INPUT:
+        INPUT::
 
         - ``values`` -- A tuple of values (i.e. elements of the
         codomain for this homset) corresponding bijectively to the generators
         of the domain of this homset, or the zero integer constant.
 
-        OUTPUT: An instance of the morphism class.  The returned morphism is
+        OUTPUT:: An instance of the morphism class.  The returned morphism is
         defined by mapping the module generators in the domain to the given
         values.
 
-        OUTPUT: A module homomorphism.
+        OUTPUT:: A module homomorphism.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_homspace import is_FreeModuleHomspace
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
+            sage: from sage.modules.fp_over_steenrod_algebra.free_homspace import is_FreeModuleHomspace
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FreeModule((1,3), A2)
             sage: L = FreeModule((2,5), A2)
@@ -161,12 +161,12 @@ class FreeModuleHomspace(Homset):
         r"""
         Return a morphism belonging to this homspace.
 
-        OUTPUT: A morphism in this homspace.
+        OUTPUT:: A morphism in this homspace.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_homspace import is_FreeModuleHomspace
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
+            sage: from sage.modules.fp_over_steenrod_algebra.free_homspace import is_FreeModuleHomspace
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FreeModule((1,3), A2)
             sage: L = FreeModule((2,3), A2)
@@ -183,13 +183,13 @@ class FreeModuleHomspace(Homset):
         r"""
         Return the trivial morphism of this homspace.
 
-        OUTPUT: The morphism evaluating to the zero element for any element in
+        OUTPUT:: The morphism evaluating to the zero element for any element in
         the domain.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_homspace import is_FreeModuleHomspace
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
+            sage: from sage.modules.fp_over_steenrod_algebra.free_homspace import is_FreeModuleHomspace
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FreeModule((1,3), A2)
             sage: L = FreeModule((2,3), A2)
@@ -205,12 +205,12 @@ class FreeModuleHomspace(Homset):
         r"""
         Return the identity morphism, if this is an endomorphism set.
 
-        OUTPUT: The identity endomorphism.
+        OUTPUT:: The identity endomorphism.
 
-        TESTS::
+        TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_homspace import is_FreeModuleHomspace
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
+            sage: from sage.modules.fp_over_steenrod_algebra.free_homspace import is_FreeModuleHomspace
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: L = FreeModule((2,3), A2)
             sage: H = Hom(L, L)
@@ -224,11 +224,11 @@ class FreeModuleHomspace(Homset):
             sage: H.identity()
             Traceback (most recent call last):
             ...
-            TypeError: This homspace does not consist of endomorphisms.
+            TypeError: this homspace does not consist of endomorphisms
 
         """
         if self.is_endomorphism_set():
             return self.element_class(self, self.codomain().generators())
         else:
-            raise TypeError("This homspace does not consist of endomorphisms.")
+            raise TypeError('this homspace does not consist of endomorphisms')
 
