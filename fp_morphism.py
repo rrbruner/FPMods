@@ -1601,6 +1601,8 @@ class FP_ModuleMorphism(SageMorphism):
 
             if n >= time_degree:
                 total_time = time.time() - total_time
+                if n == time_degree:
+                    print('\ninternal degree,total time,accounted time,SteenrodAlgebra,linear algebra')
                 g_timings.PrintCSV(n, total_time, ['SteenrodAlgebra', 'lin_alg'])
 #                g_timings.Print(total_time)
 #                g_timings.Print(timing._timings['fp_morphism.vector_presentation()'])
