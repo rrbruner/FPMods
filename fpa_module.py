@@ -49,7 +49,7 @@ User guide
 ==========
 
 Let `p` be a prime number.  The `\operatorname{mod} p` Steenrod algebra `A`
-is a connected algebra over `\mathbb{F}_p`, the finite field of `p` elements.
+is a connected algebra over `\GF{p}`, the finite field of `p` elements.
 All modules presented here will be defined over `A`, or one of its sub-Hopf
 algebras.  E.g.::
 
@@ -59,7 +59,7 @@ The constructor of the module class takes as arguments an ordered tuple of
 degrees and the algebra over which the module is defined, together with an
 optional set of relations::
 
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+    sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
     sage: F = FPA_Module([0, 1, 7], algebra=A); F  # A free module
     Finitely presented module on 3 generators and 0 relations over mod 2 Steenrod algebra, milnor basis
 
@@ -190,7 +190,7 @@ enforced, however::
     <0, 0, 0>
 
 For every integer `n`, the set of module elements of degree `n` form a
-vectorspace over the ground field `\mathbb{F}_p`.  A basis for this vectorspace can be
+vectorspace over the ground field `\GF{p}`.  A basis for this vectorspace can be
 computed::
 
     sage: M.basis_elements(7)
@@ -236,7 +236,7 @@ Module homomorphisms
 -------------------------------------
 
 Homomorphisms of `A`-modules `M\to N` are linear maps of their
-underlying `\mathbb{F}_p`-vectorspaces which commute with the `A`-module structure.
+underlying `\GF{p}`-vectorspaces which commute with the `A`-module structure.
 
 To create a homomorphism, first create the object modeling the set of all
 such homomorphisms using the free function ``Hom``::
@@ -412,7 +412,7 @@ Homological algebra
 
 The category of modules over `A` is Abelian, so kernels, images and cokernels
 all exist and can be computed through the API belonging to the homomorphism class
-:class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_morphism.FPA_ModuleMorphism`.
+:class:`sage.modules.fp_over_steenrod_algebra.fpa_morphism.FPA_ModuleMorphism`.
 
 .. NOTE:: Functions like :meth:`kernel`, :meth:`cokernel`, :meth:`image`,
     :meth:`homology` compute sub- and quotient modules related to homomorphisms,
@@ -435,7 +435,7 @@ all exist and can be computed through the API belonging to the homomorphism clas
 Cokernels
 .....................................
 
-In the following example, we define a cyclic module `H\mathbb{Z}` with one
+In the following example, we define a cyclic module `H\ZZ` with one
 relation in two ways: First explicitly, and then as the cokernel of a
 homomorphism of free modules.  We then construct a candidate for an isomorphism
 and check that it is both injective and surjective::
@@ -615,26 +615,26 @@ Steenrod algebra `A`:
 .. MATH::
 
     \begin{align}
-        H\mathbb{Z} &= A/A\cdot \operatorname{Sq}(1)\\
+        H\ZZ &= A/A\cdot \operatorname{Sq}(1)\\
         Hko &= A/A\cdot \{\operatorname{Sq}(2), \operatorname{Sq}(1)\} \,.
     \end{align}
 
-There is a natural projection `q: H\mathbb{Z}\to Hko`, and a non-trivial
+There is a natural projection `q: H\ZZ\to Hko`, and a non-trivial
 endomorphism of degree 28, represented as a degree zero map `f: \Sigma^{28}Hko\to Hko`
 which we define below.
 
 The problem we will solve is to find all possible homomorphisms
-`f': \Sigma^{28}Hko\to H\mathbb{Z}`, making the following diagram into a 
+`f': \Sigma^{28}Hko\to H\ZZ`, making the following diagram into a 
 commuting triangle:
 
 .. MATH::
 
-    H\mathbb{Z}\xrightarrow{q} Hko \xleftarrow{f} \Sigma^{28} Hko
+    H\ZZ\xrightarrow{q} Hko \xleftarrow{f} \Sigma^{28} Hko
 
 We begin by defining the modules and the homomorphisms `f` and `q`.  In the following,
 we let `L = \Sigma^{28}Hko`::
 
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+    sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
     sage: A = SteenrodAlgebra(2)
     sage: Hko = FPA_Module([0], A, [[Sq(2)],[Sq(1)]])
     sage: HZ = FPA_Module([0], A, [[Sq(1)]])
@@ -660,7 +660,7 @@ we let `L = \Sigma^{28}Hko`::
     False
 
 We will count the number of different lifts in two ways.  First, we will simply
-compute the vectorspace of all possible maps `L \to H\mathbb{Z}`, and then check which
+compute the vectorspace of all possible maps `L \to H\ZZ`, and then check which
 of those become `f` when composed with `q`::
 
     sage: basis = Hom(L, HZ).basis_elements(0)   # The basis for the vectorspace of degree 0 maps L -> HZ
@@ -685,7 +685,7 @@ of those become `f` when composed with `q`::
     (1, 1, 1): False
 
 From this we conclude that four out of eight different homomorphisms
-`L \to H\mathbb{Z}` are lifts of f::
+`L \to H\ZZ` are lifts of f::
 
     sage: lifts = [\
     ....:     from_coords((0,1,0)),\
@@ -727,7 +727,7 @@ There is an exact sequence
 
 .. MATH::
 
-    0\to \operatorname{Hom}_A(L, \ker(q)) \xrightarrow{iK_*} \operatorname{Hom}_A(L, H\mathbb{Z}) \xrightarrow{q_*} \operatorname{Hom}_A(L, Hko)\,,
+    0\to \operatorname{Hom}_A(L, \ker(q)) \xrightarrow{iK_*} \operatorname{Hom}_A(L, H\ZZ) \xrightarrow{q_*} \operatorname{Hom}_A(L, Hko)\,,
 
 which means that the indeterminacy of choosing a lift for
 `f\in \operatorname{Hom}_A(L, Hko)` is represented by an element in
@@ -795,7 +795,7 @@ TESTS:
     sage: M = FPA_Module([2,3], A, [[Sq(2),Sq(1)]]);M
     Finitely presented module on 2 generators and 1 relation ...
     sage: K.element_class
-    <class 'sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module.FPA_Module_with_category.element_class'>
+    <class 'sage.modules.fp_over_steenrod_algebra.fpa_module.FPA_Module_with_category.element_class'>
     sage: m = M((0,1)); m
     <0, 1>
     sage: K.is_parent_of(m)
@@ -808,7 +808,7 @@ TESTS:
     sage: FPA_Module([0], algebra=ZZ)
     Traceback (most recent call last):
     ...
-    TypeError: This module class can only be instantiated when the algebra argument is an instance of sage.algebras.steenrod.steenrod_algebra.SteenrodAlgebra_generic
+    TypeError: this module class can only be instantiated when the algebra argument is an instance of sage.algebras.steenrod.steenrod_algebra.SteenrodAlgebra_generic
 
 AUTHORS:
 
@@ -832,12 +832,36 @@ AUTHORS:
 # ****************************************************************************
 
 from sage.categories.homset import Hom
-from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
-from sage.modules.finitely_presented_over_the_steenrod_algebra.profile import enveloping_profile_elements
+from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
+from sage.modules.fp_over_steenrod_algebra.profile import enveloping_profile_elements
 from sage.rings.infinity import PlusInfinity
 
 
 class FPA_Module(FP_Module):
+    r"""
+    Create a finitely presented module over the Steenrod algebra.
+
+    INPUT::
+
+    - ``generator_degrees`` -- A tuple integer degrees.
+
+    - ``algebra`` -- The Steenrod algebra over which the module is defined.
+
+    - ``relations`` -- A tuple of relations.  A relation is a tuple of
+      coefficients `(c_1, \ldots, c_n)` corresponding to the module
+      generators.
+
+    OUTPUT:: The finitely presented module over ``algebra`` with
+    presentation given by ``generator_degrees`` and ``relations``.
+
+    TESTS:
+
+        sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
+        sage: FPA_Module((0,), SteenrodAlgebra(2))
+        Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis
+
+    """
+
     # In the category framework, Elements of the class FP_Module are of the
     # class FP_Element, see
     # http://doc.sagemath.org/html/en/thematic_tutorials/coercion_and_categories.html#implementing-the-category-framework-for-the-elements
@@ -849,7 +873,7 @@ class FPA_Module(FP_Module):
         r"""
         Normalize input to ensure a unique representation.
 
-        INPUT:
+        INPUT::
 
         - ``generator_degrees`` -- An iterable of integer degrees.
 
@@ -859,12 +883,12 @@ class FPA_Module(FP_Module):
           coefficients `(c_1, \ldots, c_n)` corresponding to the module
           generators.
 
-        OUTPUT: The finitely presented module with presentation given by
+        OUTPUT:: The finitely presented module with presentation given by
         ``generator_degrees`` and ``relations``.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import FPA_Module
             sage: FPA_Module([0], SteenrodAlgebra(2))
             Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis
 
@@ -876,31 +900,12 @@ class FPA_Module(FP_Module):
         r"""
         Create a finitely presented module over the Steenrod algebra.
 
-        INPUT:
-
-        - ``generator_degrees`` -- A tuple integer degrees.
-
-        - ``algebra`` -- The Steenrod algebra over which the module is defined.
-
-        - ``relations`` -- A tuple of relations.  A relation is a tuple of
-          coefficients `(c_1, \ldots, c_n)` corresponding to the module
-          generators.
-
-        OUTPUT: The finitely presented module over ``algebra`` with
-        presentation given by ``generator_degrees`` and ``relations``.
-
-        TESTS:
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import FPA_Module
-            sage: FPA_Module((0,), SteenrodAlgebra(2))
-            Finitely presented module on 1 generator and 0 relations over mod 2 Steenrod algebra, milnor basis
-
         """
 
         # Make sure that we are creating the module over some Steenrod algebra.
         from sage.algebras.steenrod.steenrod_algebra import SteenrodAlgebra_generic
         if not isinstance(algebra, SteenrodAlgebra_generic):
-            raise TypeError('This module class can only be instantiated when the algebra argument '
+            raise TypeError('this module class can only be instantiated when the algebra argument '
                 'is an instance of sage.algebras.steenrod.steenrod_algebra.SteenrodAlgebra_generic')
 
         # Call the base class constructor.
@@ -924,7 +929,7 @@ class FPA_Module(FP_Module):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
             sage: M.profile()
@@ -932,7 +937,7 @@ class FPA_Module(FP_Module):
 
         TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: X = FPA_Module([0], A)
             sage: X.profile()
@@ -956,12 +961,12 @@ class FPA_Module(FP_Module):
         r"""
         A minimal presentation of this module.
 
-        OUTPUT: An isomorphism `M \to self`, where `M` has minimal
+        OUTPUT:: An isomorphism `M \to self`, where `M` has minimal
         presentation.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FPA_Module([0,1], A, [[Sq(2),Sq(1)],[0,Sq(2)],[Sq(3),0]])
 
@@ -988,13 +993,13 @@ class FPA_Module(FP_Module):
         r"""
         A resolution of this module of the given length.
 
-        INPUT:
+        INPUT::
 
         - ``k`` -- An non-negative integer.
         - ``verbose`` -- A boolean to control if log messages should be emitted.
           (optional, default: ``False``)
 
-        OUTPUT: A list of homomorphisms `[\epsilon, f_1, \ldots, f_k]` such that
+        OUTPUT:: A list of homomorphisms `[\epsilon, f_1, \ldots, f_k]` such that
 
             `f_i: F_i \to F_{i-1}` for `1\leq i\leq k`,
 
@@ -1009,7 +1014,7 @@ class FPA_Module(FP_Module):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import *
             sage: A = SteenrodAlgebra(2)
             sage: Hko = FPA_Module([0], A, [[Sq(1)], [Sq(2)]])
 
@@ -1062,7 +1067,7 @@ class FPA_Module(FP_Module):
         Export the module to the input
         `format used by R. Bruner's Ext software <http://www.math.wayne.edu/~rrb/cohom/modfmt.html>`_.
 
-        INPUT:
+        INPUT::
 
         - ``powers_of_two_only`` -- A boolean to control if the output should
           contain the action of all Steenrod squaring operations (restricted
@@ -1071,7 +1076,7 @@ class FPA_Module(FP_Module):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.fpa_module import *
             sage: A1 = algebra=SteenrodAlgebra(p=2, profile=[2,1])
             sage: M = FPA_Module([0], A1)
             sage: M.export_module_definition()
@@ -1113,11 +1118,11 @@ class FPA_Module(FP_Module):
 
         """
         if not self.base_ring().is_finite():
-            raise (RuntimeError, "This module is not defined over a finite algebra.")
+            raise (ValueError, 'this module is not defined over a finite algebra')
             return
 
         if self.base_ring().characteristic() != 2:
-            raise (RuntimeError, "This function is not implemented for odd primes.")
+            raise (ValueError, 'this function is not implemented for odd primes')
             return
 
         n = self.connectivity()
@@ -1140,9 +1145,9 @@ class FPA_Module(FP_Module):
             additive_generator_degrees += len(basis_vectors)*[dim + n]
 
         # Print the degrees of the additive generators.
-        print("%d %s" % (
+        print('%d %s' % (
             len(additive_generator_degrees),
-            " ".join(["%d" % x for x in additive_generator_degrees])))
+            ' '.join(['%d' % x for x in additive_generator_degrees])))
 
         # A private function which transforms a vector in a given dimension
         # to a vector of global indices for the basis elements corresponding
@@ -1153,7 +1158,7 @@ class FPA_Module(FP_Module):
         # last vector in the same part.
         def _GetIndices(dim, vec):
             if len(vector_space_basis[dim]) != len(vec):
-                raise (ValueError, "The given vector\n%s\nhas the wrong size, it should be %d" % (str(vec), len(vector_space_basis[dim])))
+                raise ValueError('the given vector\n%s\nhas the wrong size, it should be %d' % (str(vec), len(vector_space_basis[dim])))
             base_index = additive_generator_global_indices[dim]
             return [base_index + a for a,c in enumerate(vec) if c != 0]
 

@@ -6,11 +6,11 @@ manipulation of homsets of finitely presented graded modules over a connected
 graded `k`-algebra, where `k` is a field.
 
 .. NOTE:: This class is intended for private use by
-    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_homspace.FPA_ModuleHomspace`.
+    :class:`sage.modules.fp_over_steenrod_algebra.fpa_homspace.FPA_ModuleHomspace`.
 
-TESTS::
+TESTS:
 
-    sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+    sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
     sage: from sage.misc.sage_unittest import TestSuite
     sage: A = SteenrodAlgebra(2, profile=(3,2,1))
     sage: F = FP_Module([1,3], A)
@@ -32,30 +32,6 @@ TESTS::
       [<1, 0>, <0, 1>]
     to
       (<0, 1>, <Sq(0,1), 0>)
-    sage: TestSuite(homset).run(verbose=True)
-    running ._test_additive_associativity() . . . pass
-    running ._test_an_element() . . . pass
-    running ._test_cardinality() . . . pass
-    running ._test_category() . . . pass
-    running ._test_elements() . . .
-      Running the test suite of self.an_element()
-      running ._test_category() . . . pass
-      running ._test_eq() . . . pass
-      running ._test_new() . . . pass
-      running ._test_nonzero_equal() . . . pass
-      running ._test_not_implemented_methods() . . . pass
-      running ._test_pickling() . . . pass
-      pass
-    running ._test_elements_eq_reflexive() . . . pass
-    running ._test_elements_eq_symmetric() . . . pass
-    running ._test_elements_eq_transitive() . . . pass
-    running ._test_elements_neq() . . . pass
-    running ._test_eq() . . . pass
-    running ._test_new() . . . pass
-    running ._test_not_implemented_methods() . . . pass
-    running ._test_pickling() . . . pass
-    running ._test_some_elements() . . . pass
-    running ._test_zero() . . . pass
 
 AUTHORS:
 
@@ -89,12 +65,12 @@ def is_FP_ModuleHomspace(x):
     r"""
     Check if the given object is of type FP_ModuleHomspace.
 
-    OUTPUT: A boolean which is True if ``x`` is of type FP_ModuleHomspace.
+    OUTPUT:: A boolean which is True if ``x`` is of type FP_ModuleHomspace.
 
     EXAMPLES::
 
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
-        sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_homspace import is_FP_ModuleHomspace
+        sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
+        sage: from sage.modules.fp_over_steenrod_algebra.fp_homspace import is_FP_ModuleHomspace
         sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
         sage: F = FP_Module([1,3], A2)
         sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -124,16 +100,16 @@ class FP_ModuleHomspace(Homset):
         This function is not part of the public API, but is used by :meth:Hom
         method to create morphisms.
 
-        INPUT:
+        INPUT::
 
         - ``values`` -- An iterable of FP_Elements of the codomain.
 
-        OUTPUT: A module homomorphism in this homspace sending the generators
+        OUTPUT:: A module homomorphism in this homspace sending the generators
         of the domain module to the given values.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FP_Module([1,3], A2)
             sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -171,15 +147,15 @@ class FP_ModuleHomspace(Homset):
         r"""
         Create a homomorphism belonging to this homset.
 
-        INPUT:
+        INPUT::
 
         - ``n`` -- an integer degree.  (optional, default: 0)
 
-        OUTPUT: A module homomorphism of degree ``n``.
+        OUTPUT:: A module homomorphism of degree ``n``.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A = SteenrodAlgebra(2)
             sage: HZ = FP_Module([0], A, relations=[[Sq(1)]])
 
@@ -214,15 +190,15 @@ class FP_ModuleHomspace(Homset):
         r"""
         Compute a basis for the vectorspace of degree ``n`` morphisms.
 
-        INPUT:
+        INPUT::
 
         - ``n`` -- an integer degree.
 
-        OUTPUT: A basis for the set of all module homomorphisms of degree ``n``.
+        OUTPUT:: A basis for the set of all module homomorphisms of degree ``n``.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A = SteenrodAlgebra(2)
             sage: Hko = FP_Module([0], A, relations=[[Sq(2)], [Sq(1)]])
 
@@ -246,7 +222,7 @@ class FP_ModuleHomspace(Homset):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: F = FP_Module([1,3], A2)
             sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
@@ -270,7 +246,7 @@ class FP_ModuleHomspace(Homset):
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: L = FP_Module([2,3], A2, [[Sq(2),Sq(1)], [0,Sq(2)]])
 
@@ -288,13 +264,13 @@ class FP_ModuleHomspace(Homset):
             sage: Hom(F,L).identity()
             Traceback (most recent call last):
             ...
-            TypeError: This homspace does not consist of endomorphisms.
+            TypeError: this homspace does not consist of endomorphisms
 
         """
         if self.is_endomorphism_set():
             return self.element_class(self, self.codomain().generators())
         else:
-            raise TypeError("This homspace does not consist of endomorphisms.")
+            raise TypeError('this homspace does not consist of endomorphisms')
 
 
     def _basis_elements(self, n, basis):
@@ -304,20 +280,20 @@ class FP_ModuleHomspace(Homset):
         This function is private and used by :meth:`basis_elements` and
         :meth:`an_element`.
 
-        INPUT:
+        INPUT::
 
         - ``n`` -- an integer degree.
         - ``basis`` -- boolean to decide if a basis should be returned, or just
           a single homomorphism.
 
-        OUTPUT: A basis for the set of all module homomorphisms of degree ``n``
+        OUTPUT:: A basis for the set of all module homomorphisms of degree ``n``
         if ``basis`` is True.  Otherwise a single element is returned.  In the
         latter case, this homomorphism is non-trivial if the vectorspace of all
         homomorphisms is non-trivial.
 
         TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A = SteenrodAlgebra(2)
             sage: Hko = FP_Module([0], A, relations=[[Sq(2)], [Sq(1)]])
             sage: Hom(Hko, Hko)._basis_elements(21, basis=True)
@@ -478,7 +454,7 @@ class FP_ModuleHomspace(Homset):
 
 
         """
-        from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_morphism import _CreateRelationsMatrix
+        from sage.modules.fp_over_steenrod_algebra.fp_morphism import _CreateRelationsMatrix
 
         M = self.domain()
         N = self.codomain()

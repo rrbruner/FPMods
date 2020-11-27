@@ -3,11 +3,11 @@ Elements of finitely generated free graded modules
 
 This class implements construction and basic manipulation of 
 elements of the Sage parent
-:class:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule`, which models
+:class:`sage.modules.fp_over_steenrod_algebra.free_module.FreeModule`, which models
 free graded modules over connected algebras.
 
 .. NOTE:: This class is intended for private use by
-    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module`.
+    :class:`sage.modules.fp_over_steenrod_algebra.fp_module.FP_Module`.
 
 For an overview of the free module API, see :doc:`free_module`.
 
@@ -48,36 +48,6 @@ cdef class FreeModuleElement():
         Create a module element of a finitely generated free graded module over
         a connected graded algebra.
 
-        INPUT:
-
-        - ``module`` -- the parent instance of this module element.
-
-        - ``coefficients`` -- a tuple of homogeneous algebra coefficients.
-
-        OUTPUT: The module element given by the coefficients.
-
-        .. NOTE:: This constructor should not be used explicitly, instead use
-              the parent's call method.  The reason for this is that the
-              dynamic type of the element class changes as a consequence of the
-              category system.
-
-        EXAMPLES::  
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
-            sage: M = FreeModule((0, 1), SteenrodAlgebra(2))
-
-            sage: M([0, 0])
-            <0, 0>
-
-            sage: M([1, 0])
-            <1, 0>
-
-            sage: M([0, 1])
-            <0, 1>
-
-            sage: M([Sq(1), 1])
-            <Sq(1), 1>
-
         """
         global g_timings
 
@@ -90,8 +60,8 @@ cdef class FreeModuleElement():
             g_timings.End()
 
         if len(self._coefficients) != len(module.generator_degrees()):
-            raise ValueError('The number of coefficients must match the '
-                'number of module generators: %d.' % len(module.generator_degrees()))
+            raise ValueError('the number of coefficients must match the '
+                'number of module generators: %d' % len(module.generator_degrees()))
 
         # Check homogenity and store the degree of the element.
         self._degree = None
@@ -116,7 +86,7 @@ cdef class FreeModuleElement():
                     self._degree = d
                 else:
                     if self._degree != d:
-                        raise ValueError('Non-homogeneous element defined.')
+                        raise ValueError('non-homogeneous element defined')
 
         self._parent = module
 #        SageModuleElement.__init__(self, parent=module)
@@ -196,12 +166,12 @@ cdef class FreeModuleElement():
         r"""
         The coefficients of this module element.
 
-        OUTPUT: A tuple of elements of the algebra over which this module is
+        OUTPUT:: A tuple of elements of the algebra over which this module is
         defined.
 
         EXAMPLES::  
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import FreeModule
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import FreeModule
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: x = M.element_from_coordinates((0,0,0,1), 5); x
@@ -221,12 +191,12 @@ cdef class FreeModuleElement():
         r"""
         The degree of this element.
 
-        OUTPUT: the integer degree of this element, or None if this is the zero
+        OUTPUT:: the integer degree of this element, or None if this is the zero
         element.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: x = M.an_element(7); x
@@ -249,7 +219,7 @@ cdef class FreeModuleElement():
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A = SteenrodAlgebra(2)
             sage: M = FreeModule((0,1), A)
             sage: [M.an_element(n) for n in range(1,10)]
@@ -271,15 +241,15 @@ cdef class FreeModuleElement():
         r"""
         Act by left multiplication on this element by ``a``.
 
-        INPUT:
+        INPUT::
 
         - ``a`` -- an element of the algebra this module is defined over.
 
-        OUTPUT: the module element `a\cdot x` where `x` is this module element.
+        OUTPUT:: the module element `a\cdot x` where `x` is this module element.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FreeModule((0,0,3), A2)
             sage: A2.Sq(2)*M.generator(1)
@@ -287,7 +257,7 @@ cdef class FreeModuleElement():
             sage: A2.Sq(2)*(A2.Sq(1)*A2.Sq(2)*M.generator(1) + M.generator(2))
             <0, Sq(2,1), Sq(2)>
 
-        TESTS::
+        TESTS:
 
             sage: elements = [M.an_element(n) for n in range(1,10)]
             sage: a = A2.Sq(3)
@@ -320,7 +290,7 @@ cdef class FreeModuleElement():
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FreeModule((0,), A2)
             sage: x = M.an_element(6);x
@@ -350,16 +320,16 @@ cdef class FreeModuleElement():
         Implementation of this function allows Sage to make sense of the +
         operator for instances of this class.
 
-        INPUT:
+        INPUT::
 
         - ``other`` -- another element of this element's module.  Only elements
           of the same degree are allowed to be added together.
 
-        OUTPUT: the module sum of this element and the given element ``other``.
+        OUTPUT:: the module sum of this element and the given element ``other``.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FreeModule((0,), A2)
             sage: x = M.an_element(6);x
@@ -376,7 +346,7 @@ cdef class FreeModuleElement():
             sage: x+y
             Traceback (most recent call last):
             ...
-            ValueError: Can't add element of degree 4 and 5
+            ValueError: can not add element of degree 4 and 5
             sage: z = M.zero()
             sage: x+z == x
             True
@@ -414,23 +384,23 @@ cdef class FreeModuleElement():
         A coordinate vector representing this module element when it is non-zero.
 
         These are coordinates with respect to the basis chosen by
-        :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`.
+        :meth:`sage.modules.fp_over_steenrod_algebra.free_module.FreeModule.basis_elements`.
         When the element is zero, it has no well defined degree, and this
         function returns ``None``.
 
-        OUTPUT: A vector of elements in the ground field of the algebra for
+        OUTPUT:: A vector of elements in the ground field of the algebra for
         this module when this element is non-zero.  Otherwise, the value
         ``None``.
 
         .. SEEALSO::
 
-            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.vector_presentation`
-            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.basis_elements`
-            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.free_module.FreeModule.element_from_coordinates`
+            :meth:`sage.modules.fp_over_steenrod_algebra.free_module.FreeModule.vector_presentation`
+            :meth:`sage.modules.fp_over_steenrod_algebra.free_module.FreeModule.basis_elements`
+            :meth:`sage.modules.fp_over_steenrod_algebra.free_module.FreeModule.element_from_coordinates`
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FreeModule((0,1), A2)
             sage: x = M.an_element(7)
@@ -509,12 +479,12 @@ cdef class FreeModuleElement():
         r"""
         Determine if this element is non-zero.
 
-        OUTPUT: The boolean value True if this element is non-zero, and False
+        OUTPUT:: The boolean value True if this element is non-zero, and False
         otherwise.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FreeModule((0,1), A2)
             sage: y = M.an_element(12); y
@@ -549,7 +519,7 @@ cdef class FreeModuleElement():
 
         TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.free_module import *
+            sage: from sage.modules.fp_over_steenrod_algebra.free_module import *
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FreeModule((0,1), A2)
             sage: M([Sq(3), Sq(2)]).__hash__() == M([Sq(1)*Sq(2), Sq(2)]).__hash__()

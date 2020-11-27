@@ -2,11 +2,11 @@ r"""
 Elements of finitely presented graded modules
 
 This class implements construction and basic manipulation of elements of the
-Sage parent :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module`, which models
+Sage parent :class:`sage.modules.fp_over_steenrod_algebra.fp_module.FP_Module`, which models
 finitely presented modules over connected graded algebras.
 
 .. NOTE:: This class is used by the derived class
-    :class:`sage.modules.finitely_presented_over_the_steenrod_algebra.fpa_element.FPA_Element`.
+    :class:`sage.modules.fp_over_steenrod_algebra.fpa_element.FPA_Element`.
 
 AUTHORS:
 
@@ -45,28 +45,6 @@ cdef class FP_Element():
         r"""
         Create a module element of a finitely presented graded module over
         a connected graded algebra.
-
-        INPUT:
-
-        - ``module`` -- the parent instance of this module element.
-
-        - ``coefficients`` -- a tuple of homogeneous elements of the algebra
-          over which the module is defined.
-
-        OUTPUT: The module element given by the coefficients.
-
-        .. NOTE:: Never use this constructor explicitly, but rather the parent's
-            call method, or this class' __call__ method.  The reason for this
-            is that the dynamic type of the element class changes as a
-            consequence of the category system.
-
-        TESTS:
-
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_element import FP_Element
-            sage: FP_Element(FP_Module([0], SteenrodAlgebra(2)), [Sq(2)])
-            <Sq(2)>
-
         """
         # Store the free representation of the element.
         self._free_element = FreeModuleElement(module.j.codomain(), coefficients)
@@ -87,12 +65,12 @@ cdef class FP_Element():
         r"""
         The coefficients of this module element.
 
-        OUTPUT: A tuple of elements of the algebra over which this module is
+        OUTPUT:: A tuple of elements of the algebra over which this module is
         defined.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,1], SteenrodAlgebra(2), [[Sq(4), Sq(3)]])
             sage: x = M.element_from_coordinates((0,0,1), 5)
 
@@ -116,12 +94,12 @@ cdef class FP_Element():
         r"""
         The degree of this element.
 
-        OUTPUT: The integer degree of this element, or ``None`` if this is the
+        OUTPUT:: The integer degree of this element, or ``None`` if this is the
         zero element.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,1], SteenrodAlgebra(2), [[Sq(4), Sq(3)]])
             sage: x = M.an_element(7)
 
@@ -153,7 +131,7 @@ cdef class FP_Element():
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,1], SteenrodAlgebra(2), [[Sq(4), Sq(3)]])
             sage: [M.an_element(n) for n in range(1,10)]
             [<Sq(1), 1>,
@@ -174,15 +152,15 @@ cdef class FP_Element():
         r"""
         Act by left multiplication on this element by ``a``.
 
-        INPUT:
+        INPUT::
 
         - ``a`` -- an element of the algebra this module is defined over.
 
-        OUTPUT: the module element `a\cdot x` where `x` is this module element.
+        OUTPUT:: the module element `a\cdot x` where `x` is this module element.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0,3], A2, [[Sq(2)*Sq(4), Sq(3)]])
             sage: A2.Sq(2)*M.generator(1)
@@ -223,7 +201,7 @@ cdef class FP_Element():
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0], A2)
 
@@ -255,16 +233,16 @@ cdef class FP_Element():
         Implementation of this function allows Sage to make sense of the +
         operator for instances of this class.
 
-        INPUT:
+        INPUT::
 
         - ``other`` -- another element of this element's module.  Only elements
           of the same degree are allowed to be added together.
 
-        OUTPUT: the module sum of this element and the given element ``other``.
+        OUTPUT:: the module sum of this element and the given element ``other``.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module([0], A2)
 
@@ -277,14 +255,14 @@ cdef class FP_Element():
             sage: x + (-x) == 0
             True
 
-        TESTS::
+        TESTS:
 
             sage: x = M.an_element(4)
             sage: y = M.an_element(5)
             sage: x+y
             Traceback (most recent call last):
             ...
-            ValueError: Can't add element of degree 4 and 5
+            ValueError: can not add element of degree 4 and 5
             sage: z = M.zero()
             sage: x+z == x
             True
@@ -311,7 +289,7 @@ cdef class FP_Element():
         Implementation of this function allows Sage to make sense of the ==
         operator for instances of this class.
 
-        INPUT:
+        INPUT::
 
         - ``other`` -- An instance of this class.
 
@@ -320,11 +298,11 @@ cdef class FP_Element():
           elements are equal.  If ``op`` == 3, then return ``True `` if and
           only if the elements are not equal.  Otherwise, return ``False``.
 
-        OUTPUT: A Boolean.
+        OUTPUT:: A boolean.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module((0,1), A2)
             sage: x = M([Sq(1), 1]); x
@@ -337,7 +315,7 @@ cdef class FP_Element():
             sage: A2.Sq(1)*x == y
             True
 
-        TESTS::
+        TESTS:
 
             sage: N = FP_Module([0], A2)
             sage: x._richcmp_(M.an_element(4), 2)  # Elements of different degrees aren't equal
@@ -390,23 +368,23 @@ cdef class FP_Element():
         A coordinate vector representing this module element when it is non-zero.
 
         These are coordinates with respect to the basis chosen by
-        :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.basis_elements`.
+        :meth:`sage.modules.fp_over_steenrod_algebra.fp_module.FP_Module.basis_elements`.
         When the element is zero, it has no well defined degree, and this
         function returns ``None``.
 
-        OUTPUT: A vector of elements in the ground field of the algebra for
+        OUTPUT:: A vector of elements in the ground field of the algebra for
         this module when this element is non-zero.  Otherwise, the value
         ``None``.
 
         .. SEEALSO::
 
-            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.vector_presentation`
-            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.basis_elements`
-            :meth:`sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module.FP_Module.element_from_coordinates`
+            :meth:`sage.modules.fp_over_steenrod_algebra.fp_module.FP_Module.vector_presentation`
+            :meth:`sage.modules.fp_over_steenrod_algebra.fp_module.FP_Module.basis_elements`
+            :meth:`sage.modules.fp_over_steenrod_algebra.fp_module.FP_Module.element_from_coordinates`
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: A2 = SteenrodAlgebra(2, profile=(3,2,1))
             sage: M = FP_Module((0,1), A2)
 
@@ -432,7 +410,7 @@ cdef class FP_Element():
             sage: x == x_
             True
 
-        TESTS::
+        TESTS:
 
             sage: M.zero().vector_presentation() is None
             True
@@ -464,12 +442,12 @@ cdef class FP_Element():
         r"""
         Determine if this element is non-zero.
 
-        OUTPUT: The boolean value ``True`` if this element is non-zero, and ``False``
+        OUTPUT:: The boolean value ``True`` if this element is non-zero, and ``False``
         otherwise.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,2,4], SteenrodAlgebra(2), [[Sq(4),Sq(2),0]])
             sage: M(0)._nonzero_()
             False
@@ -497,12 +475,12 @@ cdef class FP_Element():
         r"""
         A normalized form of ``self``.
 
-        OUTPUT: An instance of this element class representing the same
+        OUTPUT:: An instance of this element class representing the same
         module element as this element.
 
         EXAMPLES::
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,2,4], SteenrodAlgebra(2), [[Sq(4),Sq(2),0]])
 
             sage: m = M((Sq(6), 0, Sq(2))); m
@@ -531,9 +509,9 @@ cdef class FP_Element():
         r"""
         A hash value representing this element.
 
-        TESTS::
+        TESTS:
 
-            sage: from sage.modules.finitely_presented_over_the_steenrod_algebra.fp_module import FP_Module
+            sage: from sage.modules.fp_over_steenrod_algebra.fp_module import FP_Module
             sage: M = FP_Module([0,1], SteenrodAlgebra(2), [[Sq(4),Sq(3)]])
             sage: M([Sq(3), Sq(2)]).__hash__() == M([Sq(1)*Sq(2), Sq(2)]).__hash__()
             True
